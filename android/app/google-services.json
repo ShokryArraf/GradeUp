@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1034566412125",
+    "project_id": "grade-up-project1",
+    "storage_bucket": "grade-up-project1.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1034566412125:android:f42adc82f3b7db7ec0aab4",
+        "android_client_info": {
+          "package_name": "com.example.grade_up"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDvitUd6TX9YK478fXHPw336jDv9kml0K8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
