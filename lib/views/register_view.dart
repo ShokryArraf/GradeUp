@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:grade_up/constants/routes.dart';
 import 'package:grade_up/firebase_options.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -82,9 +83,9 @@ class _RegisterviewState extends State<Registerview> {
                     TextButton(
                         onPressed: () {
                           Navigator.of(context).pushNamedAndRemoveUntil(
-                              'Login', (route) => false);
+                              loginRoute, (route) => false);
                         },
-                        child: Text('Already registered? Login here!'))
+                        child: const Text('Already registered? Login here!'))
                   ],
                 );
               default:
