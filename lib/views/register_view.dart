@@ -69,9 +69,9 @@ class _RegisterviewState extends State<Registerview> {
                                   email: email, password: password);
                           print(userCredential);
                         } on FirebaseAuthException catch (e) {
-                          if (e.code == 'weak-password')
+                          if (e.code == 'weak-password') {
                             print("Weak password.");
-                          else if (e.code == ' email-already-in-use')
+                          } else if (e.code == ' email-already-in-use')
                             print('Email already in use.');
                           else if (e.code == 'invalid-email')
                             print('Invalid email entered.');
@@ -79,6 +79,12 @@ class _RegisterviewState extends State<Registerview> {
                       },
                       child: const Text('Register'),
                     ),
+                    TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pushNamedAndRemoveUntil(
+                              'Login', (route) => false);
+                        },
+                        child: Text('Already registered? Login here!'))
                   ],
                 );
               default:
