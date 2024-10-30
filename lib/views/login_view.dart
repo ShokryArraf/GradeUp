@@ -60,6 +60,8 @@ class _LoginViewState extends State<LoginView> {
                     .signInWithEmailAndPassword(
                         email: email, password: password);
                 print(userCredential);
+                Navigator.of(context)
+                    .pushNamedAndRemoveUntil('StudentView', (route) => false);
               } on FirebaseAuthException catch (e) {
                 if (e.code == 'user-not-found') {
                   await showErrorDialog(
