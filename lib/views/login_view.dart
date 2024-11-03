@@ -60,8 +60,6 @@ class _LoginViewState extends State<LoginView> {
                 final userCredential = await FirebaseAuth.instance
                     .signInWithEmailAndPassword(
                         email: email, password: password);
-                print(userCredential);
-
                 if (userCredential.user != null) {
                   if (userCredential.user?.displayName?.split(': ')[0] ==
                       "Student") {

@@ -2,6 +2,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:grade_up/constants/routes.dart';
 import 'package:grade_up/firebase_options.dart';
+import 'package:grade_up/game/quiz_screen.dart';
+import 'package:grade_up/views/game_page.dart';
 import 'package:grade_up/views/login_view.dart';
 import 'package:grade_up/views/register_view.dart';
 import 'package:grade_up/views/student_view.dart';
@@ -11,7 +13,7 @@ void main() {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(
     MaterialApp(
-        title: 'Flutter Demo',
+        title: 'Grade_Up',
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
           useMaterial3: true,
@@ -22,6 +24,8 @@ void main() {
           registerRoute: (context) => const RegisterView(),
           studentviewRoute: (context) => const StudentMainView(),
           teachertviewRoute: (context) => const TeacherMainView(),
+          gameRoute: (context) => const GamePage(),
+          quizRoute: (context) => const QuizScreen(),
         }),
   );
 }
