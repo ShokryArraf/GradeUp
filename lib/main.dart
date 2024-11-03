@@ -5,6 +5,7 @@ import 'package:grade_up/firebase_options.dart';
 import 'package:grade_up/views/login_view.dart';
 import 'package:grade_up/views/register_view.dart';
 import 'package:grade_up/views/student_view.dart';
+import 'package:grade_up/views/teacher_view.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,6 +21,7 @@ void main() {
           loginRoute: (context) => const LoginView(),
           registerRoute: (context) => const RegisterView(),
           studentviewRoute: (context) => const StudentMainView(),
+          teachertviewRoute: (context) => const TeacherMainView(),
         }),
   );
 }
@@ -36,12 +38,6 @@ class HomePage extends StatelessWidget {
       builder: (context, snapshot) {
         switch (snapshot.connectionState) {
           case ConnectionState.done:
-            // final user = FirebaseAuth.instance.currentUser;
-            // if (user?.emailVerified ?? false) {
-            //   print('you are a verfied user');
-            // } else {
-            //   print('you need to verify your email first');
-            // }
             return const LoginView();
           default:
             return const CircularProgressIndicator.adaptive();

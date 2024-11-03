@@ -61,8 +61,17 @@ class _LoginViewState extends State<LoginView> {
                     .signInWithEmailAndPassword(
                         email: email, password: password);
                 print(userCredential);
-                Navigator.of(context).pushNamedAndRemoveUntil(
-                    studentviewRoute, (route) => false);
+
+                if (userCredential.user != null) {
+                  if (userCredential.user?.displayName?.split(': ')[0] ==
+                      "Student") {
+                    Navigator.of(context).pushNamedAndRemoveUntil(
+                        studentviewRoute, (route) => false);
+                  } else {
+                    Navigator.of(context).pushNamedAndRemoveUntil(
+                        teachertviewRoute, (route) => false);
+                  }
+                }
               } on FirebaseAuthException catch (e) {
                 if (e.code == 'user-not-found') {
                   await showErrorDialog(

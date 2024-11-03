@@ -1,123 +1,4 @@
-// // ignore_for_file: use_build_context_synchronously
-
-// import 'package:flutter/material.dart';
-// import 'package:grade_up/constants/routes.dart';
-// import 'package:grade_up/firebase_options.dart';
-// import 'package:firebase_auth/firebase_auth.dart';
-// import 'package:firebase_core/firebase_core.dart';
-// import 'package:grade_up/utilities/show_error_dialog.dart';
-
-// class Registerview extends StatefulWidget {
-//   const Registerview({super.key});
-
-//   @override
-//   State<Registerview> createState() => _RegisterviewState();
-// }
-
-// class _RegisterviewState extends State<Registerview> {
-//   late final TextEditingController _email;
-//   late final TextEditingController _password;
-
-//   @override
-//   void initState() {
-//     super.initState();
-//     _email = TextEditingController();
-//     _password = TextEditingController();
-//   }
-
-//   @override
-//   void dispose() {
-//     _email.dispose();
-//     _password.dispose();
-//     super.dispose();
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//         appBar: AppBar(
-//           title: const Text('Register'),
-//         ),
-//         body: FutureBuilder(
-//           future: Firebase.initializeApp(
-//             options: DefaultFirebaseOptions.currentPlatform,
-//           ),
-//           builder: (context, snapshot) {
-//             switch (snapshot.connectionState) {
-//               case ConnectionState.done:
-//                 return Column(
-//                   children: [
-//                     TextField(
-//                       controller: _email,
-//                       enableSuggestions: false,
-//                       autocorrect: false,
-//                       keyboardType: TextInputType.emailAddress,
-//                       decoration:
-//                           const InputDecoration(hintText: 'Enter your email'),
-//                     ),
-//                     TextField(
-//                       controller: _password,
-//                       obscureText: true,
-//                       enableSuggestions: false,
-//                       autocorrect: false,
-//                       decoration: const InputDecoration(
-//                           hintText: 'Enter your password'),
-//                     ),
-//                     TextButton(
-//                       onPressed: () async {
-//                         final email = _email.text;
-//                         final password = _password.text;
-//                         try {
-//                           final userCredential = await FirebaseAuth.instance
-//                               .createUserWithEmailAndPassword(
-//                                   email: email, password: password);
-//                           print(userCredential);
-//                         } on FirebaseAuthException catch (e) {
-//                           if (e.code == 'weak-password') {
-//                             await showErrorDialog(
-//                               context,
-//                               "Weak password.",
-//                             );
-//                           } else if (e.code == ' email-already-in-use') {
-//                             await showErrorDialog(
-//                               context,
-//                               'Email already in use.',
-//                             );
-//                           } else if (e.code == 'invalid-email') {
-//                             await showErrorDialog(
-//                               context,
-//                               'Invalid email entered.',
-//                             );
-//                           } else {
-//                             await showErrorDialog(
-//                               context,
-//                               'Error:${e.code}',
-//                             );
-//                           }
-//                         } catch (e) {
-//                           await showErrorDialog(
-//                             context,
-//                             e.toString(),
-//                           );
-//                         }
-//                       },
-//                       child: const Text('Register'),
-//                     ),
-//                     TextButton(
-//                         onPressed: () {
-//                           Navigator.of(context).pushNamedAndRemoveUntil(
-//                               loginRoute, (route) => false);
-//                         },
-//                         child: const Text('Already registered? Login here!'))
-//                   ],
-//                 );
-//               default:
-//                 return const Text('Loading...');
-//             }
-//           },
-//         ));
-//   }
-// }
+// ignore_for_file: use_build_context_synchronously
 
 import 'package:flutter/material.dart';
 import 'package:grade_up/constants/routes.dart';
@@ -125,7 +6,6 @@ import 'package:grade_up/firebase_options.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:grade_up/utilities/show_error_dialog.dart';
-import 'package:cloud_firestore/cloud_firestore.dart'; // Import Firestore
 
 class RegisterView extends StatefulWidget {
   const RegisterView({super.key});
@@ -137,7 +17,7 @@ class RegisterView extends StatefulWidget {
 class _RegisterViewState extends State<RegisterView> {
   late final TextEditingController _email;
   late final TextEditingController _password;
-  late final TextEditingController _fullName; // Controller for full name
+  late final TextEditingController _fullName;
   String _role = 'Student'; // Default role selection
 
   @override
@@ -145,14 +25,14 @@ class _RegisterViewState extends State<RegisterView> {
     super.initState();
     _email = TextEditingController();
     _password = TextEditingController();
-    _fullName = TextEditingController(); // Initialize full name controller
+    _fullName = TextEditingController();
   }
 
   @override
   void dispose() {
     _email.dispose();
     _password.dispose();
-    _fullName.dispose(); // Dispose full name controller
+    _fullName.dispose();
     super.dispose();
   }
 
@@ -166,16 +46,11 @@ class _RegisterViewState extends State<RegisterView> {
       final userCredential = await FirebaseAuth.instance
           .createUserWithEmailAndPassword(email: email, password: password);
 
-      // Store additional user details in Firestore
-      await FirebaseFirestore.instance
-          .collection('users')
-          .doc(userCredential.user?.uid)
-          .set({
-        'fullName': fullName,
-        'email': email,
-        'role': _role, // Store user role (Student/Teacher)
-        'createdAt': Timestamp.now(), // Optional timestamp
-      });
+      // Set display name to include full name and role
+      await userCredential.user?.updateDisplayName("$_role: $fullName");
+
+      // Optionally, you could also update the photoURL to store role information
+      //await userCredential.user?.updatePhotoURL("Role: $_role");
 
       print('User registered successfully: ${userCredential.user}');
       // Navigate to another route (e.g., home or login)
