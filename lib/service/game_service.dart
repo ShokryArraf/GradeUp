@@ -1,31 +1,115 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
-class FirestoreService {
-  final FirebaseFirestore _db = FirebaseFirestore.instance;
-  final String userId = FirebaseAuth.instance.currentUser!.uid;
+class GameService {
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  // Save game progress
-  Future<void> saveGameProgress(int score, String badge) async {
-    await _db.collection('users').doc(userId).set({
-      'score': score,
-      'badges': FieldValue.arrayUnion([badge]),
-    }, SetOptions(merge: true));
+  get questions => null;
+
+  // Fetch questions for a specific lesson
+  Future<List<Map<String, dynamic>>> fetchQuestions(String lesson) async {
+    try {
+      final questionsSnapshot = await _firestore
+          .collection('lessons')
+          .doc(lesson)
+          .collection('questions')
+          .get();
+
+      return questionsSnapshot.docs.map((doc) => doc.data()).toList();
+    } catch (e) {
+      print("Error fetching questions: $e");
+      return [];
+    }
   }
 
-  // Get user badges
-  Future<List<String>> getUserBadges() async {
-    DocumentSnapshot doc = await _db.collection('users').doc(userId).get();
-    // Cast the data to Map<String, dynamic>
-    Map<String, dynamic>? data = doc.data() as Map<String, dynamic>?;
-    return data?['badges']?.cast<String>() ?? [];
+  // Update user progress
+  Future<void> updateUserProgress(
+      String userId, Map<String, dynamic> progress) async {
+    try {
+      await _firestore
+          .collection('userprogress')
+          .doc(userId)
+          .set(progress, SetOptions(merge: true));
+    } catch (e) {
+      print("Error updating user progress: $e");
+    }
   }
 
-  // Get user score
-  Future<int> getUserScore() async {
-    DocumentSnapshot doc = await _db.collection('users').doc(userId).get();
-    // Cast the data to Map<String, dynamic>
-    Map<String, dynamic>? data = doc.data() as Map<String, dynamic>?;
-    return data?['score'] ?? 0;
+  // Fetch user progress
+  Future<Map<String, dynamic>?> fetchUserProgress(String userId) async {
+    try {
+      final userProgressSnapshot =
+          await _firestore.collection('userprogress').doc(userId).get();
+
+      if (userProgressSnapshot.exists) {
+        return userProgressSnapshot.data();
+      }
+      return null;
+    } catch (e) {
+      print("Error fetching user progress: $e");
+      return null;
+    }
   }
 }
+
+
+
+
+
+
+
+// import 'package:cloud_firestore/cloud_firestore.dart';
+
+// class GameService {
+//   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+//   List<Map<String, dynamic>> _questions =
+//       []; // Private field to store questions
+
+//   // Getter to access questions
+//   List<Map<String, dynamic>> get questions => _questions;
+
+//   // Fetch questions for a specific lesson
+//   Future<void> fetchQuestions(String lesson) async {
+//     try {
+//       final questionsSnapshot = await _firestore
+//           .collection('lessons')
+//           .doc(lesson)
+//           .collection('questions')
+//           .get();
+
+//       _questions = questionsSnapshot.docs
+//           .map((doc) => doc.data() as Map<String, dynamic>)
+//           .toList();
+//     } catch (e) {
+//       print("Error fetching questions: $e");
+//     }
+//   }
+
+//   // Update user progress
+//   Future<void> updateUserProgress(
+//       String userId, Map<String, dynamic> progress) async {
+//     try {
+//       await _firestore
+//           .collection('userprogress')
+//           .doc(userId)
+//           .set(progress, SetOptions(merge: true));
+//     } catch (e) {
+//       print("Error updating user progress: $e");
+//     }
+//   }
+
+//   // Fetch user progress
+//   Future<Map<String, dynamic>?> fetchUserProgress(String userId) async {
+//     try {
+//       final userProgressSnapshot =
+//           await _firestore.collection('userprogress').doc(userId).get();
+
+//       if (userProgressSnapshot.exists) {
+//         return userProgressSnapshot.data() as Map<String, dynamic>;
+//       }
+//       return null;
+//     } catch (e) {
+//       print("Error fetching user progress: $e");
+//       return null;
+//     }
+//   }
+// }
