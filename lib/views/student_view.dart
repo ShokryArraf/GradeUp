@@ -113,7 +113,7 @@ class _StudentMainViewState extends State<StudentMainView> {
                   _buildDashboardCard(
                       Icons.videogame_asset, 'Game', Colors.redAccent, () {
                     Navigator.of(context)
-                        .pushNamed(gameRoute); // Route to the game page
+                        .pushNamed(gameoptionsRoute); // Route to the game page
                   }),
                 ],
               ),

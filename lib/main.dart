@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:grade_up/constants/routes.dart';
 import 'package:grade_up/firebase_options.dart';
 import 'package:grade_up/game/quiz_screen.dart';
+import 'package:grade_up/views/game_options.dart';
 import 'package:grade_up/views/game_page.dart';
 import 'package:grade_up/views/login_view.dart';
 import 'package:grade_up/views/register_view.dart';
@@ -24,8 +25,11 @@ void main() {
           registerRoute: (context) => const RegisterView(),
           studentviewRoute: (context) => const StudentMainView(),
           teachertviewRoute: (context) => const TeacherMainView(),
-          gameRoute: (context) => const GamePage(),
+          gameRoute: (context) => const GamePage(
+                lesson: '',
+              ),
           quizRoute: (context) => const QuizScreen(),
+          gameoptionsRoute: (context) => const GameOptionsPage(),
         }),
   );
 }

@@ -49,7 +49,36 @@ class GameService {
       return null;
     }
   }
+
+  // Fetch user progress including question level
+  Future<Map<String, dynamic>> getUserProgress(String userId) async {
+    final userProgressDoc = await FirebaseFirestore.instance
+        .collection('userprogress')
+        .doc(userId)
+        .get();
+
+    if (userProgressDoc.exists) {
+      return userProgressDoc.data()!;
+    } else {
+      throw Exception("User progress not found.");
+    }
+  }
+
+  // Fetch questions filtered by lesson and question level
+  Future<List<Map<String, dynamic>>> fetchQuestionsByLevel(
+      String lesson, String questionLevel) async {
+    final querySnapshot = await FirebaseFirestore.instance
+        .collection('lessons')
+        .doc(lesson)
+        .collection('questions')
+        .where('questionLevel', isEqualTo: questionLevel)
+        .get();
+
+    return querySnapshot.docs.map((doc) => doc.data()).toList();
+  }
 }
+
+
 
 
 
