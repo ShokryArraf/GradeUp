@@ -1,221 +1,7 @@
-// import 'package:cloud_firestore/cloud_firestore.dart';
-// import 'package:firebase_auth/firebase_auth.dart';
-// import 'package:flutter/material.dart';
-// import 'package:grade_up/service/game_service.dart';
-
-// class GamePage extends StatefulWidget {
-//   final String lesson;
-
-//   const GamePage({super.key, required this.lesson});
-
-//   @override
-//   GamePageState createState() => GamePageState();
-// }
-
-// class GamePageState extends State<GamePage> {
-//   double studentCarPosition = 0.0;
-//   double opponentCarPosition = 0.0;
-//   int currentQuestionIndex = 0; // Track the current question index
-//   final GameService _gameService = GameService();
-
-//   static const double correctAnswerDistance = 0.15;
-//   static const double incorrectAnswerDistance = 0.05;
-//   static const double finishLine = 1.0;
-
-//   String question = '';
-//   List<String> answers = [];
-//   String correctAnswer = '';
-//   String? userId = FirebaseAuth.instance.currentUser?.uid;
-
-//   @override
-//   void initState() {
-//     super.initState();
-//     loadQuestion();
-//   }
-
-//   Future<void> loadQuestion() async {
-//     // Fetch questions from Firestore for the current lesson (e.g., 'math')
-//     final questions = await _gameService.fetchQuestions(widget.lesson);
-//     if (questions.isNotEmpty) {
-//       setState(() {
-//         question = questions[0]['questionText'];
-//         answers = List<String>.from(questions[0]['answerOptions']);
-//         correctAnswer = questions[0]['correctAnswer'];
-//       });
-//     } else {
-//       print('questions are empty!');
-//     }
-//   }
-
-//   void checkAnswer(String answer) {
-//     setState(() {
-//       if (answer == correctAnswer) {
-//         studentCarPosition += correctAnswerDistance;
-//         opponentCarPosition += incorrectAnswerDistance + 0.02;
-//       } else {
-//         studentCarPosition += incorrectAnswerDistance;
-//         opponentCarPosition += incorrectAnswerDistance + 0.04;
-//       }
-
-//       if (studentCarPosition >= finishLine) {
-//         showResultDialog("You Win!");
-//         _gameService.updateUserProgress(userId!, {
-//           'points': FieldValue.increment(10),
-//           'badges': FieldValue.arrayUnion(['Winner']),
-//           'currentLesson': 'math',
-//           'currentQuestionID': 'next_question_id', // Set as needed
-//         });
-//       } else if (opponentCarPosition >= finishLine) {
-//         showResultDialog("You Lost!");
-//       }
-//     });
-//   }
-
-//   void showResultDialog(String result) {
-//     showDialog(
-//       context: context,
-//       builder: (_) => AlertDialog(
-//         title: Text(result),
-//         content:
-//             const Text("Great effort! Try again or advance to the next level."),
-//         actions: [
-//           TextButton(
-//             onPressed: () {
-//               Navigator.of(context).pop();
-//               resetGame();
-//             },
-//             child: const Text('Play Again'),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-
-//   void loadNextQuestion() {
-//     setState(() {
-//       studentCarPosition = 0.0;
-//       opponentCarPosition = 0.0;
-
-//       if (currentQuestionIndex < _gameService.questions.length - 1) {
-//         currentQuestionIndex++;
-//       } else {
-//         currentQuestionIndex = 0; // Reset to the first question if at the end
-//       }
-
-//       // Load the question data at the new index
-//       question = _gameService.questions[currentQuestionIndex]['questionText'];
-//       answers = List<String>.from(
-//           _gameService.questions[currentQuestionIndex]['answerOptions']);
-//       correctAnswer =
-//           _gameService.questions[currentQuestionIndex]['correctAnswer'];
-//     });
-//   }
-
-//   void resetGame() {
-//     setState(() {
-//       studentCarPosition = 0.0;
-//       opponentCarPosition = 0.0;
-//     });
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: const Text("Car Racing Quiz Game"),
-//         flexibleSpace: Container(
-//           decoration: const BoxDecoration(
-//             gradient: LinearGradient(
-//               colors: [Color(0xFF00C6FF), Color(0xFF0072FF)],
-//               begin: Alignment.topLeft,
-//               end: Alignment.bottomRight,
-//             ),
-//           ),
-//         ),
-//       ),
-//       body: Stack(
-//         children: [
-//           // Background with a road or race track
-//           Container(
-//             decoration: const BoxDecoration(
-//               image: DecorationImage(
-//                 image: AssetImage('images/road_background.png'),
-//                 fit: BoxFit.fitWidth,
-//                 alignment: Alignment.topCenter,
-//               ),
-//             ),
-//           ),
-//           Column(
-//             children: [
-//               Expanded(
-//                 child: Stack(
-//                   children: [
-//                     // Student's car with animation
-//                     AnimatedPositioned(
-//                       duration: const Duration(milliseconds: 500),
-//                       left: MediaQuery.of(context).size.width *
-//                           studentCarPosition,
-//                       bottom: 115,
-//                       child: const Icon(Icons.directions_car,
-//                           color: Colors.blue, size: 50),
-//                     ),
-//                     // Opponent's car with animation
-//                     AnimatedPositioned(
-//                       duration: const Duration(milliseconds: 500),
-//                       left: MediaQuery.of(context).size.width *
-//                           opponentCarPosition,
-//                       bottom: 180,
-//                       child: const Icon(Icons.directions_car,
-//                           color: Colors.red, size: 50),
-//                     ),
-//                   ],
-//                 ),
-//               ),
-//               Padding(
-//                 padding: const EdgeInsets.all(16.0),
-//                 child: Column(
-//                   crossAxisAlignment: CrossAxisAlignment.stretch,
-//                   children: [
-//                     Text(
-//                       question,
-//                       style: const TextStyle(
-//                         fontSize: 24,
-//                         fontWeight: FontWeight.bold,
-//                         color: Color.fromARGB(255, 59, 51, 51),
-//                       ),
-//                       textAlign: TextAlign.center,
-//                     ),
-//                     const SizedBox(height: 20),
-//                     ...answers.map((answer) => Padding(
-//                           padding: const EdgeInsets.symmetric(vertical: 4.0),
-//                           child: ElevatedButton(
-//                             style: ElevatedButton.styleFrom(
-//                               backgroundColor:
-//                                   const Color.fromARGB(255, 84, 228, 214),
-//                               padding: const EdgeInsets.symmetric(vertical: 12),
-//                               textStyle: const TextStyle(fontSize: 18),
-//                               shape: RoundedRectangleBorder(
-//                                 borderRadius: BorderRadius.circular(20),
-//                               ),
-//                             ),
-//                             onPressed: () => checkAnswer(answer),
-//                             child: Text(answer),
-//                           ),
-//                         )),
-//                   ],
-//                 ),
-//               ),
-//             ],
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }
-
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:confetti/confetti.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:grade_up/constants/routes.dart';
 import 'package:grade_up/service/game_service.dart';
 
 class GamePage extends StatefulWidget {
@@ -230,107 +16,264 @@ class GamePage extends StatefulWidget {
 class GamePageState extends State<GamePage> {
   double studentCarPosition = 0.0;
   double opponentCarPosition = 0.0;
-  int currentQuestionIndex = 0; // Track the current question index
+  int currentQuestionIndex = 0;
   final GameService _gameService = GameService();
+  final ConfettiController _confettiController = ConfettiController();
 
-  static const double correctAnswerDistance = 0.15;
-  static const double incorrectAnswerDistance = 0.05;
+  static const double correctAnswerDistance = 1 / 5;
   static const double finishLine = 1.0;
 
   String question = '';
   List<String> answers = [];
   String correctAnswer = '';
   String? userId = FirebaseAuth.instance.currentUser?.uid;
-  List<Map<String, dynamic>> questions = []; // Store questions for the lesson
+  List<Map<String, dynamic>> questions = [];
+  int points = 0;
+  int level = 1;
+  int rightAnswers = 0;
+  String? selectedAnswer;
 
   @override
   void initState() {
     super.initState();
-    loadQuestion();
+    _confettiController.stop(); // Start with confetti off
+    loadUserProgress();
   }
 
-  Future<void> loadQuestion() async {
-    // Fetch questions for the specified lesson (e.g., 'math', 'english')
-    questions = await _gameService.fetchQuestions(widget.lesson);
+  @override
+  void dispose() {
+    _confettiController.dispose();
+    super.dispose();
+  }
 
-    if (questions.isNotEmpty) {
-      setState(() {
-        currentQuestionIndex = 0; // Start with the first question
-        updateQuestionData();
-      });
-    } else {
-      print('No questions found for this lesson!');
+  Future<void> loadUserProgress() async {
+    if (userId != null) {
+      try {
+        final userProgress =
+            await _gameService.fetchUserProgress(userId!, widget.lesson);
+        if (userProgress != null) {
+          level = userProgress['level'] ?? 1;
+          points = userProgress['points'] ?? 0;
+          rightAnswers = userProgress['rightAnswers'] ?? 0;
+        }
+        loadQuestions();
+      } catch (e) {
+        showError("Error loading user progress");
+      }
     }
   }
 
-  void updateQuestionData() {
-    // Load question data from the current index
-    if (questions.isNotEmpty && currentQuestionIndex < questions.length) {
+  Future<void> loadQuestions() async {
+    questions = await _gameService.fetchQuestionsByLevel(
+        widget.lesson, level.toString());
+    if (questions.isNotEmpty) {
+      setQuestionData();
+    } else {
+      showGameCompletionDialog();
+    }
+  }
+
+  void setQuestionData() {
+    setState(() {
       question = questions[currentQuestionIndex]['questionText'];
       answers =
           List<String>.from(questions[currentQuestionIndex]['answerOptions']);
       correctAnswer = questions[currentQuestionIndex]['correctAnswer'];
-    }
+      selectedAnswer = null;
+    });
   }
 
   void checkAnswer(String answer) {
     setState(() {
+      selectedAnswer = answer;
       if (answer == correctAnswer) {
         studentCarPosition += correctAnswerDistance;
-        opponentCarPosition += incorrectAnswerDistance + 0.02;
-      } else {
-        studentCarPosition += incorrectAnswerDistance;
-        opponentCarPosition += incorrectAnswerDistance + 0.04;
-      }
+        points += 10;
+        rightAnswers++;
 
-      if (studentCarPosition >= finishLine) {
-        showResultDialog("You Win!");
-        _gameService.updateUserProgress(userId!, {
-          'points': FieldValue.increment(10),
-          'badges': FieldValue.arrayUnion(['Winner']),
-          'currentLesson': widget.lesson,
-          'currentQuestionID': questions[currentQuestionIndex]
-              ['id'], // Update to actual question ID
-        });
-      } else if (opponentCarPosition >= finishLine) {
-        showResultDialog("You Lost!");
+        if (studentCarPosition >= finishLine) {
+          levelUp();
+        } else {
+          opponentCarPosition += correctAnswerDistance * 0.8;
+          if (opponentCarPosition >= finishLine) {
+            showLoseDialog();
+          }
+          loadNextQuestion();
+        }
+      } else {
+        opponentCarPosition += correctAnswerDistance * 0.5;
+
+        if (opponentCarPosition >= finishLine) {
+          showLoseDialog();
+        }
       }
     });
+  }
+
+  Future<void> updateUserProgress() async {
+    if (userId != null) {
+      await _gameService.updateUserProgress(
+          userId!, widget.lesson, rightAnswers, points, level);
+    }
   }
 
   void loadNextQuestion() {
     setState(() {
-      studentCarPosition = 0.0;
-      opponentCarPosition = 0.0;
-
       if (currentQuestionIndex < questions.length - 1) {
         currentQuestionIndex++;
-        updateQuestionData(); // Load the next question
+        setQuestionData();
       } else {
-        currentQuestionIndex = 0; // Restart the quiz if at the end
-        updateQuestionData();
+        showGameCompletionDialog();
       }
     });
   }
 
-  void showResultDialog(String result) {
+  Future<void> levelUp() async {
+    level++;
+    studentCarPosition = 0.0;
+    opponentCarPosition = 0.0;
+    currentQuestionIndex = 0;
+    await updateUserProgress();
+
+    showLevelUpDialog();
+    questions = await _gameService.fetchQuestionsByLevel(
+        widget.lesson, level.toString());
+
+    if (questions.isNotEmpty) {
+      setQuestionData();
+    } else {
+      showGameCompletionDialog();
+    }
+  }
+
+  void showLevelUpDialog() {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: Text(result),
-        content:
-            const Text("Great effort! Try again or advance to the next level."),
+        title: const Row(
+          children: [
+            Text("Level Up!"),
+            SizedBox(width: 10),
+            Icon(Icons.emoji_events,
+                color: Colors.amber, size: 32), // Badge Icon
+          ],
+        ),
+        content: Text("Congratulations! You've reached level $level."),
         actions: [
           TextButton(
             onPressed: () {
               Navigator.of(context).pop();
-              loadNextQuestion();
+              setState(() {
+                studentCarPosition = 0.0;
+              });
             },
-            child: const Text('Next Question'),
+            child: const Text('Start Next Level'),
           ),
         ],
       ),
     );
+  }
+
+  void showLoseDialog() {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text("You Lose!"),
+        content: const Text(
+            "The opponent reached the finish line first. Try again!"),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              resetLevel();
+            },
+            child: const Text('Retry'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void resetLevel() {
+    setState(() {
+      studentCarPosition = 0.0;
+      opponentCarPosition = 0.0;
+      currentQuestionIndex = 0;
+      loadQuestions();
+    });
+  }
+
+  void showGameCompletionDialog() {
+    // Create an OverlayEntry for the confetti
+    final overlay = Overlay.of(context);
+    final confettiOverlay = OverlayEntry(
+      builder: (context) => Positioned.fill(
+        child: ConfettiWidget(
+          confettiController: _confettiController,
+          blastDirectionality: BlastDirectionality.explosive,
+          shouldLoop: true,
+          // Adjust for a more intense celebration
+          colors: const [
+            Colors.red,
+            Colors.orange,
+            Colors.yellow,
+            Colors.green,
+            Colors.blue,
+            Colors.indigo,
+            Colors.purple,
+          ],
+          numberOfParticles: 50, // Increase particle count for intensity
+          minBlastForce: 10, // Adjust min blast speed
+          maxBlastForce: 20, // Adjust max blast speed for explosion effect
+          gravity: 0.2, // Set lower gravity for a floating effect
+          createParticlePath: (size) => Path()
+            ..addOval(Rect.fromCircle(
+                center: Offset.zero, radius: 8)), // Larger particles
+        ),
+      ),
+    );
+
+    // Insert the confetti overlay on top
+    overlay.insert(confettiOverlay);
+    _confettiController.play();
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text("Game Complete!"),
+        content:
+            const Text("You've successfully completed all levels! Great job!"),
+        actions: [
+          TextButton(
+            onPressed: () async {
+              _confettiController.stop();
+
+              // Reset level to 1 and restart to the game options.
+              level = 1;
+              await updateUserProgress();
+              // ignore: use_build_context_synchronously
+              Navigator.of(context)
+                ..popUntil(ModalRoute.withName(studentviewRoute))
+                ..pushNamed(gameoptionsRoute);
+            },
+            child: const Text('Restart Game'),
+          ),
+          TextButton(
+            onPressed: () {
+              _confettiController.stop();
+              // Save current level and navigate back to student view without resetting
+              Navigator.of(context).pop();
+              Navigator.of(context)
+                  .pushNamedAndRemoveUntil(studentviewRoute, (route) => false);
+            },
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void showError(String error) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error)));
   }
 
   @override
@@ -350,7 +293,19 @@ class GamePageState extends State<GamePage> {
       ),
       body: Stack(
         children: [
-          // Background with a road or race track
+          ConfettiWidget(
+            confettiController: _confettiController,
+            blastDirectionality: BlastDirectionality.explosive,
+            shouldLoop: false,
+            colors: const [
+              Colors.green,
+              Colors.blue,
+              Colors.orange,
+              Colors.pink
+            ],
+            createParticlePath: (size) => Path()
+              ..addOval(Rect.fromCircle(center: Offset.zero, radius: 5)),
+          ),
           Container(
             decoration: const BoxDecoration(
               image: DecorationImage(
@@ -362,26 +317,45 @@ class GamePageState extends State<GamePage> {
           ),
           Column(
             children: [
+              const SizedBox(height: 16),
+              if (level > 1) // Show badge only if user is above level 1
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.emoji_events,
+                        color: Colors.amber, size: 40),
+                    const SizedBox(width: 8),
+                    Text(
+                      "Level $level Badge!",
+                      style: const TextStyle(
+                          fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
               Expanded(
                 child: Stack(
                   children: [
-                    // Student's car with animation
                     AnimatedPositioned(
                       duration: const Duration(milliseconds: 500),
                       left: MediaQuery.of(context).size.width *
                           studentCarPosition,
                       bottom: 115,
-                      child: const Icon(Icons.directions_car,
-                          color: Colors.blue, size: 50),
+                      child: const Icon(
+                        Icons.directions_car,
+                        color: Colors.red,
+                        size: 50,
+                      ),
                     ),
-                    // Opponent's car with animation
                     AnimatedPositioned(
                       duration: const Duration(milliseconds: 500),
                       left: MediaQuery.of(context).size.width *
                           opponentCarPosition,
-                      bottom: 180,
-                      child: const Icon(Icons.directions_car,
-                          color: Colors.red, size: 50),
+                      bottom: 170,
+                      child: const Icon(
+                        Icons.directions_car,
+                        color: Colors.blue,
+                        size: 50,
+                      ),
                     ),
                   ],
                 ),
@@ -405,15 +379,28 @@ class GamePageState extends State<GamePage> {
                           padding: const EdgeInsets.symmetric(vertical: 4.0),
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                              backgroundColor:
-                                  const Color.fromARGB(255, 84, 228, 214),
+                              backgroundColor: selectedAnswer == answer &&
+                                      answer != correctAnswer
+                                  ? Colors.red
+                                  : const Color.fromARGB(255, 84, 228, 214),
                               padding: const EdgeInsets.symmetric(vertical: 12),
                               textStyle: const TextStyle(fontSize: 18),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(20),
                               ),
                             ),
-                            onPressed: () => checkAnswer(answer),
+                            onPressed: () {
+                              checkAnswer(answer);
+                              if (selectedAnswer == answer &&
+                                  answer != correctAnswer) {
+                                Future.delayed(
+                                    const Duration(milliseconds: 500), () {
+                                  setState(() {
+                                    selectedAnswer = null;
+                                  });
+                                });
+                              }
+                            },
                             child: Text(answer),
                           ),
                         )),
@@ -427,332 +414,3 @@ class GamePageState extends State<GamePage> {
     );
   }
 }
-
-// import 'package:cloud_firestore/cloud_firestore.dart';
-// import 'package:firebase_auth/firebase_auth.dart';
-// import 'package:flutter/material.dart';
-// import 'package:grade_up/constants/routes.dart';
-// import 'package:grade_up/service/cloud_storage_exceptions.dart';
-// import 'package:grade_up/service/game_service.dart';
-
-// class GamePage extends StatefulWidget {
-//   final String lesson;
-
-//   const GamePage({super.key, required this.lesson});
-
-//   @override
-//   GamePageState createState() => GamePageState();
-// }
-
-// class GamePageState extends State<GamePage> {
-//   double studentCarPosition = 0.0;
-//   double opponentCarPosition = 0.0;
-//   int currentQuestionIndex = 0;
-//   final GameService _gameService = GameService();
-
-//   static const double correctAnswerDistance = 0.15;
-//   static const double incorrectAnswerDistance = 0.05;
-//   static const double finishLine = 1.0;
-
-//   String question = '';
-//   List<String> answers = [];
-//   String correctAnswer = '';
-//   String? userId = FirebaseAuth.instance.currentUser?.uid;
-//   List<Map<String, dynamic>> questions = [];
-
-//   @override
-//   void initState() {
-//     super.initState();
-//     loadQuestion();
-//   }
-
-//   Future<void> loadQuestion() async {
-//     try {
-//       // Fetch the user's current question level
-//       final userProgress = await _gameService.getUserProgress(userId!);
-//       final userQuestionLevel = userProgress['questionLevel'];
-
-//       // Fetch questions filtered by lesson and question level
-//       questions = await _gameService.fetchQuestionsByLevel(
-//           widget.lesson, userQuestionLevel);
-
-//       if (questions.isNotEmpty) {
-//         setState(() {
-//           currentQuestionIndex = 0;
-//           updateQuestionData();
-//         });
-//       } else {
-//         showCongratulationsDialog;
-//       }
-//     } catch (e) {
-//       print("Error loading questions: $e");
-//     }
-//   }
-
-//   void showCongratulationsDialog() {
-//     showDialog(
-//       context: context,
-//       builder: (context) {
-//         return AlertDialog(
-//           title: const Text("Congratulations!"),
-//           content: const Text("You've completed all levels. Great job!"),
-//           actions: [
-//             TextButton(
-//               onPressed: () {
-//                 resetGame();
-//               },
-//               child: const Text("Play Again"),
-//             ),
-//           ],
-//         );
-//       },
-//     );
-//   }
-
-//   // Function to reset the game level in Firestore and navigate back to first level
-//   void resetGame() async {
-//     await FirebaseFirestore.instance
-//         .collection('userprogress')
-//         .doc(userId)
-//         .update({
-//       'questionLevel': 1, // Reset question level to 1
-//       'currentLesson':
-//           widget.lesson, // Assuming 'math' as default lesson, change as needed
-//       'currentQuestionID': '', // Reset to first question or default question
-//     });
-
-//     setState(() async {
-//       await _gameService.updateUserProgress(
-//           userId!, {'questionLevel': '1'}); // Reset local level state to 1
-//     });
-
-//     // ignore: use_build_context_synchronously
-//     Navigator.pop(context); // Close the dialog
-//     // ignore: use_build_context_synchronously
-//     Navigator.popAndPushNamed(
-//         // ignore: use_build_context_synchronously
-//         context,
-//         gameoptionsRoute); // Restart the game page
-//   }
-
-//   void updateQuestionData() {
-//     if (questions.isNotEmpty && currentQuestionIndex < questions.length) {
-//       question = questions[currentQuestionIndex]['questionText'];
-//       answers =
-//           List<String>.from(questions[currentQuestionIndex]['answerOptions']);
-//       correctAnswer = questions[currentQuestionIndex]['correctAnswer'];
-//     }
-//   }
-
-//   void showResultDialog(String result) {
-//     showDialog(
-//       context: context,
-//       builder: (_) => AlertDialog(
-//         title: Text(result),
-//         content:
-//             const Text("Great effort! Try again or advance to the next level."),
-//         actions: [
-//           TextButton(
-//             onPressed: () {
-//               Navigator.of(context).pop();
-//               loadNextQuestion();
-//             },
-//             child: const Text('Next Question'),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-
-//   void checkAnswer(String answer) {
-//     setState(() {
-//       if (answer == correctAnswer) {
-//         studentCarPosition += correctAnswerDistance;
-//         opponentCarPosition += incorrectAnswerDistance + 0.02;
-
-//         // Load the next question if the answer is correct
-//         loadNextQuestion();
-//       } else {
-//         studentCarPosition += incorrectAnswerDistance;
-//         opponentCarPosition += incorrectAnswerDistance + 0.04;
-//       }
-
-//       if (studentCarPosition >= finishLine) {
-//         advanceToNextLevel();
-//       } else if (opponentCarPosition >= finishLine) {
-//         showResultDialog("You Lost!");
-//       }
-//     });
-//   }
-
-//   void loadNextQuestion() async {
-//     setState(() {
-//       if (currentQuestionIndex < questions.length - 1) {
-//         currentQuestionIndex++;
-//       } else {
-//         currentQuestionIndex = 0;
-//         updateQuestionData();
-//       }
-//     });
-
-//     // Check if there are no more questions left at the current question level
-//     if (currentQuestionIndex >= questions.length - 1) {
-//       final userProgress = await _gameService.getUserProgress(userId!);
-//       int currentLevel = int.parse(userProgress['questionLevel'] ?? '1');
-
-//       // Advance to the next level
-//       int nextLevel = currentLevel + 1;
-//       await _gameService
-//           .updateUserProgress(userId!, {'questionLevel': nextLevel.toString()});
-
-//       // Reload questions at the new questionLevel
-//       questions = await _gameService.fetchQuestionsByLevel(
-//           widget.lesson, nextLevel.toString());
-//       if (questions.isNotEmpty) {
-//         setState(() {
-//           currentQuestionIndex = 0;
-//           updateQuestionData();
-//         });
-//       } else {
-//         throw NoMoreQuestionsAvailableException;
-//       }
-//     }
-//   }
-
-//   // void loadNextQuestion() {
-//   //   setState(() {
-//   //     if (currentQuestionIndex < questions.length - 1) {
-//   //       currentQuestionIndex++;
-//   //     } else {
-//   //       currentQuestionIndex = 0;
-//   //     }
-//   //     updateQuestionData();
-//   //   });
-//   // }
-
-//   void advanceToNextLevel() {
-//     showDialog(
-//       context: context,
-//       builder: (_) => AlertDialog(
-//         title: const Text("Level Complete!"),
-//         content: const Text("You advanced to the next level with a new badge!"),
-//         actions: [
-//           TextButton(
-//             onPressed: () {
-//               Navigator.of(context).pop();
-//               resetGameForNextLevel();
-//             },
-//             child: const Text('Continue'),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-
-//   void resetGameForNextLevel() {
-//     _gameService.updateUserProgress(userId!, {
-//       'points': FieldValue.increment(10),
-//       'badges': FieldValue.arrayUnion(['New Level Badge']),
-//       'currentLesson': widget.lesson,
-//       'currentQuestionID': questions[currentQuestionIndex]['id'],
-//     });
-
-//     setState(() {
-//       studentCarPosition = 0.0;
-//       opponentCarPosition = 0.0;
-//       currentQuestionIndex = 0;
-//       updateQuestionData();
-//     });
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: const Text("Car Racing Quiz Game"),
-//         flexibleSpace: Container(
-//           decoration: const BoxDecoration(
-//             gradient: LinearGradient(
-//               colors: [Color(0xFF00C6FF), Color(0xFF0072FF)],
-//               begin: Alignment.topLeft,
-//               end: Alignment.bottomRight,
-//             ),
-//           ),
-//         ),
-//       ),
-//       body: Stack(
-//         children: [
-//           Container(
-//             decoration: const BoxDecoration(
-//               image: DecorationImage(
-//                 image: AssetImage('images/road_background.png'),
-//                 fit: BoxFit.fitWidth,
-//                 alignment: Alignment.topCenter,
-//               ),
-//             ),
-//           ),
-//           Column(
-//             children: [
-//               Expanded(
-//                 child: Stack(
-//                   children: [
-//                     AnimatedPositioned(
-//                       duration: const Duration(milliseconds: 500),
-//                       left: MediaQuery.of(context).size.width *
-//                           studentCarPosition,
-//                       bottom: 115,
-//                       child: const Icon(Icons.directions_car,
-//                           color: Colors.blue, size: 50),
-//                     ),
-//                     AnimatedPositioned(
-//                       duration: const Duration(milliseconds: 500),
-//                       left: MediaQuery.of(context).size.width *
-//                           opponentCarPosition,
-//                       bottom: 180,
-//                       child: const Icon(Icons.directions_car,
-//                           color: Colors.red, size: 50),
-//                     ),
-//                   ],
-//                 ),
-//               ),
-//               Padding(
-//                 padding: const EdgeInsets.all(16.0),
-//                 child: Column(
-//                   crossAxisAlignment: CrossAxisAlignment.stretch,
-//                   children: [
-//                     Text(
-//                       question,
-//                       style: const TextStyle(
-//                         fontSize: 24,
-//                         fontWeight: FontWeight.bold,
-//                         color: Color.fromARGB(255, 59, 51, 51),
-//                       ),
-//                       textAlign: TextAlign.center,
-//                     ),
-//                     const SizedBox(height: 20),
-//                     ...answers.map((answer) => Padding(
-//                           padding: const EdgeInsets.symmetric(vertical: 4.0),
-//                           child: ElevatedButton(
-//                             style: ElevatedButton.styleFrom(
-//                               backgroundColor:
-//                                   const Color.fromARGB(255, 84, 228, 214),
-//                               padding: const EdgeInsets.symmetric(vertical: 12),
-//                               textStyle: const TextStyle(fontSize: 18),
-//                               shape: RoundedRectangleBorder(
-//                                 borderRadius: BorderRadius.circular(20),
-//                               ),
-//                             ),
-//                             onPressed: () => checkAnswer(answer),
-//                             child: Text(answer),
-//                           ),
-//                         )),
-//                   ],
-//                 ),
-//               ),
-//             ],
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }

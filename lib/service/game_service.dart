@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:grade_up/service/cloud_storage_exceptions.dart';
 
 class GameService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -16,51 +17,63 @@ class GameService {
 
       return questionsSnapshot.docs.map((doc) => doc.data()).toList();
     } catch (e) {
-      print("Error fetching questions: $e");
-      return [];
+      throw ErrorFetchingQuestionsException;
     }
   }
 
   // Update user progress
-  Future<void> updateUserProgress(
-      String userId, Map<String, dynamic> progress) async {
+  Future<void> updateUserProgress(String userId, String lesson,
+      int rightAnswers, int points, int level) async {
     try {
       await _firestore
           .collection('userprogress')
           .doc(userId)
-          .set(progress, SetOptions(merge: true));
+          .collection('gameLesson')
+          .doc(lesson)
+          .set({
+        'rightAnswers': rightAnswers,
+        'points': points,
+        'level': level,
+      }, SetOptions(merge: true)); // Merge with existing data
     } catch (e) {
-      print("Error updating user progress: $e");
+      throw ErrorUpdatingUserProgressException();
     }
   }
 
   // Fetch user progress
-  Future<Map<String, dynamic>?> fetchUserProgress(String userId) async {
+  Future<Map<String, dynamic>?> fetchUserProgress(
+      String userId, String lesson) async {
     try {
-      final userProgressSnapshot =
-          await _firestore.collection('userprogress').doc(userId).get();
+      final userProgressSnapshot = await _firestore
+          .collection('userprogress')
+          .doc(userId)
+          .collection('gameLesson')
+          .doc(lesson)
+          .get();
 
       if (userProgressSnapshot.exists) {
         return userProgressSnapshot.data();
       }
       return null;
     } catch (e) {
-      print("Error fetching user progress: $e");
-      return null;
+      throw ErrorFetchingUserProgressException;
     }
   }
 
   // Fetch user progress including question level
-  Future<Map<String, dynamic>> getUserProgress(String userId) async {
+  Future<Map<String, dynamic>> getUserProgress(
+      String userId, String lesson) async {
     final userProgressDoc = await FirebaseFirestore.instance
         .collection('userprogress')
         .doc(userId)
+        .collection('gameLesson')
+        .doc(lesson)
         .get();
 
     if (userProgressDoc.exists) {
       return userProgressDoc.data()!;
     } else {
-      throw Exception("User progress not found.");
+      throw UserProgressNotFoundException;
     }
   }
 
@@ -77,68 +90,3 @@ class GameService {
     return querySnapshot.docs.map((doc) => doc.data()).toList();
   }
 }
-
-
-
-
-
-
-
-
-
-// import 'package:cloud_firestore/cloud_firestore.dart';
-
-// class GameService {
-//   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-//   List<Map<String, dynamic>> _questions =
-//       []; // Private field to store questions
-
-//   // Getter to access questions
-//   List<Map<String, dynamic>> get questions => _questions;
-
-//   // Fetch questions for a specific lesson
-//   Future<void> fetchQuestions(String lesson) async {
-//     try {
-//       final questionsSnapshot = await _firestore
-//           .collection('lessons')
-//           .doc(lesson)
-//           .collection('questions')
-//           .get();
-
-//       _questions = questionsSnapshot.docs
-//           .map((doc) => doc.data() as Map<String, dynamic>)
-//           .toList();
-//     } catch (e) {
-//       print("Error fetching questions: $e");
-//     }
-//   }
-
-//   // Update user progress
-//   Future<void> updateUserProgress(
-//       String userId, Map<String, dynamic> progress) async {
-//     try {
-//       await _firestore
-//           .collection('userprogress')
-//           .doc(userId)
-//           .set(progress, SetOptions(merge: true));
-//     } catch (e) {
-//       print("Error updating user progress: $e");
-//     }
-//   }
-
-//   // Fetch user progress
-//   Future<Map<String, dynamic>?> fetchUserProgress(String userId) async {
-//     try {
-//       final userProgressSnapshot =
-//           await _firestore.collection('userprogress').doc(userId).get();
-
-//       if (userProgressSnapshot.exists) {
-//         return userProgressSnapshot.data() as Map<String, dynamic>;
-//       }
-//       return null;
-//     } catch (e) {
-//       print("Error fetching user progress: $e");
-//       return null;
-//     }
-//   }
-// }

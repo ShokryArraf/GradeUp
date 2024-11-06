@@ -5,3 +5,11 @@ class CloudStorageException implements Exception {
 class CouldNotFindQuestionException extends CloudStorageException {}
 
 class NoMoreQuestionsAvailableException extends CloudStorageException {}
+
+class ErrorFetchingQuestionsException extends CloudStorageException {}
+
+class ErrorUpdatingUserProgressException extends CloudStorageException {}
+
+class ErrorFetchingUserProgressException extends CloudStorageException {}
+
+class UserProgressNotFoundException extends CloudStorageException {}
