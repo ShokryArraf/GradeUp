@@ -2,21 +2,34 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:grade_up/service/cloud_storage_exceptions.dart';
 
 class GameService {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseFirestore firestore = FirebaseFirestore.instance;
 
   get questions => null;
+
+  Future<void> addQuestion(
+      String lesson, Map<String, dynamic> questionData) async {
+    try {
+      await firestore
+          .collection('lessons')
+          .doc(lesson)
+          .collection('questions')
+          .add(questionData);
+    } catch (_) {
+      throw FailedToAddQuestion;
+    }
+  }
 
   // Fetch questions for a specific lesson
   Future<List<Map<String, dynamic>>> fetchQuestions(String lesson) async {
     try {
-      final questionsSnapshot = await _firestore
+      final questionsSnapshot = await firestore
           .collection('lessons')
           .doc(lesson)
           .collection('questions')
           .get();
 
       return questionsSnapshot.docs.map((doc) => doc.data()).toList();
-    } catch (e) {
+    } catch (_) {
       throw ErrorFetchingQuestionsException;
     }
   }
@@ -25,7 +38,7 @@ class GameService {
   Future<void> updateUserProgress(String userId, String lesson,
       int rightAnswers, int points, int level) async {
     try {
-      await _firestore
+      await firestore
           .collection('userprogress')
           .doc(userId)
           .collection('gameLesson')
@@ -35,7 +48,7 @@ class GameService {
         'points': points,
         'level': level,
       }, SetOptions(merge: true)); // Merge with existing data
-    } catch (e) {
+    } catch (_) {
       throw ErrorUpdatingUserProgressException();
     }
   }
@@ -44,7 +57,7 @@ class GameService {
   Future<Map<String, dynamic>?> fetchUserProgress(
       String userId, String lesson) async {
     try {
-      final userProgressSnapshot = await _firestore
+      final userProgressSnapshot = await firestore
           .collection('userprogress')
           .doc(userId)
           .collection('gameLesson')
@@ -55,7 +68,7 @@ class GameService {
         return userProgressSnapshot.data();
       }
       return null;
-    } catch (e) {
+    } catch (_) {
       throw ErrorFetchingUserProgressException;
     }
   }

@@ -13,3 +13,5 @@ class ErrorUpdatingUserProgressException extends CloudStorageException {}
 class ErrorFetchingUserProgressException extends CloudStorageException {}
 
 class UserProgressNotFoundException extends CloudStorageException {}
+
+class FailedToAddQuestion extends CloudStorageException {}

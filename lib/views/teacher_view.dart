@@ -126,11 +126,15 @@ class _TeacherMainViewState extends State<TeacherMainView> {
                   _buildDashboardCard(
                       Icons.insights, 'Review Student Progress', Colors.purple,
                       () {
-                    // Review progress
+                    Navigator.of(context).pushNamed(studentgameprogressRoute);
                   }),
                   _buildDashboardCard(Icons.settings, 'Settings', Colors.green,
                       () {
                     // Navigate to settings
+                  }),
+                  _buildDashboardCard(Icons.add, 'Game Editing', Colors.teal,
+                      () {
+                    Navigator.of(context).pushNamed(gameeditRoute);
                   }),
                 ],
               ),
