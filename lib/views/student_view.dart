@@ -1,7 +1,11 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:grade_up/constants/routes.dart';
 import 'package:grade_up/enums/menu_action.dart';
+import 'package:grade_up/utilities/build_dashboard_card.dart';
+import 'package:grade_up/utilities/show_logout_dialog.dart';
 
 class StudentMainView extends StatefulWidget {
   const StudentMainView({super.key});
@@ -94,23 +98,22 @@ class _StudentMainViewState extends State<StudentMainView> {
                 mainAxisSpacing: 16,
                 crossAxisSpacing: 16,
                 children: [
-                  _buildDashboardCard(Icons.book, 'My Courses', Colors.blue,
-                      () {
+                  buildDashboardCard(Icons.book, 'My Courses', Colors.blue, () {
                     // Navigate to courses page
                   }),
-                  _buildDashboardCard(
+                  buildDashboardCard(
                       Icons.assignment, 'Assignments', Colors.orange, () {
                     // Navigate to assignments page
                   }),
-                  _buildDashboardCard(
+                  buildDashboardCard(
                       Icons.bar_chart, 'Progress & Grades', Colors.purple, () {
                     // View progress and grades
                   }),
-                  _buildDashboardCard(Icons.settings, 'Settings', Colors.green,
+                  buildDashboardCard(Icons.settings, 'Settings', Colors.green,
                       () {
                     // Navigate to settings
                   }),
-                  _buildDashboardCard(
+                  buildDashboardCard(
                       Icons.videogame_asset, 'Game', Colors.redAccent, () {
                     Navigator.of(context)
                         .pushNamed(gameoptionsRoute); // Route to the game page
@@ -123,56 +126,4 @@ class _StudentMainViewState extends State<StudentMainView> {
       ),
     );
   }
-}
-
-Widget _buildDashboardCard(
-    IconData icon, String title, Color color, VoidCallback onTap) {
-  return GestureDetector(
-    onTap: onTap,
-    child: Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-      elevation: 4,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, color: color, size: 40),
-            const SizedBox(height: 10),
-            Text(
-              title,
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-          ],
-        ),
-      ),
-    ),
-  );
-}
-
-Future<bool> showLogoutDialog(BuildContext context) {
-  return showDialog<bool>(
-    context: context,
-    builder: (context) {
-      return AlertDialog(
-        title: const Text('Log out'),
-        content: const Text('Are you sure you want to log out?'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(false);
-            },
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(true);
-            },
-            child: const Text('Log out'),
-          ),
-        ],
-      );
-    },
-  ).then((value) => value ?? false);
 }

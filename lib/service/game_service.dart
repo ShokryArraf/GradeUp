@@ -102,4 +102,13 @@ class GameService {
 
     return querySnapshot.docs.map((doc) => doc.data()).toList();
   }
+
+  Future<void> deleteQuestion(String lesson, String questionId) async {
+    await firestore
+        .collection('lessons')
+        .doc(lesson)
+        .collection('questions')
+        .doc(questionId)
+        .delete();
+  }
 }

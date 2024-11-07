@@ -1,7 +1,11 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:grade_up/constants/routes.dart';
 import 'package:grade_up/enums/menu_action.dart';
+import 'package:grade_up/utilities/build_dashboard_card.dart';
+import 'package:grade_up/utilities/show_logout_dialog.dart';
 
 class TeacherMainView extends StatefulWidget {
   const TeacherMainView({super.key});
@@ -9,39 +13,6 @@ class TeacherMainView extends StatefulWidget {
   @override
   State<TeacherMainView> createState() => _TeacherMainViewState();
 }
-
-// class _TeacherMainViewState extends State<TeacherMainView> {
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: const Text('Teacher'),
-// actions: [
-//   PopupMenuButton<MenuAction>(onSelected: (value) async {
-//     switch (value) {
-//       case MenuAction.logout:
-//         final shouldLogout = await showLogoutDialog(context);
-//         if (shouldLogout) {
-//           await FirebaseAuth.instance.signOut();
-//           Navigator.of(context).pushNamedAndRemoveUntil(
-//             loginRoute,
-//             (_) => false,
-//           );
-//         }
-//     }
-//   }, itemBuilder: (context) {
-//     return [
-//       const PopupMenuItem<MenuAction>(
-//         value: MenuAction.logout,
-//         child: Text('Log out'),
-//       ),
-//     ];
-//   })
-// ],
-//       ),
-//     );
-//   }
-// }
 
 String getDisplayName() {
   final user = FirebaseAuth.instance.currentUser;
@@ -115,24 +86,24 @@ class _TeacherMainViewState extends State<TeacherMainView> {
                 mainAxisSpacing: 16,
                 crossAxisSpacing: 16,
                 children: [
-                  _buildDashboardCard(
+                  buildDashboardCard(
                       Icons.manage_accounts, 'Manage Courses', Colors.blue, () {
                     // Navigate to course management
                   }),
-                  _buildDashboardCard(
+                  buildDashboardCard(
                       Icons.assignment, 'Assignments', Colors.orange, () {
                     // Post or manage assignments
                   }),
-                  _buildDashboardCard(
+                  buildDashboardCard(
                       Icons.insights, 'Review Student Progress', Colors.purple,
                       () {
                     Navigator.of(context).pushNamed(studentgameprogressRoute);
                   }),
-                  _buildDashboardCard(Icons.settings, 'Settings', Colors.green,
+                  buildDashboardCard(Icons.settings, 'Settings', Colors.green,
                       () {
                     // Navigate to settings
                   }),
-                  _buildDashboardCard(Icons.add, 'Game Editing', Colors.teal,
+                  buildDashboardCard(Icons.add, 'Game Editing', Colors.teal,
                       () {
                     Navigator.of(context).pushNamed(gameeditRoute);
                   }),
@@ -144,57 +115,4 @@ class _TeacherMainViewState extends State<TeacherMainView> {
       ),
     );
   }
-
-  Widget _buildDashboardCard(
-      IconData icon, String title, Color color, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Card(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-        elevation: 4,
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(icon, color: color, size: 40),
-              const SizedBox(height: 10),
-              Text(
-                title,
-                textAlign: TextAlign.center,
-                style:
-                    const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-Future<bool> showLogoutDialog(BuildContext context) {
-  return showDialog<bool>(
-    context: context,
-    builder: (context) {
-      return AlertDialog(
-        title: const Text('Log out'),
-        content: const Text('Are you sure you want to log out?'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(false);
-            },
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(true);
-            },
-            child: const Text('Log out'),
-          ),
-        ],
-      );
-    },
-  ).then((value) => value ?? false);
 }
