@@ -34,6 +34,7 @@ void main() {
           gameoptionsRoute: (context) => const GameOptionsPage(),
           studentgameprogressRoute: (context) => const StudentProgressView(),
           gameeditRoute: (context) => const GameEditingView(),
+          //          createassignmentviewRoute: (context) => const CreateAssignmentView(),
         }),
   );
 }

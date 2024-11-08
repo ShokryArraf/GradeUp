@@ -7,3 +7,4 @@ const quizRoute = 'QuizScreen';
 const gameoptionsRoute = 'GameOptionsPage';
 const studentgameprogressRoute = 'StudentProgressView';
 const gameeditRoute = 'GameEditingView';
+const createassignmentviewRoute = 'CreateAssignmentView';

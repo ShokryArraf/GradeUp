@@ -111,7 +111,22 @@ class GameEditingViewState extends State<GameEditingView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Edit Game Questions')),
+      appBar: AppBar(
+        title: const Text(
+          'Edit Game Questions',
+          style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
+        ),
+        centerTitle: true,
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFF00C6FF), Color(0xFF0072FF)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
+      ),
       body: FutureBuilder<List<String>>(
         future: _fetchLessons(),
         builder: (context, snapshot) {

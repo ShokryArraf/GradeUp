@@ -31,6 +31,7 @@ class GamePageState extends State<GamePage> {
   int points = 0;
   int level = 1;
   int rightAnswers = 0;
+  int wrongAnswers = 0;
   String? selectedAnswer;
 
   @override
@@ -55,6 +56,7 @@ class GamePageState extends State<GamePage> {
           level = userProgress['level'] ?? 1;
           points = userProgress['points'] ?? 0;
           rightAnswers = userProgress['rightAnswers'] ?? 0;
+          wrongAnswers = userProgress['wrongAnswers'] ?? 0;
         }
         loadQuestions();
       } catch (e) {
@@ -101,6 +103,7 @@ class GamePageState extends State<GamePage> {
           loadNextQuestion();
         }
       } else {
+        wrongAnswers++;
         opponentCarPosition += correctAnswerDistance * 0.5;
 
         if (opponentCarPosition >= finishLine) {
@@ -113,7 +116,7 @@ class GamePageState extends State<GamePage> {
   Future<void> updateUserProgress() async {
     if (userId != null) {
       await _gameService.updateUserProgress(
-          userId!, widget.lesson, rightAnswers, points, level);
+          userId!, widget.lesson, rightAnswers, points, level, wrongAnswers);
     }
   }
 

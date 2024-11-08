@@ -36,7 +36,7 @@ class GameService {
 
   // Update user progress
   Future<void> updateUserProgress(String userId, String lesson,
-      int rightAnswers, int points, int level) async {
+      int rightAnswers, int points, int level, int wrongAnswers) async {
     try {
       await firestore
           .collection('userprogress')
@@ -47,6 +47,7 @@ class GameService {
         'rightAnswers': rightAnswers,
         'points': points,
         'level': level,
+        'wrongAnswers': wrongAnswers,
       }, SetOptions(merge: true)); // Merge with existing data
     } catch (_) {
       throw ErrorUpdatingUserProgressException();
