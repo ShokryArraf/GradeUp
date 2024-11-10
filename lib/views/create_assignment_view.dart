@@ -1,10 +1,12 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:grade_up/models/teacher.dart';
 import 'package:grade_up/service/assignment_service.dart';
 
 class CreateAssignmentView extends StatefulWidget {
-  final String teacherId; // Pass the teacherId when navigating to this page
+  final Teacher teacher;
 
-  const CreateAssignmentView({super.key, required this.teacherId});
+  const CreateAssignmentView({super.key, required this.teacher});
 
   @override
   CreateAssignmentViewState createState() => CreateAssignmentViewState();
@@ -12,71 +14,90 @@ class CreateAssignmentView extends StatefulWidget {
 
 class CreateAssignmentViewState extends State<CreateAssignmentView> {
   final _formKey = GlobalKey<FormState>();
-  final AssignmentService assignmentService = AssignmentService();
+  final _assignmentService = AssignmentService();
 
-  List<Map<String, dynamic>> _lessons = [];
-  String? _selectedLessonId;
-  String? _assignmentTitle;
-  String? _assignmentDescription;
+  String? _selectedLesson;
+  final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
+  final TextEditingController _questionsController = TextEditingController();
   DateTime? _dueDate;
+
+  List<Map<String, dynamic>> get _lessons => widget.teacher.assignedLessons
+      .map((lesson) => {'id': lesson, 'title': lesson})
+      .toList();
 
   @override
   void initState() {
     super.initState();
-    _loadLessons();
   }
 
-  Future<void> _loadLessons() async {
-    _lessons = await assignmentService.getAssignedLessons(widget.teacherId);
-    setState(() {});
-  }
-
-  Future<void> _createAssignment() async {
-    if (_formKey.currentState?.validate() ?? false) {
-      _formKey.currentState?.save();
-
-      final assignmentData = {
-        'title': _assignmentTitle,
-        'description': _assignmentDescription,
-        'dueDate': _dueDate?.toIso8601String(),
-        'questions': [], // Empty array initially; questions can be added later
-      };
-
-      // Now createAssignment will return a DocumentReference
-      final assignmentRef = await assignmentService.createAssignment(
-        _selectedLessonId!,
-        assignmentData,
+  Future<void> _createAndAssignToStudents() async {
+    if (_formKey.currentState!.validate() &&
+        _selectedLesson != null &&
+        _dueDate != null) {
+      // Create the assignment
+      DocumentReference assignmentRef =
+          await _assignmentService.createAssignment(
+        _selectedLesson!,
+        title: _titleController.text,
+        description: _descriptionController.text,
+        dueDate: _dueDate!,
+        questions: _questionsController.text.split(','),
       );
 
-      // Use assignmentRef.id to assign to students
-      await assignmentService.assignToEnrolledStudents(
-        _selectedLessonId!,
+      // Assign to all enrolled students
+      await _assignmentService.assignToEnrolledStudents(
+        _selectedLesson!,
         assignmentRef.id,
       );
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Assignment created and assigned!')),
+        const SnackBar(
+            content: Text('Assignment created and assigned to students!')),
       );
-
-      Navigator.pop(context); // Close the assignment creation page
+      Navigator.pop(context);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please fill out all fields and select a lesson.'),
+        ),
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Create Assignment')),
-      body: Padding(
+      appBar: AppBar(
+        title: const Text('Create Assignment'),
+        centerTitle: true,
+      ),
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              const Text(
+                'Assignment Details',
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.blueAccent,
+                ),
+              ),
+              const SizedBox(height: 16),
               if (_lessons.isNotEmpty)
                 DropdownButtonFormField<String>(
-                  decoration: const InputDecoration(labelText: 'Select Lesson'),
-                  items: _lessons.map<DropdownMenuItem<String>>((lesson) {
+                  decoration: InputDecoration(
+                    labelText: 'Select Lesson',
+                    labelStyle: const TextStyle(color: Colors.blueGrey),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  items: _lessons.map((lesson) {
                     return DropdownMenuItem<String>(
                       value: lesson['id'] as String,
                       child: Text(lesson['title'] as String),
@@ -84,60 +105,122 @@ class CreateAssignmentViewState extends State<CreateAssignmentView> {
                   }).toList(),
                   onChanged: (value) {
                     setState(() {
-                      _selectedLessonId = value;
+                      _selectedLesson = value;
                     });
                   },
-                  value: _selectedLessonId,
+                  validator: (value) =>
+                      value == null ? 'Please select a lesson' : null,
+                )
+              else
+                const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text(
+                      'No lessons assigned. Please assign lessons to create assignments.',
+                      style: TextStyle(
+                        color: Colors.red,
+                        fontSize: 16,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
                 ),
+              const SizedBox(height: 16),
               TextFormField(
-                decoration:
-                    const InputDecoration(labelText: 'Assignment Title'),
-                onSaved: (value) => _assignmentTitle = value,
+                controller: _titleController,
+                decoration: InputDecoration(
+                  labelText: 'Assignment Title',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
                 validator: (value) => value == null || value.isEmpty
                     ? 'Please enter a title'
                     : null,
               ),
+              const SizedBox(height: 16),
               TextFormField(
-                decoration:
-                    const InputDecoration(labelText: 'Assignment Description'),
-                onSaved: (value) => _assignmentDescription = value,
+                controller: _descriptionController,
+                maxLines: 3,
+                decoration: InputDecoration(
+                  labelText: 'Assignment Description',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
                 validator: (value) => value == null || value.isEmpty
                     ? 'Please enter a description'
                     : null,
               ),
-              const SizedBox(height: 20),
-              TextButton.icon(
-                onPressed: () async {
-                  _dueDate = await showDatePicker(
-                    context: context,
-                    initialDate: DateTime.now(),
-                    firstDate: DateTime.now(),
-                    lastDate: DateTime(2100),
-                  );
-                  setState(() {}); // Refresh to show selected date
-                },
-                icon: const Icon(Icons.calendar_today),
-                label: Text(
-                  _dueDate == null
-                      ? 'Select Due Date'
-                      : 'Due Date: ${_dueDate!.toLocal().toShortDateString()}',
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _questionsController,
+                decoration: InputDecoration(
+                  labelText: 'Questions (comma-separated)',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
                 ),
+                validator: (value) => value == null || value.isEmpty
+                    ? 'Please enter questions'
+                    : null,
               ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _createAssignment,
-                child: const Text('Create Assignment'),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    _dueDate == null
+                        ? 'Select Due Date'
+                        : 'Due Date: ${_dueDate!.toLocal().toString().split(' ')[0]}',
+                    style: const TextStyle(fontSize: 16),
+                  ),
+                  OutlinedButton(
+                    onPressed: () async {
+                      DateTime? selectedDate = await showDatePicker(
+                        context: context,
+                        initialDate: DateTime.now(),
+                        firstDate: DateTime.now(),
+                        lastDate: DateTime(2101),
+                      );
+                      if (selectedDate != null) {
+                        setState(() {
+                          _dueDate = selectedDate;
+                        });
+                      }
+                    },
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: Colors.blueAccent),
+                    ),
+                    child: const Text(
+                      'Pick Date',
+                      style: TextStyle(color: Colors.blueAccent),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 24),
+              Center(
+                child: ElevatedButton(
+                  onPressed: _createAndAssignToStudents,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blueAccent,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 24, vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  child: const Text(
+                    'Create Assignment',
+                    style: TextStyle(fontSize: 18),
+                  ),
+                ),
               ),
             ],
           ),
         ),
       ),
     );
-  }
-}
-
-extension DateFormatting on DateTime {
-  String toShortDateString() {
-    return '${this.year}-${this.month.toString().padLeft(2, '0')}-${this.day.toString().padLeft(2, '0')}';
   }
 }

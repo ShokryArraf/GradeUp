@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:grade_up/views/game_page.dart';
+import 'package:grade_up/game/game_page.dart';
 
 class GameOptionsPage extends StatelessWidget {
   const GameOptionsPage({super.key});

@@ -2,10 +2,11 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:grade_up/constants/routes.dart';
 import 'package:grade_up/firebase_options.dart';
-import 'package:grade_up/game/quiz_screen.dart';
-import 'package:grade_up/views/game_editing_view.dart';
-import 'package:grade_up/views/game_options.dart';
-import 'package:grade_up/views/game_page.dart';
+import 'package:grade_up/game/game_editing_view.dart';
+import 'package:grade_up/models/teacher.dart';
+import 'package:grade_up/views/create_assignment_view.dart';
+import 'package:grade_up/game/game_options.dart';
+import 'package:grade_up/game/game_page.dart';
 import 'package:grade_up/views/login_view.dart';
 import 'package:grade_up/views/register_view.dart';
 import 'package:grade_up/views/student_progress_view.dart';
@@ -14,6 +15,13 @@ import 'package:grade_up/views/teacher_view.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+  Teacher teacher;
+  teacher = Teacher(
+    teacherId: '',
+    name: '',
+    assignedLessons: [],
+  );
+
   runApp(
     MaterialApp(
         title: 'Grade_Up',
@@ -30,11 +38,12 @@ void main() {
           gameRoute: (context) => const GamePage(
                 lesson: '',
               ),
-          quizRoute: (context) => const QuizScreen(),
           gameoptionsRoute: (context) => const GameOptionsPage(),
           studentgameprogressRoute: (context) => const StudentProgressView(),
           gameeditRoute: (context) => const GameEditingView(),
-          //          createassignmentviewRoute: (context) => const CreateAssignmentView(),
+          createassignmentviewRoute: (context) => CreateAssignmentView(
+                teacher: teacher,
+              ),
         }),
   );
 }

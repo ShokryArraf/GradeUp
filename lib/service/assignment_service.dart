@@ -1,44 +1,65 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../models/teacher.dart';
 
 class AssignmentService {
-  final FirebaseFirestore firestore = FirebaseFirestore.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  // Fetch all lessons a teacher is assigned to
-  Future<List<Map<String, dynamic>>> getAssignedLessons(
-      String teacherId) async {
-    final teacherDoc =
-        await firestore.collection('teachers').doc(teacherId).get();
-    List<dynamic> assignedLessons = teacherDoc['assignedLessons'] ?? [];
+  Future<List<Map<String, dynamic>>> getAssignedLessons(Teacher teacher) async {
+    try {
+      // Adjust the path according to your Firestore structure
+      final snapshot = await _firestore
+          .collection('teachers')
+          .doc(teacher.teacherId)
+          .collection('assignedLessons')
+          .get();
 
-    List<Map<String, dynamic>> lessons = [];
-    for (var lessonId in assignedLessons) {
-      final lessonDoc =
-          await firestore.collection('lessons').doc(lessonId).get();
-      lessons.add({'id': lessonDoc.id, 'title': lessonDoc['title']});
+      if (snapshot.docs.isNotEmpty) {
+        return snapshot.docs.map((doc) {
+          return {
+            'id': doc.id,
+            'title': doc['title'] ?? 'Untitled Lesson',
+          };
+        }).toList();
+      } else {
+        return []; // Empty list if no assigned lessons
+      }
+    } catch (e) {
+      print("Error fetching assigned lessons: $e");
+      return [];
     }
-    return lessons;
   }
 
-  // Update createAssignment to return DocumentReference for the new assignment
+  // Create a new assignment and return a reference to it
   Future<DocumentReference> createAssignment(
-      String lessonId, Map<String, dynamic> assignmentData) async {
-    return await firestore
-        .collection('lessons')
+    String lessonId, {
+    required String title,
+    required String description,
+    required DateTime dueDate,
+    required List<String> questions,
+  }) async {
+    Map<String, dynamic> assignmentData = {
+      'title': title,
+      'description': description,
+      'dueDate': dueDate.toIso8601String(),
+      'questions': questions,
+    };
+    return await _firestore
+        .collection('lessons1')
         .doc(lessonId)
         .collection('assignments')
         .add(assignmentData);
   }
 
-  // Assign assignment to all students enrolled in a particular lesson
+  // Assign an assignment to all students enrolled in a particular lesson
   Future<void> assignToEnrolledStudents(
       String lessonId, String assignmentId) async {
-    final studentsSnapshot = await firestore
+    final studentsSnapshot = await _firestore
         .collection('students')
         .where('enrolledLessons', arrayContains: lessonId)
         .get();
 
     for (var student in studentsSnapshot.docs) {
-      await firestore
+      await _firestore
           .collection('students')
           .doc(student.id)
           .collection('progress')
