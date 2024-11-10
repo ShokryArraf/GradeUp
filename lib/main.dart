@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:grade_up/constants/routes.dart';
 import 'package:grade_up/firebase_options.dart';
 import 'package:grade_up/game/game_editing_view.dart';
-import 'package:grade_up/models/teacher.dart';
-import 'package:grade_up/views/create_assignment_view.dart';
 import 'package:grade_up/game/game_options.dart';
 import 'package:grade_up/game/game_page.dart';
 import 'package:grade_up/views/login_view.dart';
@@ -15,12 +13,6 @@ import 'package:grade_up/views/teacher_view.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  Teacher teacher;
-  teacher = Teacher(
-    teacherId: '',
-    name: '',
-    assignedLessons: [],
-  );
 
   runApp(
     MaterialApp(
@@ -41,9 +33,6 @@ void main() {
           gameoptionsRoute: (context) => const GameOptionsPage(),
           studentgameprogressRoute: (context) => const StudentProgressView(),
           gameeditRoute: (context) => const GameEditingView(),
-          createassignmentviewRoute: (context) => CreateAssignmentView(
-                teacher: teacher,
-              ),
         }),
   );
 }

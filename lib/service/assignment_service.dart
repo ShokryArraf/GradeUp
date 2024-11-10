@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:grade_up/service/cloud_storage_exceptions.dart';
 import '../models/teacher.dart';
 
 class AssignmentService {
@@ -24,8 +25,7 @@ class AssignmentService {
         return []; // Empty list if no assigned lessons
       }
     } catch (e) {
-      print("Error fetching assigned lessons: $e");
-      return [];
+      throw ErrorFetchingAssignedLessonsException;
     }
   }
 

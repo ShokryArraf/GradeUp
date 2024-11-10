@@ -15,7 +15,7 @@ class GameService {
           .collection('questions')
           .add(questionData);
     } catch (_) {
-      throw FailedToAddQuestion;
+      throw FailedToAddQuestionException;
     }
   }
 
@@ -50,7 +50,7 @@ class GameService {
         'wrongAnswers': wrongAnswers,
       }, SetOptions(merge: true)); // Merge with existing data
     } catch (_) {
-      throw ErrorUpdatingUserProgressException();
+      throw ErrorUpdatingUserProgressException;
     }
   }
 

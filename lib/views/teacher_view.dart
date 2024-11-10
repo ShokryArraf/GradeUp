@@ -17,13 +17,6 @@ class TeacherMainView extends StatefulWidget {
   State<TeacherMainView> createState() => _TeacherMainViewState();
 }
 
-String getDisplayName() {
-  final user = FirebaseAuth.instance.currentUser;
-  return user != null
-      ? user.displayName?.split(': ')[1] ?? 'Teacher'
-      : 'Teacher';
-}
-
 class _TeacherMainViewState extends State<TeacherMainView> {
   Teacher? _teacher;
 
@@ -54,7 +47,6 @@ class _TeacherMainViewState extends State<TeacherMainView> {
 
   @override
   Widget build(BuildContext context) {
-    //final displayName = _teacher?.name;
     final displayName = _teacher?.name ?? 'Teacher';
 
     return Scaffold(

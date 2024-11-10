@@ -6,4 +6,3 @@ const gameRoute = 'GamePage';
 const gameoptionsRoute = 'GameOptionsPage';
 const studentgameprogressRoute = 'StudentProgressView';
 const gameeditRoute = 'GameEditingView';
-const createassignmentviewRoute = 'CreateAssignmentView';
