@@ -1,209 +1,3 @@
-// // rewards_page.dart
-// import 'package:flutter/material.dart';
-
-// class RewardsPage extends StatelessWidget {
-//   const RewardsPage({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     // This is a placeholder; replace with your actual data retrieval logic
-//     final List<String> badges = ["Badge 1", "Badge 2", "Badge 3"];
-//     const int points = 120;
-
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: const Text("Your Rewards"),
-//         flexibleSpace: Container(
-//           decoration: const BoxDecoration(
-//             gradient: LinearGradient(
-//               colors: [Color(0xFF00C6FF), Color(0xFF0072FF)],
-//               begin: Alignment.topLeft,
-//               end: Alignment.bottomRight,
-//             ),
-//           ),
-//         ),
-//       ),
-//       body: Container(
-//         decoration: const BoxDecoration(
-//           gradient: LinearGradient(
-//             colors: [Color(0xFF00C6FF), Color(0xFF0072FF)],
-//             begin: Alignment.topCenter,
-//             end: Alignment.bottomCenter,
-//           ),
-//         ),
-//         child: Padding(
-//           padding: const EdgeInsets.all(24.0),
-//           child: Column(
-//             mainAxisAlignment: MainAxisAlignment.start,
-//             crossAxisAlignment: CrossAxisAlignment.start,
-//             children: [
-//               const Text(
-//                 "Your Badges",
-//                 style: TextStyle(
-//                   fontSize: 24,
-//                   fontWeight: FontWeight.bold,
-//                   color: Colors.white,
-//                 ),
-//               ),
-//               const SizedBox(height: 16),
-//               ...badges.map((badge) => Text(
-//                     badge,
-//                     style: const TextStyle(fontSize: 18, color: Colors.white),
-//                   )),
-//               const SizedBox(height: 40),
-//               const Text(
-//                 "Total Points: $points",
-//                 style: TextStyle(
-//                   fontSize: 24,
-//                   fontWeight: FontWeight.bold,
-//                   color: Colors.white,
-//                 ),
-//               ),
-//             ],
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }
-
-// import 'package:firebase_auth/firebase_auth.dart';
-// import 'package:flutter/material.dart';
-// import 'package:cloud_firestore/cloud_firestore.dart';
-
-// class RewardsPage extends StatefulWidget {
-//   const RewardsPage({super.key});
-
-//   @override
-//   // ignore: library_private_types_in_public_api
-//   _RewardsPageState createState() => _RewardsPageState();
-// }
-
-// class _RewardsPageState extends State<RewardsPage> {
-//   int points = 0;
-//   String badge = "No Badge";
-//   String? userId = FirebaseAuth.instance.currentUser?.uid;
-
-//   // Retrieve points and determine badge based on Firestore data
-//   Future<void> fetchPointsAndBadge(String userId, String lesson) async {
-//     try {
-//       // Reference to the specific document in Firestore
-//       DocumentSnapshot snapshot = await FirebaseFirestore.instance
-//           .collection('userprogress')
-//           .doc(userId)
-//           .collection('gameLesson')
-//           .doc(lesson)
-//           .get();
-
-//       if (snapshot.exists && snapshot.data() != null) {
-//         setState(() {
-//           points = snapshot['points'] ?? 0;
-//           badge = getBadge(points);
-//         });
-//       } else {
-//         print("No points data found for lesson $lesson");
-//       }
-//     } catch (e) {
-//       print("Error fetching points: $e");
-//     }
-//   }
-//
-// // Determine the badge based on points
-// String getBadge(int points) {
-//   if (points >= 180) {
-//     return "Champion Badge";
-//   } else if (points >= 300) {
-//     return "Legend Badge";
-//   } else if (points >= 250) {
-//     return "Elite Badge";
-//   } else if (points >= 220) {
-//     return "Master Badge";
-//   } else if (points >= 200) {
-//     return "Expert Badge";
-//   } else if (points >= 170) {
-//     return "Advanced Badge";
-//   } else if (points >= 130) {
-//     return "Intermediate Badge";
-//   } else if (points >= 100) {
-//     return "Apprentice Badge";
-//   } else if (points >= 50) {
-//     return "Beginner Badge";
-//   } else {
-//     return "No Badge";
-//   }
-// }
-//
-//   @override
-//   void initState() {
-//     super.initState();
-//     // Replace 'userId' and 'lesson' with actual user ID and lesson name
-//     fetchPointsAndBadge(
-//         "userId", "math"); // For example, fetch points for Math lesson
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: const Text("Your Rewards"),
-//         flexibleSpace: Container(
-//           decoration: const BoxDecoration(
-//             gradient: LinearGradient(
-//               colors: [Color(0xFF00C6FF), Color(0xFF0072FF)],
-//               begin: Alignment.topLeft,
-//               end: Alignment.bottomRight,
-//             ),
-//           ),
-//         ),
-//       ),
-//       body: Container(
-//         decoration: const BoxDecoration(
-//           gradient: LinearGradient(
-//             colors: [Color(0xFF00C6FF), Color(0xFF0072FF)],
-//             begin: Alignment.topCenter,
-//             end: Alignment.bottomCenter,
-//           ),
-//         ),
-//         child: Padding(
-//           padding: const EdgeInsets.all(24.0),
-//           child: Column(
-//             mainAxisAlignment: MainAxisAlignment.start,
-//             crossAxisAlignment: CrossAxisAlignment.start,
-//             children: [
-//               const Text(
-//                 "Your Badge",
-//                 style: TextStyle(
-//                   fontSize: 24,
-//                   fontWeight: FontWeight.bold,
-//                   color: Colors.white,
-//                 ),
-//               ),
-//               const SizedBox(height: 16),
-//               Text(
-//                 badge,
-//                 style: const TextStyle(
-//                   fontSize: 28,
-//                   fontWeight: FontWeight.bold,
-//                   color: Colors.yellow,
-//                 ),
-//               ),
-//               const SizedBox(height: 40),
-//               Text(
-//                 "Total Points: $points",
-//                 style: const TextStyle(
-//                   fontSize: 24,
-//                   fontWeight: FontWeight.bold,
-//                   color: Colors.white,
-//                 ),
-//               ),
-//             ],
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -219,6 +13,45 @@ class RewardsPageState extends State<RewardsPage> {
   Map<String, int> lessonPoints = {};
   Map<String, String> lessonBadges = {};
   String? userId = FirebaseAuth.instance.currentUser?.uid;
+
+  // Mock badge data for upcoming rewards
+  final List<Map<String, dynamic>> upcomingBadges = [
+    {
+      "badge": "images/beginner_badge.png",
+      "name": "Beginner Badge",
+      "points": 50
+    },
+    {
+      "badge": "images/apprentice_badge.png",
+      "name": "Apprentice Badge",
+      "points": 150
+    },
+    {
+      "badge": "images/intermediate_badge.png",
+      "name": "Intermediate Badge",
+      "points": 200
+    },
+    {
+      "badge": "images/advanced_badge.png",
+      "name": "Advanced Badge",
+      "points": 250
+    },
+    {
+      "badge": "images/champion_badge.png",
+      "name": "Champion Badge",
+      "points": 300
+    },
+    {"badge": "images/expert_badge.png", "name": "Expert Badge", "points": 350},
+    {"badge": "images/master_badge.png", "name": "Master Badge", "points": 600},
+    {"badge": "images/elite_badge.png", "name": "Elite Badge", "points": 850},
+    {
+      "badge": "images/legend_badge.png",
+      "name": "Legend Badge",
+      "points": 1300
+    },
+
+    // Add more badges here as needed
+  ];
 
   // Fetch points and badges for all lessons in the 'gameLesson' subcollection
   Future<void> fetchAllLessonRewards(String userId) async {
@@ -250,43 +83,52 @@ class RewardsPageState extends State<RewardsPage> {
     }
   }
 
-  // Determine the badge based on points
+  // Determine badge based on points
   String getBadge(int points) {
-    if (points >= 180) {
-      return "Champion Badge";
+    if (points >= 1300) {
+      return "images/legend_badge.png";
+    } else if (points >= 850) {
+      return "images/elite_badge.png";
+    } else if (points >= 600) {
+      return "images/master_badge.png";
+    } else if (points >= 350) {
+      return "images/expert_badge.png";
     } else if (points >= 300) {
-      return "Legend Badge";
+      return "images/champion_badge.png";
     } else if (points >= 250) {
-      return "Elite Badge";
-    } else if (points >= 220) {
-      return "Master Badge";
+      return "images/advanced_badge.png";
     } else if (points >= 200) {
-      return "Expert Badge";
-    } else if (points >= 170) {
-      return "Advanced Badge";
-    } else if (points >= 130) {
-      return "Intermediate Badge";
-    } else if (points >= 100) {
-      return "Apprentice Badge";
+      return "images/intermediate_badge.png";
+    } else if (points >= 150) {
+      return "images/apprentice_badge.png";
     } else if (points >= 50) {
-      return "Beginner Badge";
+      return "images/beginner_badge.png";
     } else {
-      return "No Badge";
+      return "images/no_badge.png"; // Default "No Badge" image
     }
+  }
+
+  // Filter upcoming badges based on minimum points
+  List<Map<String, dynamic>> getFilteredUpcomingBadges() {
+    int minPoints = lessonPoints.isNotEmpty
+        ? lessonPoints.values.reduce((a, b) => a < b ? a : b)
+        : 0;
+    return upcomingBadges
+        .where((badge) => badge["points"] > minPoints)
+        .toList();
   }
 
   @override
   void initState() {
     super.initState();
-    // Replace 'userId' with the actual user ID
-    fetchAllLessonRewards(userId!);
+    if (userId != null) fetchAllLessonRewards(userId!);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Your Rewards"),
+        title: const Text("Student's Rewards"),
         flexibleSpace: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
@@ -305,44 +147,103 @@ class RewardsPageState extends State<RewardsPage> {
             end: Alignment.bottomCenter,
           ),
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
-                "Your Rewards",
+                "Current Rewards",
                 style: TextStyle(
-                  fontSize: 24,
+                  fontSize: 22,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
                 ),
               ),
-              const SizedBox(height: 20),
-              Expanded(
-                child: ListView.builder(
-                  itemCount: lessonPoints.keys.length,
-                  itemBuilder: (context, index) {
-                    String lesson = lessonPoints.keys.elementAt(index);
-                    int points = lessonPoints[lesson] ?? 0;
-                    String badge = lessonBadges[lesson] ?? "No Badge";
-                    return Card(
-                      color: Colors.white.withOpacity(0.8),
-                      margin: const EdgeInsets.symmetric(vertical: 8.0),
-                      child: ListTile(
-                        leading: const Icon(Icons.star, color: Colors.amber),
-                        title: Text(
-                          lesson,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                          ),
-                        ),
-                        subtitle: Text("Points: $points\nBadge: $badge"),
-                      ),
-                    );
-                  },
+              const SizedBox(height: 10),
+              // Display Current Rewards
+              GridView.builder(
+                physics: const NeverScrollableScrollPhysics(),
+                shrinkWrap: true,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  mainAxisSpacing: 10,
+                  crossAxisSpacing: 10,
+                  childAspectRatio: 3 / 4,
                 ),
+                itemCount: lessonPoints.length,
+                itemBuilder: (context, index) {
+                  String lesson = lessonPoints.keys.elementAt(index);
+                  int points = lessonPoints[lesson] ?? 0;
+                  String badge = lessonBadges[lesson] ?? "images/no_badge.png";
+
+                  return Card(
+                    color: Colors.white.withOpacity(0.9),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Image.asset(
+                            badge,
+                            width: 100,
+                            height: 100,
+                            fit: BoxFit.contain,
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            lesson,
+                            style: const TextStyle(fontSize: 16),
+                            textAlign: TextAlign.center,
+                          ),
+                          Text(
+                            "Points: $points",
+                            style: const TextStyle(color: Colors.grey),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: 20),
+              const Text(
+                "Upcoming Rewards",
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+              const SizedBox(height: 10),
+              // Display Upcoming Rewards
+              ListView.builder(
+                physics: const NeverScrollableScrollPhysics(),
+                shrinkWrap: true,
+                itemCount: getFilteredUpcomingBadges().length,
+                itemBuilder: (context, index) {
+                  final badge = getFilteredUpcomingBadges()[index];
+                  return Card(
+                    color: Colors.white.withOpacity(0.9),
+                    child: ListTile(
+                      leading: Image.asset(
+                        badge["badge"],
+                        width: 50,
+                        height: 50,
+                        fit: BoxFit.contain,
+                      ),
+                      title: Text(
+                        badge["name"],
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                        ),
+                      ),
+                      subtitle: Text("Points: ${badge["points"]}"),
+                    ),
+                  );
+                },
               ),
             ],
           ),
