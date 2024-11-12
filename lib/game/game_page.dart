@@ -149,16 +149,72 @@ class GamePageState extends State<GamePage> {
     }
   }
 
-  void showLevelUpDialog() {
+  String getBadge(int points) {
+    if (points >= 1300) {
+      return "images/legend_badge.png";
+    } else if (points >= 850) {
+      return "images/elite_badge.png";
+    } else if (points >= 600) {
+      return "images/master_badge.png";
+    } else if (points >= 350) {
+      return "images/expert_badge.png";
+    } else if (points >= 300) {
+      return "images/champion_badge.png";
+    } else if (points >= 250) {
+      return "images/advanced_badge.png";
+    } else if (points >= 200) {
+      return "images/intermediate_badge.png";
+    } else if (points >= 150) {
+      return "images/apprentice_badge.png";
+    } else if (points >= 50) {
+      return "images/beginner_badge.png";
+    } else {
+      return "images/no_badge.png"; // Default "No Badge" image
+    }
+  }
+
+  void showRewardDialog() {
+    // Show confetti when reward is earned
+    _confettiController.play();
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
         title: const Row(
           children: [
-            Text("Level Up!"),
+            Icon(Icons.card_giftcard, color: Colors.purple, size: 32),
             SizedBox(width: 10),
-            Icon(Icons.emoji_events,
-                color: Colors.amber, size: 32), // Badge Icon
+            Text("You've Earned a Reward!"),
+          ],
+        ),
+        content: const Text(
+            "Congratulations! You've earned a reward for reaching a new milestone in points!"),
+        actions: [
+          TextButton(
+            onPressed: () {
+              _confettiController.stop();
+              Navigator.of(context).pop();
+            },
+            child: const Text('Continue'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void showLevelUpDialog() {
+    String badgeImagePath = getBadge(points);
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Row(
+          children: [
+            const Text("Level Up!"),
+            const SizedBox(width: 10),
+            Image.asset(
+              badgeImagePath,
+              width: 32,
+              height: 32,
+            ), // Badge Icon from getBadge
           ],
         ),
         content: Text("Congratulations! You've reached level $level."),

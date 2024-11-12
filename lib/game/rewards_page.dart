@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:grade_up/service/cloud_storage_exceptions.dart';
 
 class RewardsPage extends StatefulWidget {
   const RewardsPage({super.key});
@@ -78,8 +79,8 @@ class RewardsPageState extends State<RewardsPage> {
         lessonPoints = pointsData;
         lessonBadges = badgesData;
       });
-    } catch (e) {
-      print("Error fetching lessons: $e");
+    } catch (_) {
+      throw ErrorFetchingLessonsException;
     }
   }
 
