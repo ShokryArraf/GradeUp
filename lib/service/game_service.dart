@@ -34,10 +34,22 @@ class GameService {
     }
   }
 
-  // Update user progress
-  Future<void> updateUserProgress(String userId, String lesson,
-      int rightAnswers, int points, int level, int wrongAnswers) async {
+  Future<void> updateUserProgress(
+      String userId,
+      String lesson,
+      int rightAnswers,
+      int points,
+      int level,
+      int wrongAnswers,
+      studentName) async {
     try {
+      // Ensure the parent document in 'userprogress' exists with a placeholder field
+      await firestore.collection('userprogress').doc(userId).set({
+        'exists':
+            true, // Placeholder field to make the document visible in queries
+      }, SetOptions(merge: true));
+
+      // Update or set the data in the 'gameLesson' subcollection
       await firestore
           .collection('userprogress')
           .doc(userId)
@@ -48,6 +60,7 @@ class GameService {
         'points': points,
         'level': level,
         'wrongAnswers': wrongAnswers,
+        'name': studentName,
       }, SetOptions(merge: true)); // Merge with existing data
     } catch (_) {
       throw ErrorUpdatingUserProgressException;

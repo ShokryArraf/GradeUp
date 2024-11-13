@@ -19,3 +19,7 @@ class FailedToAddQuestionException extends CloudStorageException {}
 class ErrorFetchingAssignedLessonsException extends CloudStorageException {}
 
 class ErrorFetchingLessonsException extends CloudStorageException {}
+
+class NoDocumentsFoundException extends CloudStorageException {}
+
+class ErrorFetchingLeaderboardDataException extends CloudStorageException {}

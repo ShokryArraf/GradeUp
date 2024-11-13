@@ -28,6 +28,7 @@ class GamePageState extends State<GamePage> {
   String correctAnswer = '';
   String? userId = FirebaseAuth.instance.currentUser?.uid;
   List<Map<String, dynamic>> questions = [];
+  String studentName = '';
   int points = 0;
   int level = 1;
   int rightAnswers = 0;
@@ -38,6 +39,7 @@ class GamePageState extends State<GamePage> {
   void initState() {
     super.initState();
     _confettiController.stop(); // Start with confetti off
+    studentName = getDisplayName();
     loadUserProgress();
   }
 
@@ -45,6 +47,13 @@ class GamePageState extends State<GamePage> {
   void dispose() {
     _confettiController.dispose();
     super.dispose();
+  }
+
+  String getDisplayName() {
+    final user = FirebaseAuth.instance.currentUser;
+    return user != null
+        ? user.displayName?.split(': ')[1] ?? 'Student'
+        : 'Student';
   }
 
   Future<void> loadUserProgress() async {
@@ -99,6 +108,7 @@ class GamePageState extends State<GamePage> {
           opponentCarPosition += correctAnswerDistance * 0.8;
           if (opponentCarPosition >= finishLine) {
             showLoseDialog();
+            updateUserProgress();
           }
           loadNextQuestion();
         }
@@ -115,8 +125,8 @@ class GamePageState extends State<GamePage> {
 
   Future<void> updateUserProgress() async {
     if (userId != null) {
-      await _gameService.updateUserProgress(
-          userId!, widget.lesson, rightAnswers, points, level, wrongAnswers);
+      await _gameService.updateUserProgress(userId!, widget.lesson,
+          rightAnswers, points, level, wrongAnswers, studentName);
     }
   }
 
