@@ -165,13 +165,14 @@ class _RegisterViewState extends State<RegisterView> {
                       children: _availableLessons.map((lesson) {
                         return CheckboxListTile(
                           title: Text(lesson),
-                          value: _selectedLessons.contains(lesson),
+                          value:
+                              _selectedLessons.contains(lesson.toLowerCase()),
                           onChanged: (isSelected) {
                             setState(() {
                               if (isSelected == true) {
-                                _selectedLessons.add(lesson);
+                                _selectedLessons.add(lesson.toLowerCase());
                               } else {
-                                _selectedLessons.remove(lesson);
+                                _selectedLessons.remove(lesson.toLowerCase());
                               }
                             });
                           },

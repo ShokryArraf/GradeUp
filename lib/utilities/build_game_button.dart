@@ -18,7 +18,7 @@ Widget buildGameButton(BuildContext context, String text, IconData icon,
       style: const TextStyle(
         fontSize: 20,
         fontWeight: FontWeight.w600,
-        color: Colors.white,
+        color: Color.fromARGB(255, 254, 254, 253),
       ),
     ),
     onPressed: onPressed,

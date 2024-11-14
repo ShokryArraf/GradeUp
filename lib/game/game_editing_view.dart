@@ -1,6 +1,9 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:grade_up/service/cloud_storage_exceptions.dart';
 import 'package:grade_up/service/game_service.dart';
 import 'package:grade_up/utilities/build_text_field.dart';
 
@@ -22,10 +25,21 @@ class GameEditingViewState extends State<GameEditingView> {
   String? _selectedLevel;
   List<Map<String, dynamic>> _questions = [];
 
-  Future<List<String>> _fetchLessons() async {
-    final lessonsSnapshot =
-        await gameService.firestore.collection('lessons').get();
-    return lessonsSnapshot.docs.map((doc) => doc.id).toList();
+  Future<List<String>> _fetchAssignedLessons() async {
+    try {
+      String userId = FirebaseAuth.instance.currentUser?.uid ?? '';
+      if (userId.isNotEmpty) {
+        DocumentSnapshot userDoc = await gameService.firestore
+            .collection('teachers')
+            .doc(userId)
+            .get();
+        return List<String>.from(userDoc['assignedLessons'] ?? []);
+      } else {
+        throw UserIdNotFoundException;
+      }
+    } catch (_) {
+      throw ErrorFetchingAssignedLessonsException;
+    }
   }
 
   Future<void> _fetchQuestions() async {
@@ -128,7 +142,7 @@ class GameEditingViewState extends State<GameEditingView> {
         ),
       ),
       body: FutureBuilder<List<String>>(
-        future: _fetchLessons(),
+        future: _fetchAssignedLessons(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return const Center(child: CircularProgressIndicator());
