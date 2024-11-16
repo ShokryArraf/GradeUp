@@ -27,3 +27,7 @@ class ErrorFetchingLeaderboardDataException extends CloudStorageException {}
 class ErrorFetchingEnrolledLessonsException extends CloudStorageException {}
 
 class UserIdNotFoundException extends CloudStorageException {}
+
+class FailedToLoadStudentDataException extends CloudStorageException {}
+
+class FailedToLoadTeacherDataException extends CloudStorageException {}

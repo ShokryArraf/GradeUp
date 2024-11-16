@@ -7,7 +7,6 @@ import 'package:grade_up/game/game_options.dart';
 import 'package:grade_up/game/game_page.dart';
 import 'package:grade_up/views/login_view.dart';
 import 'package:grade_up/views/register_view.dart';
-import 'package:grade_up/views/student_progress_view.dart';
 import 'package:grade_up/views/student_view.dart';
 import 'package:grade_up/views/teacher_view.dart';
 
@@ -31,7 +30,6 @@ void main() {
                 lesson: '',
               ),
           gameoptionsRoute: (context) => const GameOptionsPage(),
-          studentgameprogressRoute: (context) => const StudentProgressView(),
           gameeditRoute: (context) => const GameEditingView(),
         }),
   );

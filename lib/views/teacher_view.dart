@@ -6,9 +6,11 @@ import 'package:flutter/material.dart';
 import 'package:grade_up/constants/routes.dart';
 import 'package:grade_up/enums/menu_action.dart';
 import 'package:grade_up/models/teacher.dart';
+import 'package:grade_up/service/cloud_storage_exceptions.dart';
 import 'package:grade_up/utilities/build_dashboard_card.dart';
 import 'package:grade_up/utilities/show_logout_dialog.dart';
 import 'package:grade_up/views/create_assignment_view.dart';
+import 'package:grade_up/views/student_progress_view.dart';
 
 class TeacherMainView extends StatefulWidget {
   const TeacherMainView({super.key});
@@ -40,7 +42,7 @@ class _TeacherMainViewState extends State<TeacherMainView> {
           _teacher = Teacher.fromFirestore(teacherDoc.data()!, teacherId);
         });
       } else {
-        throw Error();
+        throw FailedToLoadTeacherDataException();
       }
     }
   }
@@ -91,15 +93,69 @@ class _TeacherMainViewState extends State<TeacherMainView> {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Hello, $displayName!',
-              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            Stack(
+              alignment: Alignment.centerLeft,
+              children: [
+                // Background gradient for the teacher info
+                Container(
+                  height: 120,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16),
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFFffe0b2), Color(0xFFffcc80)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                  ),
+                ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    // Teacher Image
+                    Container(
+                      margin: const EdgeInsets.all(16),
+                      width: 80,
+                      height: 80,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 3),
+                        image: const DecorationImage(
+                          image: AssetImage(
+                              'images/teacher_logo.png'), // Replace with your image path
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    // Teacher Info
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          displayName,
+                          style: const TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                          ),
+                        ),
+                        const Text(
+                          'Welcome back!',
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: Colors.black54,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ],
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 20),
             const Text(
-              'Welcome back! Ready to teach?',
+              'Ready to teach?',
               style: TextStyle(fontSize: 16, color: Colors.grey),
             ),
             const SizedBox(height: 30),
@@ -115,8 +171,6 @@ class _TeacherMainViewState extends State<TeacherMainView> {
                   }),
                   buildDashboardCard(
                       Icons.assignment, 'Assignments', Colors.orange, () {
-                    // Post or manage assignments
-                    //Navigator.of(context).pushNamed(createassignmentviewRoute);
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -128,7 +182,13 @@ class _TeacherMainViewState extends State<TeacherMainView> {
                   buildDashboardCard(
                       Icons.insights, 'Review Student Progress', Colors.purple,
                       () {
-                    Navigator.of(context).pushNamed(studentgameprogressRoute);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            StudentProgressView(teacher: _teacher!),
+                      ),
+                    );
                   }),
                   buildDashboardCard(Icons.settings, 'Settings', Colors.green,
                       () {

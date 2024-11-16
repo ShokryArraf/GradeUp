@@ -2,11 +2,13 @@ class Teacher {
   final String teacherId;
   final String name;
   final List<String> assignedLessons;
+  final List<int> teachingGrades;
 
   Teacher({
     required this.teacherId,
     required this.name,
     required this.assignedLessons,
+    required this.teachingGrades,
   });
 
   // Factory constructor to create a Teacher instance from Firestore data
@@ -15,6 +17,8 @@ class Teacher {
       teacherId: teacherId,
       name: data['name'] ?? '',
       assignedLessons: List<String>.from(data['assignedLessons'] ?? []),
+      teachingGrades: List<int>.from(
+          data['teachingGrades'] ?? []), // Retrieve teachingGrades
     );
   }
 
@@ -23,6 +27,7 @@ class Teacher {
     return {
       'name': name,
       'assignedLessons': assignedLessons,
+      'teachingGrades': teachingGrades,
     };
   }
 }

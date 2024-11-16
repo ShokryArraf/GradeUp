@@ -1,4 +1,3 @@
-// student.dart
 import 'package:grade_up/models/lesson_progress.dart';
 
 class Student {
@@ -6,12 +5,14 @@ class Student {
   final String name;
   final List<String> enrolledLessons;
   final Map<String, LessonProgress> progress;
+  final int grade;
 
   Student({
     required this.studentId,
     required this.name,
     required this.enrolledLessons,
     required this.progress,
+    required this.grade,
   });
 
   // Factory constructor to create a Student instance from Firestore data
@@ -28,6 +29,7 @@ class Student {
       name: data['name'] ?? '',
       enrolledLessons: List<String>.from(data['enrolledLessons'] ?? []),
       progress: progress,
+      grade: data['grade'] ?? 0,
     );
   }
 
@@ -38,6 +40,7 @@ class Student {
       'enrolledLessons': enrolledLessons,
       'progress':
           progress.map((key, value) => MapEntry(key, value.toFirestore())),
+      'grade': grade,
     };
   }
 }

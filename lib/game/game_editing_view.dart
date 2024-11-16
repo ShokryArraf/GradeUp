@@ -116,7 +116,7 @@ class GameEditingViewState extends State<GameEditingView> {
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-              content: Text('Each level must have exactly 6 questions.')),
+              content: Text('Each level must have maximum 6 questions.')),
         );
       }
     }
@@ -157,6 +157,7 @@ class GameEditingViewState extends State<GameEditingView> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // Select Lesson Dropdown
                     DropdownButtonFormField<String>(
                       decoration: InputDecoration(
                         labelText: 'Select Lesson',
@@ -183,6 +184,7 @@ class GameEditingViewState extends State<GameEditingView> {
                           value == null ? 'Please select a lesson' : null,
                     ),
                     const SizedBox(height: 12),
+                    // Select or Add Level
                     if (_selectedLesson != null)
                       FutureBuilder<List<String>>(
                         future: gameService
@@ -197,35 +199,75 @@ class GameEditingViewState extends State<GameEditingView> {
                                 child: CircularProgressIndicator());
                           }
                           final levels = levelSnapshot.data!;
-                          return DropdownButtonFormField<String>(
-                            decoration: InputDecoration(
-                              labelText: 'Select Level',
-                              filled: true,
-                              fillColor: Colors.grey.shade200,
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8.0),
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              TextField(
+                                controller:
+                                    TextEditingController(text: _selectedLevel),
+                                onChanged: (value) {
+                                  setState(() {
+                                    _selectedLevel = value;
+                                    _questions = [];
+                                  });
+                                  if (levels.contains(value)) {
+                                    _fetchQuestions();
+                                  }
+                                },
+                                decoration: InputDecoration(
+                                  labelText: 'Select or Add a New Level',
+                                  hintText:
+                                      'Enter a level or select from below',
+                                  filled: true,
+                                  fillColor: Colors.grey.shade200,
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8.0),
+                                  ),
+                                  suffixIcon: DropdownButton<String>(
+                                    value: levels.contains(_selectedLevel)
+                                        ? _selectedLevel
+                                        : null,
+                                    icon: const Icon(Icons.arrow_drop_down),
+                                    onChanged: (value) {
+                                      setState(() {
+                                        _selectedLevel = value!;
+                                        _questions = [];
+                                      });
+                                      _fetchQuestions();
+                                    },
+                                    items: levels.map((level) {
+                                      return DropdownMenuItem(
+                                        value: level,
+                                        child: Text(level),
+                                      );
+                                    }).toList(),
+                                  ),
+                                ),
                               ),
-                            ),
-                            items: levels.map((level) {
-                              return DropdownMenuItem(
-                                value: level,
-                                child: Text(level),
-                              );
-                            }).toList(),
-                            onChanged: (value) async {
-                              setState(() {
-                                _selectedLevel = value;
-                                _questions = [];
-                              });
-                              _fetchQuestions();
-                            },
-                            validator: (value) => value == null
-                                ? 'Please select a question level'
-                                : null,
+                              const SizedBox(height: 8),
+                              Text(
+                                levels.isNotEmpty
+                                    ? 'Existing Levels: ${levels.join(', ')}'
+                                    : 'No levels exist yet. Create a new level.',
+                                style: TextStyle(
+                                  color: Colors.grey[600],
+                                  fontSize: 14,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              const Text(
+                                'Note: If adding a new level, ensure it eventually has at least 5 questions.',
+                                style: TextStyle(
+                                  color: Colors.orange,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
                           );
                         },
                       ),
                     const SizedBox(height: 16),
+                    // Display Questions
                     if (_questions.isNotEmpty)
                       ListView.builder(
                         shrinkWrap: true,
@@ -255,6 +297,7 @@ class GameEditingViewState extends State<GameEditingView> {
                         },
                       ),
                     const SizedBox(height: 20),
+                    // Add Question Fields
                     buildTextField('Question Text', onSaved: (value) {
                       _questionText = value;
                     }),

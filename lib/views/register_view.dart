@@ -31,8 +31,12 @@ class _RegisterViewState extends State<RegisterView> {
     'Chemistry',
   ];
 
-  // Selected lessons by user
+  // Grades (1 to 8)
+  final List<int> _grades = List.generate(8, (index) => index + 1);
+
+  // Selected lessons and grades
   final Set<String> _selectedLessons = {};
+  final Set<int> _selectedGrades = {};
 
   @override
   void initState() {
@@ -69,13 +73,26 @@ class _RegisterViewState extends State<RegisterView> {
         final userCollection = FirebaseFirestore.instance.collection(
           _role == 'Teacher' ? 'teachers' : 'students',
         );
+
         final data = {
           'name': fullName,
           _role == 'Teacher' ? 'assignedLessons' : 'enrolledLessons':
               _selectedLessons.toList(),
+          if (_role == 'Teacher') 'teachingGrades': _selectedGrades.toList(),
+          if (_role == 'Student') 'grade': _selectedGrades.first,
         };
 
         await userCollection.doc(userId).set(data);
+        if (_role == 'Student') {
+          await FirebaseFirestore.instance
+              .collection('userprogress')
+              .doc(userId)
+              .set({
+            'exists':
+                true, // Placeholder field to make the document visible in queries
+            'grade': _selectedGrades.first
+          }, SetOptions(merge: true));
+        }
       }
 
       // Navigate to another route (e.g., home or login)
@@ -110,58 +127,62 @@ class _RegisterViewState extends State<RegisterView> {
           if (snapshot.connectionState == ConnectionState.done) {
             return Padding(
               padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  // Full Name Input
-                  TextField(
-                    controller: _fullName,
-                    decoration: const InputDecoration(hintText: 'Full Name'),
-                  ),
-                  // Email Input
-                  TextField(
-                    controller: _email,
-                    enableSuggestions: false,
-                    autocorrect: false,
-                    keyboardType: TextInputType.emailAddress,
-                    decoration:
-                        const InputDecoration(hintText: 'Enter your email'),
-                  ),
-                  // Password Input
-                  TextField(
-                    controller: _password,
-                    obscureText: true,
-                    enableSuggestions: false,
-                    autocorrect: false,
-                    decoration:
-                        const InputDecoration(hintText: 'Enter your password'),
-                  ),
-                  // Dropdown for Role Selection (Student/Teacher)
-                  DropdownButton<String>(
-                    value: _role,
-                    items: ['Student', 'Teacher'].map((role) {
-                      return DropdownMenuItem(
-                        value: role,
-                        child: Text(role),
-                      );
-                    }).toList(),
-                    onChanged: (value) {
-                      setState(() {
-                        _role = value!;
-                        _selectedLessons
-                            .clear(); // Clear selections when role changes
-                      });
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  // Lesson Selection based on role
-                  Text(
-                    _role == 'Teacher'
-                        ? 'Select Assigned Lessons:'
-                        : 'Select Enrolled Lessons:',
-                  ),
-                  const SizedBox(height: 8),
-                  Expanded(
-                    child: ListView(
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Full Name Input
+                    TextField(
+                      controller: _fullName,
+                      decoration: const InputDecoration(hintText: 'Full Name'),
+                    ),
+                    const SizedBox(height: 8),
+                    // Email Input
+                    TextField(
+                      controller: _email,
+                      enableSuggestions: false,
+                      autocorrect: false,
+                      keyboardType: TextInputType.emailAddress,
+                      decoration:
+                          const InputDecoration(hintText: 'Enter your email'),
+                    ),
+                    const SizedBox(height: 8),
+                    // Password Input
+                    TextField(
+                      controller: _password,
+                      obscureText: true,
+                      enableSuggestions: false,
+                      autocorrect: false,
+                      decoration: const InputDecoration(
+                          hintText: 'Enter your password'),
+                    ),
+                    const SizedBox(height: 16),
+                    // Dropdown for Role Selection (Student/Teacher)
+                    DropdownButton<String>(
+                      value: _role,
+                      items: ['Student', 'Teacher'].map((role) {
+                        return DropdownMenuItem(
+                          value: role,
+                          child: Text(role),
+                        );
+                      }).toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          _role = value!;
+                          _selectedLessons.clear();
+                          _selectedGrades.clear();
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    // Lesson Selection
+                    Text(
+                      _role == 'Teacher'
+                          ? 'Select Assigned Lessons:'
+                          : 'Select Enrolled Lessons:',
+                    ),
+                    const SizedBox(height: 8),
+                    Column(
                       children: _availableLessons.map((lesson) {
                         return CheckboxListTile(
                           title: Text(lesson),
@@ -179,21 +200,64 @@ class _RegisterViewState extends State<RegisterView> {
                         );
                       }).toList(),
                     ),
-                  ),
-                  // Register Button
-                  TextButton(
-                    onPressed: _registerUser,
-                    child: const Text('Register'),
-                  ),
-                  // Navigate to Login
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pushNamedAndRemoveUntil(
-                          loginRoute, (route) => false);
-                    },
-                    child: const Text('Already registered? Login here!'),
-                  ),
-                ],
+                    const SizedBox(height: 16),
+                    // Grade Selection
+                    if (_role == 'Teacher') ...[
+                      const Text('Select Grades You Teach:'),
+                      Column(
+                        children: _grades.map((grade) {
+                          return CheckboxListTile(
+                            title: Text('Grade $grade'),
+                            value: _selectedGrades.contains(grade),
+                            onChanged: (isSelected) {
+                              setState(() {
+                                if (isSelected == true) {
+                                  _selectedGrades.add(grade);
+                                } else {
+                                  _selectedGrades.remove(grade);
+                                }
+                              });
+                            },
+                          );
+                        }).toList(),
+                      ),
+                    ] else if (_role == 'Student') ...[
+                      const Text('Select Your Grade:'),
+                      Column(
+                        children: _grades.map((grade) {
+                          return RadioListTile<int>(
+                            title: Text('Grade $grade'),
+                            value: grade,
+                            groupValue: _selectedGrades.isNotEmpty
+                                ? _selectedGrades.first
+                                : null,
+                            onChanged: (selectedGrade) {
+                              setState(() {
+                                _selectedGrades
+                                  ..clear()
+                                  ..add(selectedGrade!);
+                              });
+                            },
+                          );
+                        }).toList(),
+                      ),
+                    ],
+                    const SizedBox(height: 16),
+                    // Register Button
+                    TextButton(
+                      onPressed: _registerUser,
+                      child: const Text('Register'),
+                    ),
+                    // Navigate to Login
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pushNamedAndRemoveUntil(
+                            loginRoute, (route) => false);
+                      },
+                      child: const Text('Already registered? Login here!'),
+                    ),
+                  ],
+                ),
               ),
             );
           } else {

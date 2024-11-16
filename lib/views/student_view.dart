@@ -1,9 +1,12 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:grade_up/constants/routes.dart';
 import 'package:grade_up/enums/menu_action.dart';
+import 'package:grade_up/models/student.dart'; // Import the Student model
+import 'package:grade_up/service/cloud_storage_exceptions.dart';
 import 'package:grade_up/utilities/build_dashboard_card.dart';
 import 'package:grade_up/utilities/show_logout_dialog.dart';
 
@@ -14,17 +17,42 @@ class StudentMainView extends StatefulWidget {
   State<StudentMainView> createState() => _StudentMainViewState();
 }
 
-String getDisplayName() {
-  final user = FirebaseAuth.instance.currentUser;
-  return user != null
-      ? user.displayName?.split(': ')[1] ?? 'Student'
-      : 'Student';
-}
-
 class _StudentMainViewState extends State<StudentMainView> {
+  Student? _student;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeStudent();
+  }
+
+  Future<void> _initializeStudent() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      try {
+        final studentDoc = await FirebaseFirestore.instance
+            .collection('students')
+            .doc(user.uid)
+            .get();
+
+        if (studentDoc.exists) {
+          final studentData = studentDoc.data();
+          if (studentData != null) {
+            setState(() {
+              _student = Student.fromFirestore(studentData, user.uid);
+            });
+          }
+        }
+      } catch (_) {
+        throw FailedToLoadStudentDataException;
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final displayName = getDisplayName();
+    final displayName = _student?.name ?? 'Student';
+    final grade = _student?.grade.toString() ?? 'N/A';
 
     return Scaffold(
       appBar: AppBar(
@@ -68,19 +96,72 @@ class _StudentMainViewState extends State<StudentMainView> {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Hello, $displayName!',
-              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            Stack(
+              alignment: Alignment.centerLeft,
+              children: [
+                // Background gradient for the student info
+                Container(
+                  height: 120,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16),
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFFe0f7fa), Color(0xFFb2ebf2)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                  ),
+                ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    // Student Image
+                    Container(
+                      margin: const EdgeInsets.all(16),
+                      width: 80,
+                      height: 80,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 3),
+                        image: const DecorationImage(
+                          image: AssetImage(
+                              'images/student_logo.png'), // Replace with your image path
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    // Student Info
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          displayName,
+                          style: const TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                          ),
+                        ),
+                        Text(
+                          'Grade: $grade',
+                          style: const TextStyle(
+                            fontSize: 18,
+                            color: Colors.black54,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ],
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 20),
             const Text(
               'Welcome back! Let’s start learning.',
               style: TextStyle(fontSize: 16, color: Colors.grey),
             ),
             const SizedBox(height: 20),
-            // Example Progress Bar
             const Text(
               'Overall Progress',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
