@@ -50,8 +50,6 @@ class RewardsPageState extends State<RewardsPage> {
       "name": "Legend Badge",
       "points": 1300
     },
-
-    // Add more badges here as needed
   ];
 
   // Fetch points and badges for all lessons in the 'gameLesson' subcollection

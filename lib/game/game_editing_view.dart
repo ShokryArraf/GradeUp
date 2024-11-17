@@ -29,16 +29,34 @@ class GameEditingViewState extends State<GameEditingView> {
     try {
       String userId = FirebaseAuth.instance.currentUser?.uid ?? '';
       if (userId.isNotEmpty) {
+        // Fetch the document for the current teacher
         DocumentSnapshot userDoc = await gameService.firestore
             .collection('teachers')
             .doc(userId)
             .get();
-        return List<String>.from(userDoc['assignedLessons'] ?? []);
+
+        // Extract lessonGradeMap from Firestore (teachingLessons field)
+        final lessonGradeMap =
+            Map<String, dynamic>.from(userDoc['teachingLessons'] ?? {});
+
+        // Convert the grades (List<dynamic>) into Set<int>
+        Map<String, Set<int>> lessonGradeMapConverted = {};
+
+        lessonGradeMap.forEach((lesson, grades) {
+          // Ensure that grades is a List<dynamic> and convert to Set<int>
+          if (grades is List<dynamic>) {
+            lessonGradeMapConverted[lesson] =
+                grades.map((grade) => grade as int).toSet();
+          }
+        });
+
+        // Return the lesson names (keys) as a list of Strings
+        return lessonGradeMapConverted.keys.toList();
       } else {
-        throw UserIdNotFoundException;
+        throw UserIdNotFoundException();
       }
     } catch (_) {
-      throw ErrorFetchingAssignedLessonsException;
+      throw ErrorFetchingAssignedLessonsException();
     }
   }
 

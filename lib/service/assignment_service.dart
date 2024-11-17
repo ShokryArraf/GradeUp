@@ -29,6 +29,27 @@ class AssignmentService {
     }
   }
 
+  // // Create a new assignment and return a reference to it
+  // Future<DocumentReference> createAssignment(
+  //   String lessonId, {
+  //   required String title,
+  //   required String description,
+  //   required DateTime dueDate,
+  //   required List<String> questions,
+  // }) async {
+  //   Map<String, dynamic> assignmentData = {
+  //     'title': title,
+  //     'description': description,
+  //     'dueDate': dueDate.toIso8601String(),
+  //     'questions': questions,
+  //   };
+  //   return await _firestore
+  //       .collection('lessons1')
+  //       .doc(lessonId)
+  //       .collection('assignments')
+  //       .add(assignmentData);
+  // }
+
   // Create a new assignment and return a reference to it
   Future<DocumentReference> createAssignment(
     String lessonId, {
@@ -36,13 +57,21 @@ class AssignmentService {
     required String description,
     required DateTime dueDate,
     required List<String> questions,
+    required int grade,
+    required String teacherName,
   }) async {
     Map<String, dynamic> assignmentData = {
       'title': title,
       'description': description,
       'dueDate': dueDate.toIso8601String(),
       'questions': questions,
+      'teacherName': teacherName, // Include teacherName in the data
     };
+    await FirebaseFirestore.instance
+        .collection('userprogress')
+        .doc(lessonId)
+        .set({'grade': grade}, SetOptions(merge: true));
+
     return await _firestore
         .collection('lessons1')
         .doc(lessonId)
