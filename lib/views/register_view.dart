@@ -80,17 +80,6 @@ class _RegisterViewState extends State<RegisterView> {
         };
 
         await userCollection.doc(userId).set(userData);
-
-        if (_role == 'Student') {
-          // Create initial progress for students
-          await FirebaseFirestore.instance
-              .collection('userprogress')
-              .doc(userId)
-              .set({
-            'grade': _selectedGrade,
-            'exists': true,
-          }, SetOptions(merge: true));
-        }
       }
 
       // Navigate to login
