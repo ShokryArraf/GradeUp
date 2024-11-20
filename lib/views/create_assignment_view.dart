@@ -78,7 +78,7 @@ class CreateAssignmentViewState extends State<CreateAssignmentView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Create Assignment'),
+        title: const Text('Manage Assignments'),
         centerTitle: true,
       ),
       body: SingleChildScrollView(
@@ -175,7 +175,7 @@ class CreateAssignmentViewState extends State<CreateAssignmentView> {
               const SizedBox(height: 16),
               TextFormField(
                 controller: _descriptionController,
-                maxLines: 3,
+                maxLines: 2,
                 decoration: InputDecoration(
                   labelText: 'Assignment Description',
                   border: OutlineInputBorder(
@@ -189,6 +189,7 @@ class CreateAssignmentViewState extends State<CreateAssignmentView> {
               const SizedBox(height: 16),
               TextFormField(
                 controller: _questionsController,
+                maxLines: 4,
                 decoration: InputDecoration(
                   labelText: 'Questions (comma-separated)',
                   border: OutlineInputBorder(

@@ -78,4 +78,37 @@ class AssignmentService {
       });
     }
   }
+
+  Future<List<Map<String, dynamic>>> fetchAssignments({
+    required String teacherName,
+    required String lessonName,
+    required int grade,
+  }) async {
+    // Reference the specific lesson document by its name (ID)
+    final lessonRef = _firestore.collection('lessons1').doc(lessonName);
+
+    // Fetch the assignments subcollection for this lesson
+    final assignmentsSnapshot = await lessonRef.collection('assignments').get();
+
+    // Filter assignments based on teacherName and grade
+    return assignmentsSnapshot.docs
+        .where((doc) =>
+            doc.data()['teacherName'] == teacherName &&
+            doc.data()['grade'] == grade)
+        .map((doc) => {
+              'id': doc.id, // Assignment ID
+              'lessonName': lessonName, // Add lesson name
+              ...doc.data(), // Include all fields in the assignment
+            })
+        .toList();
+  }
+
+  Future<void> deleteAssignment(String lessonName, String assignmentId) async {
+    await _firestore
+        .collection('lessons1')
+        .doc(lessonName)
+        .collection('assignments')
+        .doc(assignmentId)
+        .delete();
+  }
 }
