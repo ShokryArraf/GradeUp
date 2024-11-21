@@ -9,7 +9,7 @@ import 'package:grade_up/models/teacher.dart';
 import 'package:grade_up/service/cloud_storage_exceptions.dart';
 import 'package:grade_up/utilities/build_dashboard_card.dart';
 import 'package:grade_up/utilities/show_logout_dialog.dart';
-import 'package:grade_up/views/create_assignment_view.dart';
+import 'package:grade_up/views/assignment_manage_options.dart';
 import 'package:grade_up/views/student_progress_view.dart';
 
 class TeacherMainView extends StatefulWidget {
@@ -175,7 +175,7 @@ class _TeacherMainViewState extends State<TeacherMainView> {
                       context,
                       MaterialPageRoute(
                         builder: (context) =>
-                            CreateAssignmentView(teacher: _teacher!),
+                            AssignmentManageOptions(teacher: _teacher!),
                       ),
                     );
                   }),

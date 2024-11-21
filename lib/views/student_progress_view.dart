@@ -9,10 +9,6 @@ class StudentProgressView extends StatelessWidget {
 
   Future<List<Map<String, dynamic>>> _fetchStudents() async {
     final FirebaseFirestore firestore = FirebaseFirestore.instance;
-
-    final List<int> teachingGrades = teacher.teachingGrades;
-    final List<String> assignedLessons = teacher.assignedLessons;
-
     // Fetch userprogress documents with matching grades
     final querySnapshot = await firestore.collection('userprogress').get();
 
@@ -21,7 +17,13 @@ class StudentProgressView extends StatelessWidget {
       final data = doc.data();
       final int grade = data['grade'] ?? 0;
 
-      if (teachingGrades.contains(grade)) {
+      // Check if the teacher is assigned to this grade for any lesson
+      final List<String> validLessons = teacher.lessonGradeMap.entries
+          .where((entry) => entry.value.contains(grade)) // Match grades
+          .map((entry) => entry.key) // Extract valid lesson names
+          .toList();
+
+      if (validLessons.isNotEmpty) {
         // Fetch lessons from the `gameLesson` subcollection
         final gameLessonCollection = firestore
             .collection('userprogress')
@@ -34,7 +36,8 @@ class StudentProgressView extends StatelessWidget {
           final lessonData = lessonDoc.data();
           final String lessonName = lessonDoc.id;
 
-          if (assignedLessons.contains(lessonName)) {
+          // Check if the lesson is among the valid lessons
+          if (validLessons.contains(lessonName)) {
             students.add({
               'id': doc.id,
               'name': lessonData['name'],
@@ -123,12 +126,6 @@ class StudentProgressView extends StatelessWidget {
                       Text('Wrong Answers: ${student['wrongAnswers']}'),
                     ],
                   ),
-                  // trailing: IconButton(
-                  //   icon: const Icon(Icons.more_vert),
-                  //   onPressed: () {
-                  //     // Optional: Add options like "View Detailed Progress"
-                  //   },
-                  // ),
                 ),
               );
             },

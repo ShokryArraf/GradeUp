@@ -17,23 +17,30 @@ class CreateAssignmentViewState extends State<CreateAssignmentView> {
   final _assignmentService = AssignmentService();
 
   String? _selectedLesson;
+  int? _selectedGrade;
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _questionsController = TextEditingController();
   DateTime? _dueDate;
 
-  List<Map<String, dynamic>> get _lessons => widget.teacher.assignedLessons
-      .map((lesson) => {'id': lesson, 'title': lesson})
+  // Retrieve lessons as a list of maps with their associated grades
+  List<Map<String, dynamic>> get _lessons => widget.teacher.lessonGradeMap.keys
+      .map((lesson) => {
+            'id': lesson,
+            'title': lesson,
+            'grades': widget.teacher.lessonGradeMap[lesson], // Add grades info
+          })
       .toList();
 
-  @override
-  void initState() {
-    super.initState();
-  }
+  // Dynamically fetch grades for the selected lesson
+  List<int> get _grades => _selectedLesson != null
+      ? (widget.teacher.lessonGradeMap[_selectedLesson!] ?? [])
+      : [];
 
   Future<void> _createAndAssignToStudents() async {
     if (_formKey.currentState!.validate() &&
         _selectedLesson != null &&
+        _selectedGrade != null &&
         _dueDate != null) {
       // Create the assignment
       DocumentReference assignmentRef =
@@ -43,6 +50,8 @@ class CreateAssignmentViewState extends State<CreateAssignmentView> {
         description: _descriptionController.text,
         dueDate: _dueDate!,
         questions: _questionsController.text.split(','),
+        grade: _selectedGrade!,
+        teacherName: widget.teacher.name,
       );
 
       // Assign to all enrolled students
@@ -69,7 +78,7 @@ class CreateAssignmentViewState extends State<CreateAssignmentView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Create Assignment'),
+        title: const Text('Manage Assignments'),
         centerTitle: true,
       ),
       body: SingleChildScrollView(
@@ -92,7 +101,6 @@ class CreateAssignmentViewState extends State<CreateAssignmentView> {
                 DropdownButtonFormField<String>(
                   decoration: InputDecoration(
                     labelText: 'Select Lesson',
-                    labelStyle: const TextStyle(color: Colors.blueGrey),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
@@ -106,6 +114,7 @@ class CreateAssignmentViewState extends State<CreateAssignmentView> {
                   onChanged: (value) {
                     setState(() {
                       _selectedLesson = value;
+                      _selectedGrade = null; // Reset grade when lesson changes
                     });
                   },
                   validator: (value) =>
@@ -113,16 +122,41 @@ class CreateAssignmentViewState extends State<CreateAssignmentView> {
                 )
               else
                 const Center(
-                  child: Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: Text(
-                      'No lessons assigned. Please assign lessons to create assignments.',
-                      style: TextStyle(
-                        color: Colors.red,
-                        fontSize: 16,
-                      ),
-                      textAlign: TextAlign.center,
+                  child: Text(
+                    'No lessons assigned. Please assign lessons to create assignments.',
+                    style: TextStyle(color: Colors.red, fontSize: 16),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              const SizedBox(height: 16),
+              if (_grades.isNotEmpty)
+                DropdownButtonFormField<int>(
+                  decoration: InputDecoration(
+                    labelText: 'Select Grade',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
                     ),
+                  ),
+                  items: _grades.map((grade) {
+                    return DropdownMenuItem<int>(
+                      value: grade,
+                      child: Text('Grade $grade'),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedGrade = value;
+                    });
+                  },
+                  validator: (value) =>
+                      value == null ? 'Please select a grade' : null,
+                )
+              else
+                const Center(
+                  child: Text(
+                    'No grades available for the selected lesson.',
+                    style: TextStyle(color: Colors.red, fontSize: 16),
+                    textAlign: TextAlign.center,
                   ),
                 ),
               const SizedBox(height: 16),
@@ -141,7 +175,7 @@ class CreateAssignmentViewState extends State<CreateAssignmentView> {
               const SizedBox(height: 16),
               TextFormField(
                 controller: _descriptionController,
-                maxLines: 3,
+                maxLines: 2,
                 decoration: InputDecoration(
                   labelText: 'Assignment Description',
                   border: OutlineInputBorder(
@@ -155,6 +189,7 @@ class CreateAssignmentViewState extends State<CreateAssignmentView> {
               const SizedBox(height: 16),
               TextFormField(
                 controller: _questionsController,
+                maxLines: 4,
                 decoration: InputDecoration(
                   labelText: 'Questions (comma-separated)',
                   border: OutlineInputBorder(
@@ -189,13 +224,7 @@ class CreateAssignmentViewState extends State<CreateAssignmentView> {
                         });
                       }
                     },
-                    style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: Colors.blueAccent),
-                    ),
-                    child: const Text(
-                      'Pick Date',
-                      style: TextStyle(color: Colors.blueAccent),
-                    ),
+                    child: const Text('Pick Date'),
                   ),
                 ],
               ),
@@ -203,18 +232,7 @@ class CreateAssignmentViewState extends State<CreateAssignmentView> {
               Center(
                 child: ElevatedButton(
                   onPressed: _createAndAssignToStudents,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blueAccent,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 24, vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  child: const Text(
-                    'Create Assignment',
-                    style: TextStyle(fontSize: 18),
-                  ),
+                  child: const Text('Create Assignment'),
                 ),
               ),
             ],

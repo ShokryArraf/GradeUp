@@ -1,14 +1,12 @@
 class Teacher {
   final String teacherId;
   final String name;
-  final List<String> assignedLessons;
-  final List<int> teachingGrades;
+  final Map<String, List<int>> lessonGradeMap; // Map lessons to grades
 
   Teacher({
     required this.teacherId,
     required this.name,
-    required this.assignedLessons,
-    required this.teachingGrades,
+    required this.lessonGradeMap,
   });
 
   // Factory constructor to create a Teacher instance from Firestore data
@@ -16,9 +14,9 @@ class Teacher {
     return Teacher(
       teacherId: teacherId,
       name: data['name'] ?? '',
-      assignedLessons: List<String>.from(data['assignedLessons'] ?? []),
-      teachingGrades: List<int>.from(
-          data['teachingGrades'] ?? []), // Retrieve teachingGrades
+      lessonGradeMap: (data['teachingLessons'] as Map<String, dynamic>? ?? {})
+          .map((key, value) =>
+              MapEntry(key, List<int>.from(value ?? []))), // Parse grades
     );
   }
 
@@ -26,8 +24,8 @@ class Teacher {
   Map<String, dynamic> toFirestore() {
     return {
       'name': name,
-      'assignedLessons': assignedLessons,
-      'teachingGrades': teachingGrades,
+      'teachingLessons':
+          lessonGradeMap.map((key, value) => MapEntry(key, value)),
     };
   }
 }
