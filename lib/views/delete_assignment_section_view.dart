@@ -62,9 +62,9 @@ class DeleteAssignmentSectionState extends State<DeleteAssignmentSection> {
 
     try {
       final assignments = await _assignmentService.fetchAssignments(
-        teacherName: widget.teacher.name,
         lessonName: _selectedLesson!,
         grade: grade,
+        teacher: widget.teacher,
       );
 
       setState(() {
@@ -78,9 +78,11 @@ class DeleteAssignmentSectionState extends State<DeleteAssignmentSection> {
   }
 
   // Delete an assignment
-  Future<void> _deleteAssignment(String lessonName, String assignmentId) async {
+  Future<void> _deleteAssignment(
+      String lessonName, String assignmentId, String grade) async {
     try {
-      await _assignmentService.deleteAssignment(lessonName, assignmentId);
+      await _assignmentService.deleteAssignment(
+          lessonName, assignmentId, widget.teacher.school, grade);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Assignment deleted successfully.')),
       );
@@ -258,7 +260,9 @@ class DeleteAssignmentSectionState extends State<DeleteAssignmentSection> {
                         trailing: IconButton(
                           icon: const Icon(Icons.delete, color: Colors.red),
                           onPressed: () => _deleteAssignment(
-                              assignment['lessonName'], assignment['id']),
+                              assignment['lessonName'],
+                              assignment['id'],
+                              assignment['grade'].toString()),
                         ),
                       ),
                     );

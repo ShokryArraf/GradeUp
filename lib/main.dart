@@ -2,13 +2,11 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:grade_up/constants/routes.dart';
 import 'package:grade_up/firebase_options.dart';
-import 'package:grade_up/game/game_editing_view.dart';
 import 'package:grade_up/game/game_options.dart';
 import 'package:grade_up/game/game_page.dart';
 import 'package:grade_up/views/login_view.dart';
 import 'package:grade_up/views/register_view.dart';
 import 'package:grade_up/views/student_view.dart';
-import 'package:grade_up/views/teacher_view.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,12 +23,10 @@ void main() {
           loginRoute: (context) => const LoginView(),
           registerRoute: (context) => const RegisterView(),
           studentviewRoute: (context) => const StudentMainView(),
-          teachertviewRoute: (context) => const TeacherMainView(),
           gameRoute: (context) => const GamePage(
                 lesson: '',
               ),
           gameoptionsRoute: (context) => const GameOptionsPage(),
-          gameeditRoute: (context) => const GameEditingView(),
         }),
   );
 }

@@ -6,31 +6,45 @@ class GameService {
 
   get questions => null;
 
-  Future<void> addQuestion(
-      String lesson, Map<String, dynamic> questionData) async {
+  Future<void> addQuestion(String lesson, Map<String, dynamic> questionData,
+      String school, String grade) async {
     try {
       await firestore
+          .collection('schools')
+          .doc(school)
+          .collection('grades')
+          .doc(grade)
           .collection('lessons')
           .doc(lesson)
-          .collection('questions')
+          .collection('gameQuestions')
           .add(questionData);
     } catch (_) {
       throw FailedToAddQuestionException;
     }
   }
 
-  // Fetch questions for a specific lesson
-  Future<List<Map<String, dynamic>>> fetchQuestions(String lesson) async {
+// Fetch questions for a specific lesson
+  Future<List<Map<String, dynamic>>> fetchQuestions(
+      String lesson, String school, String grade) async {
     try {
       final questionsSnapshot = await firestore
+          .collection('schools')
+          .doc(school)
+          .collection('grades')
+          .doc(grade)
           .collection('lessons')
           .doc(lesson)
-          .collection('questions')
+          .collection('gameQuestions')
           .get();
 
-      return questionsSnapshot.docs.map((doc) => doc.data()).toList();
+      // Map each document to its data and add the documentID to the map
+      return questionsSnapshot.docs.map((doc) {
+        var questionData = doc.data();
+        questionData['id'] = doc.id; // Add document ID to each question
+        return questionData;
+      }).toList();
     } catch (_) {
-      throw ErrorFetchingQuestionsException;
+      throw ErrorFetchingQuestionsException();
     }
   }
 
@@ -117,12 +131,21 @@ class GameService {
     return querySnapshot.docs.map((doc) => doc.data()).toList();
   }
 
-  Future<void> deleteQuestion(String lesson, String questionId) async {
-    await firestore
-        .collection('lessons')
-        .doc(lesson)
-        .collection('questions')
-        .doc(questionId)
-        .delete();
+  Future<void> deleteQuestion(
+      String lesson, String questionId, String school, String grade) async {
+    try {
+      await firestore
+          .collection('schools')
+          .doc(school)
+          .collection('grades')
+          .doc(grade)
+          .collection('lessons')
+          .doc(lesson)
+          .collection('gameQuestions')
+          .doc(questionId)
+          .delete();
+    } catch (_) {
+      throw FailedToAddQuestionException;
+    }
   }
 }

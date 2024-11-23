@@ -52,12 +52,15 @@ class CreateAssignmentViewState extends State<CreateAssignmentView> {
         questions: _questionsController.text.split(','),
         grade: _selectedGrade!,
         teacherName: widget.teacher.name,
+        teacher: widget.teacher,
       );
 
       // Assign to all enrolled students
       await _assignmentService.assignToEnrolledStudents(
         _selectedLesson!,
         assignmentRef.id,
+        _selectedGrade.toString(),
+        widget.teacher,
       );
 
       ScaffoldMessenger.of(context).showSnackBar(
