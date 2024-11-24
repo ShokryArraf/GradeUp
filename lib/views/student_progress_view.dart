@@ -9,44 +9,47 @@ class StudentProgressView extends StatelessWidget {
 
   Future<List<Map<String, dynamic>>> _fetchStudents() async {
     final FirebaseFirestore firestore = FirebaseFirestore.instance;
-    // Fetch userprogress documents with matching grades
-    final querySnapshot = await firestore.collection('userprogress').get();
+    final List<Map<String, dynamic>> students = [];
 
-    List<Map<String, dynamic>> students = [];
-    for (var doc in querySnapshot.docs) {
-      final data = doc.data();
-      final int grade = data['grade'] ?? 0;
+    // Loop through each lesson the teacher teaches and its corresponding grades
+    for (var entry in teacher.lessonGradeMap.entries) {
+      final String lesson = entry.key; // The lesson name
+      final List<int> grades = entry.value; // The list of grades for the lesson
 
-      // Check if the teacher is assigned to this grade for any lesson
-      final List<String> validLessons = teacher.lessonGradeMap.entries
-          .where((entry) => entry.value.contains(grade)) // Match grades
-          .map((entry) => entry.key) // Extract valid lesson names
-          .toList();
+      for (var grade in grades) {
+        // Fetch all students in the grade
+        final studentsSnapshot = await firestore
+            .collection('schools')
+            .doc(teacher.school)
+            .collection('grades')
+            .doc(grade.toString())
+            .collection('students')
+            .get();
 
-      if (validLessons.isNotEmpty) {
-        // Fetch lessons from the `gameLesson` subcollection
-        final gameLessonCollection = firestore
-            .collection('userprogress')
-            .doc(doc.id)
-            .collection('gameLesson');
+        for (var studentDoc in studentsSnapshot.docs) {
+          final studentData = studentDoc.data();
 
-        final gameLessonsSnapshot = await gameLessonCollection.get();
+          // Fetch the game progress for the specific lesson
+          final gameProgressSnapshot = await studentDoc.reference
+              .collection('gameProgress')
+              .doc(lesson)
+              .get();
 
-        for (var lessonDoc in gameLessonsSnapshot.docs) {
-          final lessonData = lessonDoc.data();
-          final String lessonName = lessonDoc.id;
+          if (gameProgressSnapshot.exists) {
+            final progressData = gameProgressSnapshot.data();
 
-          // Check if the lesson is among the valid lessons
-          if (validLessons.contains(lessonName)) {
+            // Add the student's progress for the lesson
             students.add({
-              'id': doc.id,
-              'name': lessonData['name'],
-              'grade': grade,
-              'lesson': lessonName,
-              'level': lessonData['level'] ?? 'N/A',
-              'rightAnswers': lessonData['rightAnswers'] ?? 0,
-              'wrongAnswers': lessonData['wrongAnswers'] ?? 0,
-              'points': lessonData['points'] ?? 0,
+              'id': studentDoc.id,
+              'name': studentData['name'] ?? 'Unknown', // Student's name
+              'grade': grade, // Grade
+              'lesson': lesson, // Lesson
+              'level': progressData?['level'] ?? 'N/A', // Game level
+              'rightAnswers':
+                  progressData?['rightAnswers'] ?? 0, // Right answers
+              'wrongAnswers':
+                  progressData?['wrongAnswers'] ?? 0, // Wrong answers
+              'points': progressData?['points'] ?? 0, // Total points
             });
           }
         }

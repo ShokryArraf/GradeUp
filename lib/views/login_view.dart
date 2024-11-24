@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:grade_up/constants/routes.dart';
 import 'package:grade_up/utilities/show_error_dialog.dart';
+import 'package:grade_up/views/student_view.dart';
 import 'package:grade_up/views/teacher_view.dart';
 
 class LoginView extends StatefulWidget {
@@ -96,17 +97,7 @@ class _LoginViewState extends State<LoginView> {
                       .signInWithEmailAndPassword(
                           email: email, password: password);
                   if (userCredential.user != null) {
-                    //   if (userCredential.user?.displayName?.split(': ')[0] ==
-                    //       "Student") {
-                    //     Navigator.of(context).pushNamedAndRemoveUntil(
-                    //         studentviewRoute, (route) => false);
-                    //   } else {
-                    //     Navigator.of(context).pushNamedAndRemoveUntil(
-                    //         teachertviewRoute, (route) => false);
-                    //   }
-                    // }
-
-                    // Extract the school name from the displayName field
+                    // Extract the name,role,school name from the displayName field
                     final displayName = userCredential.user?.displayName;
                     final parts = displayName?.split(': ');
                     final role = parts?[0];
@@ -119,11 +110,17 @@ class _LoginViewState extends State<LoginView> {
                     }
 
                     if (role == "Student") {
+                      final grade = parts?[3];
                       // Navigate to the student view, passing the school name
-                      Navigator.of(context).pushNamedAndRemoveUntil(
-                        studentviewRoute,
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => StudentMainView(
+                            schoolName: schoolName.toString(),
+                            grade: grade!,
+                          ),
+                        ),
                         (route) => false,
-                        arguments: schoolName,
                       );
                     } else {
                       Navigator.pushAndRemoveUntil(
@@ -156,7 +153,7 @@ class _LoginViewState extends State<LoginView> {
                 } catch (e) {
                   await showErrorDialog(
                     context,
-                    e.toString(),
+                    "Please contact the support team.",
                   );
                 }
               },

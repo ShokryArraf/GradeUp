@@ -1,51 +1,32 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:grade_up/game/game_page.dart';
 import 'package:grade_up/game/leaderboard_page.dart';
-import 'package:grade_up/service/cloud_storage_exceptions.dart';
+import 'package:grade_up/models/student.dart';
 import 'package:grade_up/utilities/build_game_button.dart';
 import 'rewards_page.dart';
 
 class GameOptionsPage extends StatefulWidget {
-  const GameOptionsPage({super.key});
+  final Student student;
+  const GameOptionsPage({super.key, required this.student});
 
   @override
   GameOptionsPageState createState() => GameOptionsPageState();
 }
 
 class GameOptionsPageState extends State<GameOptionsPage> {
-  List<String> enrolledLessons = [];
-
   @override
   void initState() {
     super.initState();
-    fetchEnrolledLessons();
-  }
-
-  Future<void> fetchEnrolledLessons() async {
-    try {
-      String userId = FirebaseAuth.instance.currentUser?.uid ?? '';
-      if (userId.isNotEmpty) {
-        DocumentSnapshot userDoc = await FirebaseFirestore.instance
-            .collection('students')
-            .doc(userId)
-            .get();
-
-        setState(() {
-          enrolledLessons = List<String>.from(userDoc['enrolledLessons'] ?? []);
-        });
-      }
-    } catch (_) {
-      throw ErrorFetchingEnrolledLessonsException;
-    }
   }
 
   void navigateToGamePage(BuildContext context, String lesson) {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => GamePage(lesson: lesson),
+        builder: (context) => GamePage(
+          lesson: lesson,
+          student: widget.student,
+        ),
       ),
     );
   }
@@ -54,7 +35,9 @@ class GameOptionsPageState extends State<GameOptionsPage> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => const RewardsPage(),
+        builder: (context) => RewardsPage(
+          student: widget.student,
+        ),
       ),
     );
   }
@@ -117,7 +100,7 @@ class GameOptionsPageState extends State<GameOptionsPage> {
                 ),
                 const SizedBox(height: 40),
                 // Dynamically generate game buttons based on enrolled lessons
-                for (String lesson in enrolledLessons) ...[
+                for (String lesson in widget.student.enrolledLessons) ...[
                   buildGameButton(
                     context,
                     "Play $lesson Game",
@@ -145,7 +128,9 @@ class GameOptionsPageState extends State<GameOptionsPage> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const LeaderboardPage(),
+                        builder: (context) => LeaderboardPage(
+                          student: widget.student,
+                        ),
                       ),
                     );
                   },

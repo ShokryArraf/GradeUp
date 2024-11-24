@@ -1,19 +1,21 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:grade_up/models/student.dart';
 import 'package:grade_up/service/cloud_storage_exceptions.dart';
+import 'package:grade_up/service/game_service.dart';
 
 class RewardsPage extends StatefulWidget {
-  const RewardsPage({super.key});
+  final Student student;
+  const RewardsPage({super.key, required this.student});
 
   @override
   RewardsPageState createState() => RewardsPageState();
 }
 
 class RewardsPageState extends State<RewardsPage> {
+  final GameService _gameService = GameService();
+
   Map<String, int> lessonPoints = {};
   Map<String, String> lessonBadges = {};
-  String? userId = FirebaseAuth.instance.currentUser?.uid;
 
   // Mock badge data for upcoming rewards
   final List<Map<String, dynamic>> upcomingBadges = [
@@ -52,58 +54,17 @@ class RewardsPageState extends State<RewardsPage> {
     },
   ];
 
-  // Fetch points and badges for all lessons in the 'gameLesson' subcollection
-  Future<void> fetchAllLessonRewards(String userId) async {
+  void loadLessonRewards(Student student) async {
     try {
-      QuerySnapshot snapshot = await FirebaseFirestore.instance
-          .collection('userprogress')
-          .doc(userId)
-          .collection('gameLesson')
-          .get();
-
-      Map<String, int> pointsData = {};
-      Map<String, String> badgesData = {};
-
-      for (var doc in snapshot.docs) {
-        String lesson = doc.id;
-        int points = doc['points'] ?? 0;
-        String badge = getBadge(points);
-
-        pointsData[lesson] = points;
-        badgesData[lesson] = badge;
-      }
+      Map<String, Map<String, dynamic>> lessonRewards =
+          await _gameService.fetchAllLessonRewards(student);
 
       setState(() {
-        lessonPoints = pointsData;
-        lessonBadges = badgesData;
+        lessonPoints = lessonRewards['pointsData'] as Map<String, int>;
+        lessonBadges = lessonRewards['badgesData'] as Map<String, String>;
       });
     } catch (_) {
       throw ErrorFetchingLessonsException;
-    }
-  }
-
-  // Determine badge based on points
-  String getBadge(int points) {
-    if (points >= 1300) {
-      return "images/legend_badge.png";
-    } else if (points >= 850) {
-      return "images/elite_badge.png";
-    } else if (points >= 600) {
-      return "images/master_badge.png";
-    } else if (points >= 350) {
-      return "images/expert_badge.png";
-    } else if (points >= 300) {
-      return "images/champion_badge.png";
-    } else if (points >= 250) {
-      return "images/advanced_badge.png";
-    } else if (points >= 200) {
-      return "images/intermediate_badge.png";
-    } else if (points >= 150) {
-      return "images/apprentice_badge.png";
-    } else if (points >= 50) {
-      return "images/beginner_badge.png";
-    } else {
-      return "images/no_badge.png"; // Default "No Badge" image
     }
   }
 
@@ -120,7 +81,7 @@ class RewardsPageState extends State<RewardsPage> {
   @override
   void initState() {
     super.initState();
-    if (userId != null) fetchAllLessonRewards(userId!);
+    loadLessonRewards(widget.student);
   }
 
   @override

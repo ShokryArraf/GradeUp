@@ -1,17 +1,20 @@
-// ignore_for_file: use_build_context_synchronously
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:grade_up/constants/routes.dart';
 import 'package:grade_up/enums/menu_action.dart';
+import 'package:grade_up/game/game_options.dart';
 import 'package:grade_up/models/student.dart'; // Import the Student model
 import 'package:grade_up/service/cloud_storage_exceptions.dart';
 import 'package:grade_up/utilities/build_dashboard_card.dart';
 import 'package:grade_up/utilities/show_logout_dialog.dart';
 
 class StudentMainView extends StatefulWidget {
-  const StudentMainView({super.key});
+  final String schoolName;
+  final String grade;
+
+  const StudentMainView(
+      {super.key, required this.schoolName, required this.grade});
 
   @override
   State<StudentMainView> createState() => _StudentMainViewState();
@@ -31,6 +34,10 @@ class _StudentMainViewState extends State<StudentMainView> {
     if (user != null) {
       try {
         final studentDoc = await FirebaseFirestore.instance
+            .collection('schools')
+            .doc(widget.schoolName)
+            .collection('grades')
+            .doc(widget.grade)
             .collection('students')
             .doc(user.uid)
             .get();
@@ -40,6 +47,7 @@ class _StudentMainViewState extends State<StudentMainView> {
           if (studentData != null) {
             setState(() {
               _student = Student.fromFirestore(studentData, user.uid);
+              _student?.school = widget.schoolName;
             });
           }
         }
@@ -53,12 +61,13 @@ class _StudentMainViewState extends State<StudentMainView> {
   Widget build(BuildContext context) {
     final displayName = _student?.name ?? 'Student';
     final grade = _student?.grade.toString() ?? 'N/A';
+    final schoolName = _student?.school ?? 'School';
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Student Dashboard',
-          style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
+        title: Text(
+          'Student Dashboard - $schoolName',
+          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
         ),
         centerTitle: true,
         flexibleSpace: Container(
@@ -150,6 +159,13 @@ class _StudentMainViewState extends State<StudentMainView> {
                             color: Colors.black54,
                           ),
                         ),
+                        Text(
+                          schoolName,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            color: Colors.black54,
+                          ),
+                        ),
                       ],
                     ),
                   ],
@@ -196,8 +212,13 @@ class _StudentMainViewState extends State<StudentMainView> {
                   }),
                   buildDashboardCard(
                       Icons.videogame_asset, 'Game', Colors.redAccent, () {
-                    Navigator.of(context)
-                        .pushNamed(gameoptionsRoute); // Route to the game page
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            GameOptionsPage(student: _student!),
+                      ),
+                    ); // Route to the game page
                   }),
                 ],
               ),
