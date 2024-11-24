@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:grade_up/models/teacher.dart';
-import 'package:image_picker/image_picker.dart';  // Import image_picker package
+import 'package:grade_up/models/teacher.dart'; // Import image_picker package
 import 'dart:io';  // To handle file paths
 
 class ManageContent extends StatefulWidget {
@@ -148,7 +147,10 @@ class _ManageContentState extends State<ManageContent> {
             : const Icon(Icons.image, size: 100, color: Colors.blueAccent),
         const SizedBox(height: 10),
         ElevatedButton(
-          onPressed: _pickImage,
+          onPressed:() {
+            print('hi');
+            _contentList.add({'type': 'media', 'data': '../images/beginner_badge.png'});
+          },
           child: const Text('Upload Media'),
         ),
         const SizedBox(height: 10),
@@ -168,28 +170,6 @@ class _ManageContentState extends State<ManageContent> {
     );
   }
 
-  // Function to pick image from gallery
-  Future<void> _pickImage() async {
-  try {
-    final ImagePicker picker = ImagePicker();
-    final XFile? pickedFile = await picker.pickImage(source: ImageSource.gallery);
-
-    if (pickedFile != null) {
-      setState(() {
-        _selectedImage = File(pickedFile.path);
-      });
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No image selected')),
-      );
-    }
-  } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Error picking image: $e')),
-    );
-  }
-}
-
 
   Widget _buildTextInput() {
     return Column(
@@ -208,6 +188,7 @@ class _ManageContentState extends State<ManageContent> {
             if (_textController.text.isNotEmpty) {
               setState(() {
                 _contentList.add({'type': 'text', 'data': _textController.text});
+                _contentList.add({'type': 'text', 'data': 'test text'});
                 _textController.clear();
                 _selectedElement = null;
               });
@@ -240,4 +221,3 @@ class _ManageContentState extends State<ManageContent> {
     }
   }
 }
-
