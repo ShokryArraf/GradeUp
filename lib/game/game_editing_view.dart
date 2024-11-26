@@ -19,7 +19,10 @@ class GameEditingViewState extends State<GameEditingView> {
   String? _selectedLevel;
   String? _questionText;
   String? _correctAnswer;
-  List<String> _answerOptions = [];
+  // List<String> _answerOptions = [];
+  List<String> _answerOptions =
+      List.filled(4, ''); // Initialize with 4 empty strings
+
   List<Map<String, dynamic>> _questions = [];
 
   final GameService gameService = GameService();
@@ -85,9 +88,35 @@ class GameEditingViewState extends State<GameEditingView> {
     }
   }
 
+  bool areOptionsUnique(List<String> options) {
+    return options.toSet().length == options.length;
+  }
+
   void _addQuestion() async {
     if (_formKey.currentState?.validate() ?? false) {
       _formKey.currentState?.save();
+
+      // Check if we have 4 diffrent answer options
+      bool flag = false;
+      for (int i = 0; i < _answerOptions.length; i++) {
+        if (_answerOptions[i] == _correctAnswer) flag = true;
+      }
+      if (!flag) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text(
+                  'You must provide the correct answer in one of the options.')),
+        );
+        return;
+      }
+
+      if (!areOptionsUnique(_answerOptions)) {
+        // Show a message to the user
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("All answer options must be unique.")),
+        );
+        return;
+      }
 
       if (_questions.length < 6) {
         await gameService.addQuestion(
@@ -107,7 +136,9 @@ class GameEditingViewState extends State<GameEditingView> {
         );
 
         _formKey.currentState?.reset();
-        setState(() => _answerOptions.clear());
+        setState(() =>
+            _answerOptions = List.filled(4, '')); // Reset with 4 empty strings
+
         _fetchQuestions();
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -301,15 +332,39 @@ class GameEditingViewState extends State<GameEditingView> {
                     // Add Question Fields
                     buildTextField('Question Text',
                         onSaved: (value) => _questionText = value),
+
                     const SizedBox(height: 10),
                     buildTextField('Correct Answer',
                         onSaved: (value) => _correctAnswer = value),
-                    const SizedBox(height: 10),
-                    buildTextField(
-                      'Answer Options (comma-separated)',
-                      onSaved: (value) => _answerOptions =
-                          value?.split(',').map((e) => e.trim()).toList() ?? [],
+                    const SizedBox(height: 24.0),
+                    Text(
+                      'Answer Options:',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
                     ),
+                    const SizedBox(height: 8.0),
+                    // Create 4 answer option fields
+                    for (int i = 0; i < 4; i++)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 8.0),
+                        child: TextFormField(
+                          decoration: InputDecoration(
+                            labelText: 'Option ${i + 1}',
+                            filled: true,
+                            fillColor: Colors.grey.shade200,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
+                          ),
+                          onSaved: (value) {
+                            _answerOptions[i] = value ?? '';
+                          },
+                          validator: (value) => value == null || value.isEmpty
+                              ? 'Please enter Option ${i + 1}'
+                              : null,
+                        ),
+                      ),
                     const SizedBox(height: 10),
                     ElevatedButton(
                       onPressed: _addQuestion,

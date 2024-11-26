@@ -84,58 +84,60 @@ class GameOptionsPageState extends State<GameOptionsPage> {
             end: Alignment.bottomCenter,
           ),
         ),
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text(
-                  "Select a Game",
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
+        child: SingleChildScrollView(
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text(
+                    "Select a Game",
+                    style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 40),
-                // Dynamically generate game buttons based on enrolled lessons
-                for (String lesson in widget.student.enrolledLessons) ...[
+                  const SizedBox(height: 40),
+                  // Dynamically generate game buttons based on enrolled lessons
+                  for (String lesson in widget.student.enrolledLessons) ...[
+                    buildGameButton(
+                      context,
+                      "Play $lesson Game",
+                      getLessonIcon(lesson), // Adjust icon as needed per lesson
+                      Colors.greenAccent,
+                      () => navigateToGamePage(context, lesson.toLowerCase()),
+                    ),
+                    const SizedBox(height: 20),
+                  ],
+                  const SizedBox(height: 40),
                   buildGameButton(
                     context,
-                    "Play $lesson Game",
-                    getLessonIcon(lesson), // Adjust icon as needed per lesson
-                    Colors.greenAccent,
-                    () => navigateToGamePage(context, lesson.toLowerCase()),
+                    "View Rewards",
+                    Icons.emoji_events,
+                    Colors.purpleAccent,
+                    () => navigateToRewardsPage(context),
                   ),
-                  const SizedBox(height: 20),
-                ],
-                const SizedBox(height: 40),
-                buildGameButton(
-                  context,
-                  "View Rewards",
-                  Icons.emoji_events,
-                  Colors.purpleAccent,
-                  () => navigateToRewardsPage(context),
-                ),
-                const SizedBox(height: 40),
-                buildGameButton(
-                  context,
-                  "View Leaderboard",
-                  Icons.leaderboard,
-                  Colors.purpleAccent,
-                  () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => LeaderboardPage(
-                          student: widget.student,
+                  const SizedBox(height: 40),
+                  buildGameButton(
+                    context,
+                    "View Leaderboard",
+                    Icons.leaderboard,
+                    Colors.purpleAccent,
+                    () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => LeaderboardPage(
+                            student: widget.student,
+                          ),
                         ),
-                      ),
-                    );
-                  },
-                ),
-              ],
+                      );
+                    },
+                  ),
+                ],
+              ),
             ),
           ),
         ),

@@ -65,9 +65,9 @@ class _StudentMainViewState extends State<StudentMainView> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'Student Dashboard - $schoolName',
-          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
+        title: const Text(
+          'Student Dashboard',
+          style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
         ),
         centerTitle: true,
         flexibleSpace: Container(

@@ -251,4 +251,49 @@ class GameService {
       return "images/no_badge.png"; // Default "No Badge" image
     }
   }
+
+  Future<List<Map<String, dynamic>>> fetchStudentDataFromFirestore({
+    required String school,
+    required int grade,
+    required String lesson,
+  }) async {
+    final FirebaseFirestore firestore = FirebaseFirestore.instance;
+    final List<Map<String, dynamic>> studentProgressList = [];
+
+    // Fetch all students in the grade
+    final studentsSnapshot = await firestore
+        .collection('schools')
+        .doc(school)
+        .collection('grades')
+        .doc(grade.toString())
+        .collection('students')
+        .get();
+
+    for (var studentDoc in studentsSnapshot.docs) {
+      final studentData = studentDoc.data();
+
+      // Fetch game progress for the specific lesson
+      final gameProgressSnapshot = await studentDoc.reference
+          .collection('gameProgress')
+          .doc(lesson)
+          .get();
+
+      if (gameProgressSnapshot.exists) {
+        final progressData = gameProgressSnapshot.data();
+
+        studentProgressList.add({
+          'id': studentDoc.id,
+          'name': studentData['name'] ?? 'Unknown',
+          'grade': grade,
+          'lesson': lesson,
+          'level': progressData?['level'] ?? 'N/A',
+          'rightAnswers': progressData?['rightAnswers'] ?? 0,
+          'wrongAnswers': progressData?['wrongAnswers'] ?? 0,
+          'points': progressData?['points'] ?? 0,
+        });
+      }
+    }
+
+    return studentProgressList;
+  }
 }
