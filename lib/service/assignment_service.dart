@@ -14,6 +14,8 @@ class AssignmentService {
     required int grade,
     required String teacherName,
     required Teacher teacher,
+    required String subject,
+    required String? link,
   }) async {
     Map<String, dynamic> assignmentData = {
       'title': title,
@@ -21,7 +23,9 @@ class AssignmentService {
       'dueDate': dueDate.toIso8601String(),
       'questions': questions,
       'grade': grade,
-      'teacherName': teacherName, // Include teacherName in the data
+      'teacherName': teacherName,
+      'subject': subject,
+      'link': link,
     };
 
     return await _firestore
@@ -128,6 +132,80 @@ class AssignmentService {
           .collection('assignmentsToDo')
           .doc(assignmentId)
           .delete();
+    }
+  }
+
+  Future<void> updateAssignment({
+    required String lessonId,
+    required String assignmentId,
+    required String grade,
+    required Teacher teacher,
+    String? title,
+    String? description,
+    DateTime? dueDate,
+    List<String>? questions,
+    int? gradeValue,
+    String? subject,
+    String? link,
+  }) async {
+    // Reference the assignment document
+    final assignmentRef = _firestore
+        .collection('schools')
+        .doc(teacher.school)
+        .collection('grades')
+        .doc(grade)
+        .collection('lessons')
+        .doc(lessonId)
+        .collection('assignments')
+        .doc(assignmentId);
+
+    // Prepare the update data
+    Map<String, dynamic> updatedData = {};
+
+    if (title != null) updatedData['title'] = title;
+    if (description != null) updatedData['description'] = description;
+    if (dueDate != null) updatedData['dueDate'] = dueDate.toIso8601String();
+    if (questions != null) updatedData['questions'] = questions;
+    if (gradeValue != null) updatedData['grade'] = gradeValue;
+    if (subject != null) updatedData['subject'] = subject;
+    if (link != null) updatedData['link'] = link;
+
+    // Update the assignment document
+    await assignmentRef.update(updatedData);
+
+    // Fetch students assigned this assignment
+    final studentsSnapshot = await _firestore
+        .collection('schools')
+        .doc(teacher.school)
+        .collection('grades')
+        .doc(grade)
+        .collection('students')
+        .where('enrolledLessons', arrayContains: lessonId)
+        .get();
+
+    // Reflect updates in each student's assignmentsToDo
+    for (var student in studentsSnapshot.docs) {
+      final studentAssignmentRef = _firestore
+          .collection('schools')
+          .doc(teacher.school)
+          .collection('grades')
+          .doc(grade)
+          .collection('students')
+          .doc(student.id)
+          .collection('assignmentsToDo')
+          .doc(assignmentId);
+
+      Map<String, dynamic> studentUpdateData = {};
+
+      // Update fields if they are relevant to students
+      if (dueDate != null) {
+        studentUpdateData['dueDate'] = dueDate.toIso8601String();
+      }
+      if (title != null) studentUpdateData['title'] = title;
+
+      if (studentUpdateData.isNotEmpty) {
+        await studentAssignmentRef.update(studentUpdateData);
+      }
     }
   }
 }

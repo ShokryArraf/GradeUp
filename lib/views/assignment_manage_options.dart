@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:grade_up/models/teacher.dart';
 import 'package:grade_up/utilities/build_dashboard_card.dart';
 import 'package:grade_up/views/create_assignment_view.dart';
-import 'package:grade_up/views/delete_assignment_section_view.dart';
+import 'package:grade_up/views/edit_delete_assignment_section_view.dart';
 
 class AssignmentManageOptions extends StatefulWidget {
   final Teacher teacher;
@@ -52,7 +52,7 @@ class _AssignmentManageOptionsState extends State<AssignmentManageOptions> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => DeleteAssignmentSection(
+                    builder: (context) => EditDeleteAssignmentSection(
                       teacher: widget.teacher,
                     ),
                   ),

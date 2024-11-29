@@ -15,12 +15,14 @@ class CreateAssignmentView extends StatefulWidget {
 class CreateAssignmentViewState extends State<CreateAssignmentView> {
   final _formKey = GlobalKey<FormState>();
   final _assignmentService = AssignmentService();
-
   String? _selectedLesson;
   int? _selectedGrade;
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _questionsController = TextEditingController();
+  final TextEditingController _linkController = TextEditingController();
+  final TextEditingController _selectedSubject = TextEditingController();
+
   DateTime? _dueDate;
 
   // Retrieve lessons as a list of maps with their associated grades
@@ -49,10 +51,19 @@ class CreateAssignmentViewState extends State<CreateAssignmentView> {
         title: _titleController.text,
         description: _descriptionController.text,
         dueDate: _dueDate!,
-        questions: _questionsController.text.split(','),
+        questions: _questionsController.text
+            .split('\n')
+            .map((question) => question.trim())
+            .where((question) => question.isNotEmpty)
+            .toList(),
+
         grade: _selectedGrade!,
         teacherName: widget.teacher.name,
         teacher: widget.teacher,
+        subject: _selectedSubject.text,
+        link: _linkController.text.isNotEmpty
+            ? _linkController.text
+            : null, // Added link
       );
 
       // Assign to all enrolled students
@@ -167,12 +178,27 @@ class CreateAssignmentViewState extends State<CreateAssignmentView> {
                 controller: _titleController,
                 decoration: InputDecoration(
                   labelText: 'Assignment Title',
+                  hintText: 'Homework 1',
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
                 validator: (value) => value == null || value.isEmpty
                     ? 'Please enter a title'
+                    : null,
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _selectedSubject,
+                decoration: InputDecoration(
+                  labelText: 'Assignment Subject',
+                  hintText: 'Geometry',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                validator: (value) => value == null || value.isEmpty
+                    ? 'Please enter a subject'
                     : null,
               ),
               const SizedBox(height: 16),
@@ -194,7 +220,9 @@ class CreateAssignmentViewState extends State<CreateAssignmentView> {
                 controller: _questionsController,
                 maxLines: 4,
                 decoration: InputDecoration(
-                  labelText: 'Questions (comma-separated)',
+                  labelText: 'Questions (one per line)',
+                  hintText:
+                      '1. The lines........\n2. if the........\n3. What is........',
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
@@ -202,6 +230,16 @@ class CreateAssignmentViewState extends State<CreateAssignmentView> {
                 validator: (value) => value == null || value.isEmpty
                     ? 'Please enter questions'
                     : null,
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _linkController,
+                decoration: InputDecoration(
+                  labelText: 'Optional Link',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
               ),
               const SizedBox(height: 16),
               Row(

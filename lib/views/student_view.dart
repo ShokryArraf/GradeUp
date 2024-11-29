@@ -91,12 +91,27 @@ class _StudentMainViewState extends State<StudentMainView> {
                     (_) => false,
                   );
                 }
+              case MenuAction.about:
+                Navigator.of(context).pushNamed(aboutRoute);
+                break;
+              case MenuAction.help:
+                // Navigate to help and support screen
+                Navigator.of(context).pushNamed(helpSupportRoute);
+                break;
             }
           }, itemBuilder: (context) {
             return [
               const PopupMenuItem<MenuAction>(
                 value: MenuAction.logout,
                 child: Text('Log out'),
+              ),
+              const PopupMenuItem<MenuAction>(
+                value: MenuAction.about,
+                child: Text('About App'),
+              ),
+              const PopupMenuItem<MenuAction>(
+                value: MenuAction.help,
+                child: Text('Help and Support'),
               ),
             ];
           })
@@ -206,10 +221,15 @@ class _StudentMainViewState extends State<StudentMainView> {
                       Icons.bar_chart, 'Progress & Grades', Colors.purple, () {
                     // View progress and grades
                   }),
-                  buildDashboardCard(Icons.settings, 'Settings', Colors.green,
-                      () {
-                    // Navigate to settings
-                  }),
+                  buildDashboardCard(
+                    Icons.warning_amber_rounded, // Warning icon
+                    'Emergency', // Title of the card
+                    Colors.red, // Red color for emergency
+                    () {
+                      // Navigate to Emergency Instructions
+                      Navigator.of(context).pushNamed(emergencyRoute);
+                    },
+                  ),
                   buildDashboardCard(
                       Icons.videogame_asset, 'Game', Colors.redAccent, () {
                     Navigator.push(
