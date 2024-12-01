@@ -9,7 +9,7 @@ import 'package:grade_up/models/student.dart'; // Import the Student model
 import 'package:grade_up/service/cloud_storage_exceptions.dart';
 import 'package:grade_up/utilities/build_dashboard_card.dart';
 import 'package:grade_up/utilities/show_logout_dialog.dart';
-
+import 'package:grade_up/views/mycourses.dart';
 class StudentMainView extends StatefulWidget {
   const StudentMainView({super.key});
 
@@ -180,7 +180,12 @@ class _StudentMainViewState extends State<StudentMainView> {
                 crossAxisSpacing: 16,
                 children: [
                   buildDashboardCard(Icons.book, 'My Courses', Colors.blue, () {
-                    // Navigate to courses page
+                    Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => MyCourses(student: _student!),
+                  ),
+                );
                   }),
                   buildDashboardCard(
                       Icons.assignment, 'Assignments', Colors.orange, () {
