@@ -19,7 +19,6 @@ class GameEditingViewState extends State<GameEditingView> {
   String? _selectedLevel;
   String? _questionText;
   String? _correctAnswer;
-  // List<String> _answerOptions = [];
   List<String> _answerOptions =
       List.filled(4, ''); // Initialize with 4 empty strings
 
