@@ -368,12 +368,14 @@ class GamePageState extends State<GamePage> {
             createParticlePath: (size) => Path()
               ..addOval(Rect.fromCircle(center: Offset.zero, radius: 5)),
           ),
-          Container(
-            decoration: const BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('images/road_background.png'),
-                fit: BoxFit.fitWidth,
-                alignment: Alignment.topCenter,
+          Positioned.fill(
+            child: Container(
+              decoration: const BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage('images/background.png'),
+                  fit: BoxFit.fitWidth,
+                  alignment: Alignment.topCenter,
+                ),
               ),
             ),
           ),
@@ -401,22 +403,26 @@ class GamePageState extends State<GamePage> {
                       duration: const Duration(milliseconds: 500),
                       left: MediaQuery.of(context).size.width *
                           studentCarPosition,
-                      bottom: 115,
-                      child: const Icon(
-                        Icons.directions_car,
-                        color: Colors.red,
-                        size: 50,
+                      bottom: 105,
+                      child: Image.asset(
+                        'images/car1.png', // Replace this with the path to your car image
+                        width: 80, // Set the size as needed
+                        height: 40, // Set the size as needed
+                        fit: BoxFit
+                            .cover, // Adjusts how the image is fitted inside the container
                       ),
                     ),
                     AnimatedPositioned(
                       duration: const Duration(milliseconds: 500),
                       left: MediaQuery.of(context).size.width *
                           opponentCarPosition,
-                      bottom: 170,
-                      child: const Icon(
-                        Icons.directions_car,
-                        color: Colors.blue,
-                        size: 50,
+                      bottom: 160,
+                      child: Image.asset(
+                        'images/car2.png', // Replace this with the path to your other car image
+                        width: 80, // Set the size as needed
+                        height: 70, // Set the size as needed
+                        fit: BoxFit
+                            .cover, // Adjusts how the image is fitted inside the container
                       ),
                     ),
                   ],

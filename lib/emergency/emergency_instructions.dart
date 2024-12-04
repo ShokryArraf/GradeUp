@@ -25,31 +25,31 @@ class EmergencyInstruction extends StatelessWidget {
             ),
             SizedBox(height: 16),
             Text(
-              '1. יש להגיע למרחב מוגן קרוב בעת שמיעת אזעקה.',
+              'י1- יש להגיע למרחב מוגן קרוב בעת שמיעת אזעקה',
               style: TextStyle(fontSize: 16),
               textAlign: TextAlign.right,
             ),
             SizedBox(height: 8),
             Text(
-              '2. יש להישאר בתוך המרחב המוגן לפחות 10 דקות לאחר תום האזעקה.',
+              'י2- יש להישאר בתוך המרחב המוגן לפחות 10 דקות לאחר תום האזעקה',
               style: TextStyle(fontSize: 16),
               textAlign: TextAlign.right,
             ),
             SizedBox(height: 8),
             Text(
-              '3. החזיקו ערכת חירום הכוללת מים, מזון, פנס ומסמכים חשובים.',
+              'י3- החזיקו ערכת חירום הכוללת מים, מזון, פנס ומסמכים חשובים',
               style: TextStyle(fontSize: 16),
               textAlign: TextAlign.right,
             ),
             SizedBox(height: 8),
             Text(
-              '4. עקבו אחר עדכונים במקורות חדשות אמינים או באפליקציית פיקוד העורף.',
+              'י4- עקבו אחר עדכונים במקורות חדשות אמינים או באפליקציית פיקוד העורף',
               style: TextStyle(fontSize: 16),
               textAlign: TextAlign.right,
             ),
             SizedBox(height: 16),
             Text(
-              'למידע נוסף, בקרו באתר או באפליקציה של פיקוד העורף.',
+              'למידע נוסף, בקרו באתר או באפליקציה של פיקוד העורף',
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,

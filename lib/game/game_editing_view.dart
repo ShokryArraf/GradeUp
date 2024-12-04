@@ -95,6 +95,16 @@ class GameEditingViewState extends State<GameEditingView> {
     if (_formKey.currentState?.validate() ?? false) {
       _formKey.currentState?.save();
 
+      // Check if the question text exceeds 55 characters
+      if (_questionText != null && _questionText!.length > 55) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Question text cannot be that long.'),
+          ),
+        );
+        return;
+      }
+
       // Check if we have 4 diffrent answer options
       bool flag = false;
       for (int i = 0; i < _answerOptions.length; i++) {
@@ -297,7 +307,7 @@ class GameEditingViewState extends State<GameEditingView> {
                               ),
                               const SizedBox(height: 8),
                               const Text(
-                                'Note: If adding a new level, ensure it eventually has at least 5 questions.',
+                                'Note: If adding a new level, ensure it eventually has at least 5 questions.In addition Question text can have a maximum of 9 words.',
                                 style: TextStyle(
                                   color: Colors.orange,
                                   fontSize: 12,

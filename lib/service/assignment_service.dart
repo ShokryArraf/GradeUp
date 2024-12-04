@@ -168,7 +168,7 @@ class AssignmentService {
     if (questions != null) updatedData['questions'] = questions;
     if (gradeValue != null) updatedData['grade'] = gradeValue;
     if (subject != null) updatedData['subject'] = subject;
-    if (link != null) updatedData['link'] = link;
+    updatedData['link'] = link;
 
     // Update the assignment document
     await assignmentRef.update(updatedData);
