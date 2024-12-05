@@ -1,8 +1,13 @@
+import 'dart:convert';
+import 'dart:io';
+import 'package:csv/csv.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:grade_up/models/teacher.dart';
 import 'package:grade_up/service/cloud_storage_exceptions.dart';
 import 'package:grade_up/service/game_service.dart';
 import 'package:grade_up/utilities/build_text_field.dart';
+import 'package:grade_up/utilities/custom_dialog.dart';
 
 class GameEditingView extends StatefulWidget {
   final Teacher teacher;
@@ -91,42 +96,70 @@ class GameEditingViewState extends State<GameEditingView> {
     return options.toSet().length == options.length;
   }
 
+  bool _validateInputs(
+    String? questionText,
+    List<String> answerOptions,
+    String? correctAnswer,
+  ) {
+    // Check if the question text exceeds 55 characters
+    if (questionText != null && questionText.length > 55) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Question text cannot be that long.'),
+        ),
+      );
+      return false;
+    }
+
+    // Check if the correct answer is one of the options
+    if (!answerOptions.contains(correctAnswer)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text(
+                'You must provide the correct answer in one of the options.')),
+      );
+      return false;
+    }
+
+    if (answerOptions.length != 4) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('You must provide 4 answer options.')),
+      );
+      return false;
+    }
+
+    // Check if all options are unique
+    if (!areOptionsUnique(answerOptions)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("All answer options must be unique.")),
+      );
+      return false;
+    }
+
+    // Check if we have 4 diffrent answer options
+    bool flag = false;
+    for (int i = 0; i < answerOptions.length; i++) {
+      if (answerOptions[i] == correctAnswer) flag = true;
+    }
+    if (!flag) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text(
+                'You must provide the correct answer in one of the options.')),
+      );
+      return false;
+    }
+    return true;
+  }
+
   void _addQuestion() async {
     if (_formKey.currentState?.validate() ?? false) {
       _formKey.currentState?.save();
-
-      // Check if the question text exceeds 55 characters
-      if (_questionText != null && _questionText!.length > 55) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Question text cannot be that long.'),
-          ),
-        );
-        return;
+      if (!_validateInputs(_questionText, _answerOptions, _correctAnswer)) {
+        return; // Exit if validation fails
       }
 
-      // Check if we have 4 diffrent answer options
-      bool flag = false;
-      for (int i = 0; i < _answerOptions.length; i++) {
-        if (_answerOptions[i] == _correctAnswer) flag = true;
-      }
-      if (!flag) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text(
-                  'You must provide the correct answer in one of the options.')),
-        );
-        return;
-      }
-
-      if (!areOptionsUnique(_answerOptions)) {
-        // Show a message to the user
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("All answer options must be unique.")),
-        );
-        return;
-      }
-
+      // Proceed with adding the question
       if (_questions.length < 6) {
         await gameService.addQuestion(
           _selectedLesson!,
@@ -155,6 +188,83 @@ class GameEditingViewState extends State<GameEditingView> {
               content: Text('Each level must have a maximum of 6 questions.')),
         );
       }
+    }
+  }
+
+  Future<void> _bulkUploadQuestions() async {
+    int lastValidRow = 0; // Track the last valid row processed
+    try {
+      // Select the CSV file
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['csv'],
+      );
+
+      if (result != null) {
+        final file = File(result.files.single.path!);
+
+        // Read and parse the CSV file
+        final input = file.openRead();
+        final fields = await input
+            .transform(utf8.decoder)
+            .transform(const CsvToListConverter())
+            .toList();
+
+        // Validate and process each row
+        for (var i = 1; i < fields.length; i++) {
+          // Started from i=1 to skip the first row in excel which is not a question we want to save.
+          final row = fields[i];
+          if (row.length < 7) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text("Invalid CSV format!")),
+            );
+            return;
+          }
+          final lesson = row[0].toString();
+          final grade = row[1].toString();
+          final level = row[2].toString();
+          final questionText = row[3].toString();
+          final correctAnswer = row[4].toString();
+          // Create a list for answerOptions from row[5], row[6], row[7], row[8]
+          final answerOptions = [
+            row[5]?.toString(),
+            row[6]?.toString(),
+            row[7]?.toString(),
+            row[8]?.toString(),
+          ]
+              .where((option) => option != null && option.isNotEmpty)
+              .cast<String>()
+              .toList();
+
+          // Add question to the database
+          if (!_validateInputs(questionText, answerOptions, correctAnswer)) {
+            CustomDialog.show(
+              context,
+              "Validation Failed",
+              "Validation failed at row ${i + 1}. Only rows up to $lastValidRow were processed.",
+            );
+            return; // Exit if validation fails
+          }
+          await gameService.addQuestion(
+            lesson,
+            {
+              'questionText': questionText,
+              'correctAnswer': correctAnswer,
+              'answerOptions': answerOptions,
+              'questionLevel': level,
+            },
+            widget.teacher.school,
+            grade,
+          );
+          lastValidRow = i + 1; // Update the last valid row
+        }
+        // Notify success
+        CustomDialog.show(context, "Success",
+            "Questions uploaded successfully! Last processed row: $lastValidRow.");
+        _fetchQuestions(); // Refresh the question list
+      }
+    } catch (e) {
+      CustomDialog.show(context, "Error", "Error uploading questions: $e");
     }
   }
 
@@ -378,6 +488,12 @@ class GameEditingViewState extends State<GameEditingView> {
                     ElevatedButton(
                       onPressed: _addQuestion,
                       child: const Text('Add Question'),
+                    ),
+                    const SizedBox(height: 10),
+                    ElevatedButton.icon(
+                      onPressed: _bulkUploadQuestions,
+                      icon: const Icon(Icons.upload_file),
+                      label: const Text("Bulk Upload Questions"),
                     ),
                   ],
                 ),
