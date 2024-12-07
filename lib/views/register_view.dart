@@ -18,6 +18,7 @@ class _RegisterViewState extends State<RegisterView> {
   late final TextEditingController _fullName;
   String _role = 'Student'; // Default role
   int _selectedGrade = 1; // Default grade for students
+  String _selectedSchool = 'Braude High School'; // Default school
   final Set<String> _selectedLessons = {}; // Selected lessons for students
   final Map<String, Set<int>> _lessonGradeMap =
       {}; // Map lesson to grades for teachers
@@ -30,6 +31,12 @@ class _RegisterViewState extends State<RegisterView> {
     'geography',
     'biology',
     'chemistry',
+  ];
+
+  // List of available schools
+  final List<String> _availableSchools = [
+    'Braude High School',
+    'Noterdame High School',
   ];
 
   @override
@@ -58,28 +65,49 @@ class _RegisterViewState extends State<RegisterView> {
       final userCredential = await FirebaseAuth.instance
           .createUserWithEmailAndPassword(email: email, password: password);
 
-      // Set display name with role
-      await userCredential.user?.updateDisplayName("$_role: $fullName");
-
       // Firestore: Save user data
       final userId = userCredential.user?.uid;
       if (userId != null) {
-        final userCollection = FirebaseFirestore.instance.collection(
-          _role == 'Teacher' ? 'teachers' : 'students',
-        );
+        final schoolDoc = FirebaseFirestore.instance
+            .collection('schools')
+            .doc(_selectedSchool);
+        schoolDoc.set({
+          'exists':
+              true, // Placeholder field to make the document visible in queries
+          'name': _selectedSchool
+        }, SetOptions(merge: true));
 
-        final userData = {
-          'name': fullName,
-          if (_role == 'Teacher')
+        if (_role == 'Teacher') {
+          // Set display name with role and school name
+          await userCredential.user
+              ?.updateDisplayName("$_role: $fullName: $_selectedSchool");
+          // Save teacher to the school's teachers subcollection
+          final teacherData = {
+            'name': fullName,
             'teachingLessons': _lessonGradeMap.map((lesson, grades) =>
                 MapEntry(lesson, grades.toList())), // Convert Set to List
-          if (_role == 'Student') ...{
+          };
+
+          await schoolDoc.collection('teachers').doc(userId).set(teacherData);
+        } else if (_role == 'Student') {
+          // Set display name with role and school name
+          await userCredential.user?.updateDisplayName(
+              "$_role: $fullName: $_selectedSchool: $_selectedGrade");
+          // Save student to the school's grades subcollection
+          final studentData = {
+            'name': fullName,
             'grade': _selectedGrade,
             'enrolledLessons': _selectedLessons.toList(),
-          },
-        };
+          };
 
-        await userCollection.doc(userId).set(userData);
+          await schoolDoc
+              .collection('grades')
+              .doc(_selectedGrade
+                  .toString()) // Grade document ID is the grade number
+              .collection('students')
+              .doc(userId)
+              .set(studentData);
+        }
       }
 
       // Navigate to login
@@ -151,6 +179,22 @@ class _RegisterViewState extends State<RegisterView> {
                           _role = value!;
                           _selectedLessons.clear();
                           _lessonGradeMap.clear();
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    // School Selection Dropdown
+                    DropdownButton<String>(
+                      value: _selectedSchool,
+                      items: _availableSchools.map((school) {
+                        return DropdownMenuItem(
+                          value: school,
+                          child: Text(school),
+                        );
+                      }).toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          _selectedSchool = value!;
                         });
                       },
                     ),

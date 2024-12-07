@@ -6,6 +6,7 @@ class Student {
   final List<String> enrolledLessons;
   final Map<String, LessonProgress> progress;
   final int grade;
+  late final String school;
 
   Student({
     required this.studentId,

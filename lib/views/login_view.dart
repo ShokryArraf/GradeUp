@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:grade_up/constants/routes.dart';
 import 'package:grade_up/utilities/show_error_dialog.dart';
+import 'package:grade_up/views/student_view.dart';
+import 'package:grade_up/views/teacher_view.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -95,13 +97,40 @@ class _LoginViewState extends State<LoginView> {
                       .signInWithEmailAndPassword(
                           email: email, password: password);
                   if (userCredential.user != null) {
-                    if (userCredential.user?.displayName?.split(': ')[0] ==
-                        "Student") {
-                      Navigator.of(context).pushNamedAndRemoveUntil(
-                          studentviewRoute, (route) => false);
+                    // Extract the name,role,school name from the displayName field
+                    final displayName = userCredential.user?.displayName;
+                    final parts = displayName?.split(': ');
+                    final role = parts?[0];
+                    final schoolName = parts?[2];
+
+                    if (schoolName == null) {
+                      await showErrorDialog(
+                          context, "School information is missing.");
+                      return;
+                    }
+
+                    if (role == "Student") {
+                      final grade = parts?[3];
+                      // Navigate to the student view, passing the school name
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => StudentMainView(
+                            schoolName: schoolName.toString(),
+                            grade: grade!,
+                          ),
+                        ),
+                        (route) => false,
+                      );
                     } else {
-                      Navigator.of(context).pushNamedAndRemoveUntil(
-                          teachertviewRoute, (route) => false);
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => TeacherMainView(
+                              schoolName: schoolName.toString()),
+                        ),
+                        (route) => false,
+                      );
                     }
                   }
                 } on FirebaseAuthException catch (e) {
@@ -124,7 +153,7 @@ class _LoginViewState extends State<LoginView> {
                 } catch (e) {
                   await showErrorDialog(
                     context,
-                    e.toString(),
+                    "Please contact the support team.",
                   );
                 }
               },

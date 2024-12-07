@@ -1,55 +1,45 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:grade_up/models/teacher.dart';
+import 'package:grade_up/service/game_service.dart';
 
-class StudentProgressView extends StatelessWidget {
+class StudentProgressView extends StatefulWidget {
   final Teacher teacher;
 
   const StudentProgressView({super.key, required this.teacher});
 
+  @override
+  StudentProgressViewState createState() => StudentProgressViewState();
+}
+
+class StudentProgressViewState extends State<StudentProgressView> {
+  final GameService _gameService = GameService();
+  final int _pageSize = 3; // Number of progress items per chunk
+  late Future<List<Map<String, dynamic>>> _studentsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _studentsFuture = _fetchStudents();
+  }
+
   Future<List<Map<String, dynamic>>> _fetchStudents() async {
-    final FirebaseFirestore firestore = FirebaseFirestore.instance;
-    // Fetch userprogress documents with matching grades
-    final querySnapshot = await firestore.collection('userprogress').get();
+    final List<Map<String, dynamic>> students = [];
 
-    List<Map<String, dynamic>> students = [];
-    for (var doc in querySnapshot.docs) {
-      final data = doc.data();
-      final int grade = data['grade'] ?? 0;
+    for (var entry in widget.teacher.lessonGradeMap.entries) {
+      final String lesson = entry.key;
+      final List<int> grades = entry.value;
 
-      // Check if the teacher is assigned to this grade for any lesson
-      final List<String> validLessons = teacher.lessonGradeMap.entries
-          .where((entry) => entry.value.contains(grade)) // Match grades
-          .map((entry) => entry.key) // Extract valid lesson names
-          .toList();
+      for (var grade in grades) {
+        // Call the Firebase interaction function to fetch progress data
+        final studentProgressForGrade =
+            await _gameService.fetchStudentDataFromFirestore(
+          school: widget.teacher.school,
+          grade: grade,
+          lesson: lesson,
+        );
 
-      if (validLessons.isNotEmpty) {
-        // Fetch lessons from the `gameLesson` subcollection
-        final gameLessonCollection = firestore
-            .collection('userprogress')
-            .doc(doc.id)
-            .collection('gameLesson');
-
-        final gameLessonsSnapshot = await gameLessonCollection.get();
-
-        for (var lessonDoc in gameLessonsSnapshot.docs) {
-          final lessonData = lessonDoc.data();
-          final String lessonName = lessonDoc.id;
-
-          // Check if the lesson is among the valid lessons
-          if (validLessons.contains(lessonName)) {
-            students.add({
-              'id': doc.id,
-              'name': lessonData['name'],
-              'grade': grade,
-              'lesson': lessonName,
-              'level': lessonData['level'] ?? 'N/A',
-              'rightAnswers': lessonData['rightAnswers'] ?? 0,
-              'wrongAnswers': lessonData['wrongAnswers'] ?? 0,
-              'points': lessonData['points'] ?? 0,
-            });
-          }
-        }
+        // Append the fetched data to the main list
+        students.addAll(studentProgressForGrade);
       }
     }
 
@@ -76,7 +66,7 @@ class StudentProgressView extends StatelessWidget {
         ),
       ),
       body: FutureBuilder<List<Map<String, dynamic>>>(
-        future: _fetchStudents(),
+        future: _studentsFuture,
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return const Center(child: CircularProgressIndicator());
@@ -92,45 +82,114 @@ class StudentProgressView extends StatelessWidget {
             );
           }
 
+          // Group students by their ID
+          final groupedStudents = <String, List<Map<String, dynamic>>>{};
+          for (var student in students) {
+            groupedStudents.putIfAbsent(student['id'], () => []).add(student);
+          }
+
           return ListView.builder(
             padding: const EdgeInsets.all(16.0),
-            itemCount: students.length,
+            itemCount: groupedStudents.keys.length,
             itemBuilder: (context, index) {
-              final student = students[index];
+              final studentId = groupedStudents.keys.elementAt(index);
+              final studentProgress = groupedStudents[studentId]!;
 
-              return Card(
-                margin: const EdgeInsets.symmetric(vertical: 8.0),
-                elevation: 3,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-                child: ListTile(
-                  leading: CircleAvatar(
-                    backgroundColor: Colors.blueAccent,
-                    child: Text(
-                      student['name'][0],
-                      style: const TextStyle(color: Colors.white),
-                    ),
-                  ),
-                  title: Text(
-                    '${student['name']} - Grade ${student['grade']}',
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Lesson: ${student['lesson']}'),
-                      Text('Level: ${student['level']}'),
-                      Text('Points: ${student['points']}'),
-                      Text('Right Answers: ${student['rightAnswers']}'),
-                      Text('Wrong Answers: ${student['wrongAnswers']}'),
-                    ],
-                  ),
-                ),
+              return PaginatedProgressCard(
+                studentData: studentProgress[0],
+                progressData: studentProgress,
+                pageSize: _pageSize,
               );
             },
           );
         },
+      ),
+    );
+  }
+}
+
+class PaginatedProgressCard extends StatefulWidget {
+  final Map<String, dynamic> studentData;
+  final List<Map<String, dynamic>> progressData;
+  final int pageSize;
+
+  const PaginatedProgressCard({
+    super.key,
+    required this.studentData,
+    required this.progressData,
+    required this.pageSize,
+  });
+
+  @override
+  PaginatedProgressCardState createState() => PaginatedProgressCardState();
+}
+
+class PaginatedProgressCardState extends State<PaginatedProgressCard> {
+  int _currentPage = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    final startIndex = _currentPage * widget.pageSize;
+    final endIndex = startIndex + widget.pageSize;
+    final hasMore = endIndex < widget.progressData.length;
+
+    final currentPageData = widget.progressData.sublist(
+      startIndex,
+      endIndex > widget.progressData.length
+          ? widget.progressData.length
+          : endIndex,
+    );
+
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 8.0),
+      elevation: 3,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8.0),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ListTile(
+              leading: CircleAvatar(
+                backgroundColor: Colors.blueAccent,
+                child: Text(
+                  widget.studentData['name'][0],
+                  style: const TextStyle(color: Colors.white),
+                ),
+              ),
+              title: Text(
+                '${widget.studentData['name']} - Grade ${widget.studentData['grade']}',
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+            ...currentPageData.map((progress) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Lesson: ${progress['lesson']}'),
+                    Text('Level: ${progress['level']}'),
+                    Text('Points: ${progress['points']}'),
+                    Text('Right Answers: ${progress['rightAnswers']}'),
+                    Text('Wrong Answers: ${progress['wrongAnswers']}'),
+                  ],
+                ),
+              );
+            }),
+            if (hasMore)
+              TextButton(
+                onPressed: () {
+                  setState(() {
+                    _currentPage++;
+                  });
+                },
+                child: const Text('Show More'),
+              ),
+          ],
+        ),
       ),
     );
   }

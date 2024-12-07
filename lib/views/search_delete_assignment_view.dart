@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:grade_up/models/teacher.dart';
 import 'package:grade_up/service/assignment_service.dart';
+import 'package:grade_up/views/edit_assignment_screen.dart';
+import 'package:url_launcher/url_launcher.dart';
 
-class DeleteAssignmentSection extends StatefulWidget {
+class SearchDeleteAssignmentSection extends StatefulWidget {
   final Teacher teacher;
 
-  const DeleteAssignmentSection({super.key, required this.teacher});
+  const SearchDeleteAssignmentSection({super.key, required this.teacher});
 
   @override
-  State<DeleteAssignmentSection> createState() =>
-      DeleteAssignmentSectionState();
+  State<SearchDeleteAssignmentSection> createState() =>
+      SearchDeleteAssignmentSectionState();
 }
 
-class DeleteAssignmentSectionState extends State<DeleteAssignmentSection> {
+class SearchDeleteAssignmentSectionState
+    extends State<SearchDeleteAssignmentSection> {
   final TextEditingController _gradeSearchController = TextEditingController();
   final AssignmentService _assignmentService = AssignmentService();
 
@@ -62,9 +65,9 @@ class DeleteAssignmentSectionState extends State<DeleteAssignmentSection> {
 
     try {
       final assignments = await _assignmentService.fetchAssignments(
-        teacherName: widget.teacher.name,
         lessonName: _selectedLesson!,
         grade: grade,
+        teacher: widget.teacher,
       );
 
       setState(() {
@@ -78,9 +81,11 @@ class DeleteAssignmentSectionState extends State<DeleteAssignmentSection> {
   }
 
   // Delete an assignment
-  Future<void> _deleteAssignment(String lessonName, String assignmentId) async {
+  Future<void> _deleteAssignment(
+      String lessonName, String assignmentId, String grade) async {
     try {
-      await _assignmentService.deleteAssignment(lessonName, assignmentId);
+      await _assignmentService.deleteAssignment(
+          lessonName, assignmentId, widget.teacher.school, grade);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Assignment deleted successfully.')),
       );
@@ -228,6 +233,11 @@ class DeleteAssignmentSectionState extends State<DeleteAssignmentSection> {
                             ),
                             const SizedBox(height: 4),
                             Text(
+                              'Subject: ${assignment['subject']}',
+                              style: const TextStyle(fontSize: 16),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
                               'Description: ${assignment['description']}',
                               style: const TextStyle(fontSize: 16),
                             ),
@@ -253,12 +263,57 @@ class DeleteAssignmentSectionState extends State<DeleteAssignmentSection> {
                                           ))
                                       .toList(),
                             ),
+                            if (assignment['link'] != null &&
+                                assignment['link'].isNotEmpty) ...[
+                              const SizedBox(height: 4),
+                              GestureDetector(
+                                onTap: () async {
+                                  final url = Uri.parse(assignment['link']);
+                                  if (await canLaunchUrl(url)) {
+                                    await launchUrl(url);
+                                  } else {
+                                    throw 'Could not launch $url';
+                                  }
+                                },
+                                child: Text(
+                                  'Link: ${assignment['link']}',
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.blue,
+                                    decoration: TextDecoration.underline,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ],
                         ),
-                        trailing: IconButton(
-                          icon: const Icon(Icons.delete, color: Colors.red),
-                          onPressed: () => _deleteAssignment(
-                              assignment['lessonName'], assignment['id']),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.edit, color: Colors.green),
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => EditAssignmentScreen(
+                                        assignmentData:
+                                            assignment, // Pass the assignment data
+                                        lessonId: assignment['lessonName'],
+                                        grade: assignment['grade'].toString(),
+                                        teacher: widget.teacher),
+                                  ),
+                                );
+                              },
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.delete, color: Colors.red),
+                              onPressed: () => _deleteAssignment(
+                                  assignment['lessonName'],
+                                  assignment['id'],
+                                  assignment['grade'].toString()),
+                            ),
+                          ],
                         ),
                       ),
                     );

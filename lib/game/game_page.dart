@@ -1,13 +1,15 @@
 import 'package:confetti/confetti.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:grade_up/constants/routes.dart';
+import 'package:grade_up/game/game_options.dart';
+import 'package:grade_up/models/student.dart';
 import 'package:grade_up/service/game_service.dart';
+import 'package:grade_up/views/student_view.dart';
 
 class GamePage extends StatefulWidget {
   final String lesson;
+  final Student student;
 
-  const GamePage({super.key, required this.lesson});
+  const GamePage({super.key, required this.lesson, required this.student});
 
   @override
   GamePageState createState() => GamePageState();
@@ -26,9 +28,7 @@ class GamePageState extends State<GamePage> {
   String question = '';
   List<String> answers = [];
   String correctAnswer = '';
-  String? userId = FirebaseAuth.instance.currentUser?.uid;
   List<Map<String, dynamic>> questions = [];
-  String studentName = '';
   int points = 0;
   int level = 1;
   int rightAnswers = 0;
@@ -39,7 +39,6 @@ class GamePageState extends State<GamePage> {
   void initState() {
     super.initState();
     _confettiController.stop(); // Start with confetti off
-    studentName = getDisplayName();
     loadUserProgress();
   }
 
@@ -49,34 +48,28 @@ class GamePageState extends State<GamePage> {
     super.dispose();
   }
 
-  String getDisplayName() {
-    final user = FirebaseAuth.instance.currentUser;
-    return user != null
-        ? user.displayName?.split(': ')[1] ?? 'Student'
-        : 'Student';
-  }
-
   Future<void> loadUserProgress() async {
-    if (userId != null) {
-      try {
-        final userProgress =
-            await _gameService.fetchUserProgress(userId!, widget.lesson);
-        if (userProgress != null) {
-          level = userProgress['level'] ?? 1;
-          points = userProgress['points'] ?? 0;
-          rightAnswers = userProgress['rightAnswers'] ?? 0;
-          wrongAnswers = userProgress['wrongAnswers'] ?? 0;
-        }
-        loadQuestions();
-      } catch (e) {
-        showError("Error loading user progress");
+    try {
+      final userProgress = await _gameService.fetchUserProgress(
+          widget.student.studentId, widget.lesson, widget.student);
+      if (userProgress != null) {
+        level = userProgress['level'] ?? 1;
+        points = userProgress['points'] ?? 0;
+        rightAnswers = userProgress['rightAnswers'] ?? 0;
+        wrongAnswers = userProgress['wrongAnswers'] ?? 0;
       }
+      loadQuestions();
+    } catch (e) {
+      showError("Error loading user progress");
     }
   }
 
   Future<void> loadQuestions() async {
     questions = await _gameService.fetchQuestionsByLevel(
-        widget.lesson, level.toString());
+        widget.lesson,
+        level.toString(),
+        widget.student.school,
+        widget.student.grade.toString());
     if (questions.isNotEmpty) {
       setQuestionData();
     } else {
@@ -124,10 +117,14 @@ class GamePageState extends State<GamePage> {
   }
 
   Future<void> updateUserProgress() async {
-    if (userId != null) {
-      await _gameService.updateUserProgress(userId!, widget.lesson,
-          rightAnswers, points, level, wrongAnswers, studentName);
-    }
+    await _gameService.updateUserProgress(
+        widget.student.studentId,
+        widget.lesson,
+        rightAnswers,
+        points,
+        level,
+        wrongAnswers,
+        widget.student);
   }
 
   void loadNextQuestion() {
@@ -150,36 +147,15 @@ class GamePageState extends State<GamePage> {
 
     showLevelUpDialog();
     questions = await _gameService.fetchQuestionsByLevel(
-        widget.lesson, level.toString());
+        widget.lesson,
+        level.toString(),
+        widget.student.school,
+        widget.student.grade.toString());
 
     if (questions.isNotEmpty) {
       setQuestionData();
     } else {
       showGameCompletionDialog();
-    }
-  }
-
-  String getBadge(int points) {
-    if (points >= 1300) {
-      return "images/legend_badge.png";
-    } else if (points >= 850) {
-      return "images/elite_badge.png";
-    } else if (points >= 600) {
-      return "images/master_badge.png";
-    } else if (points >= 350) {
-      return "images/expert_badge.png";
-    } else if (points >= 300) {
-      return "images/champion_badge.png";
-    } else if (points >= 250) {
-      return "images/advanced_badge.png";
-    } else if (points >= 200) {
-      return "images/intermediate_badge.png";
-    } else if (points >= 150) {
-      return "images/apprentice_badge.png";
-    } else if (points >= 50) {
-      return "images/beginner_badge.png";
-    } else {
-      return "images/no_badge.png"; // Default "No Badge" image
     }
   }
 
@@ -212,7 +188,7 @@ class GamePageState extends State<GamePage> {
   }
 
   void showLevelUpDialog() {
-    String badgeImagePath = getBadge(points);
+    String badgeImagePath = _gameService.getBadge(points);
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
@@ -315,14 +291,26 @@ class GamePageState extends State<GamePage> {
           TextButton(
             onPressed: () async {
               _confettiController.stop();
-
               // Reset level to 1 and restart to the game options.
               level = 1;
               await updateUserProgress();
-              // ignore: use_build_context_synchronously
-              Navigator.of(context)
-                ..popUntil(ModalRoute.withName(studentviewRoute))
-                ..pushNamed(gameoptionsRoute);
+              Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(
+                  builder: (context) => StudentMainView(
+                    schoolName: widget.student.school,
+                    grade: widget.student.grade.toString(),
+                  ),
+                ),
+                (route) => false, // Remove all previous routes
+              );
+
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => GameOptionsPage(
+                    student: widget.student,
+                  ),
+                ),
+              );
             },
             child: const Text('Restart Game'),
           ),
@@ -330,9 +318,14 @@ class GamePageState extends State<GamePage> {
             onPressed: () {
               _confettiController.stop();
               // Save current level and navigate back to student view without resetting
-              Navigator.of(context).pop();
-              Navigator.of(context)
-                  .pushNamedAndRemoveUntil(studentviewRoute, (route) => false);
+              Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(
+                    builder: (context) => StudentMainView(
+                          schoolName: widget.student.school,
+                          grade: widget.student.grade.toString(),
+                        )),
+                (route) => false, // Remove all previous routes from the stack
+              );
             },
             child: const Text('Close'),
           ),
@@ -375,12 +368,14 @@ class GamePageState extends State<GamePage> {
             createParticlePath: (size) => Path()
               ..addOval(Rect.fromCircle(center: Offset.zero, radius: 5)),
           ),
-          Container(
-            decoration: const BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('images/road_background.png'),
-                fit: BoxFit.fitWidth,
-                alignment: Alignment.topCenter,
+          Positioned.fill(
+            child: Container(
+              decoration: const BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage('images/background.png'),
+                  fit: BoxFit.fitWidth,
+                  alignment: Alignment.topCenter,
+                ),
               ),
             ),
           ),
@@ -408,22 +403,26 @@ class GamePageState extends State<GamePage> {
                       duration: const Duration(milliseconds: 500),
                       left: MediaQuery.of(context).size.width *
                           studentCarPosition,
-                      bottom: 115,
-                      child: const Icon(
-                        Icons.directions_car,
-                        color: Colors.red,
-                        size: 50,
+                      bottom: 105,
+                      child: Image.asset(
+                        'images/car1.png', // Replace this with the path to your car image
+                        width: 80, // Set the size as needed
+                        height: 40, // Set the size as needed
+                        fit: BoxFit
+                            .cover, // Adjusts how the image is fitted inside the container
                       ),
                     ),
                     AnimatedPositioned(
                       duration: const Duration(milliseconds: 500),
                       left: MediaQuery.of(context).size.width *
                           opponentCarPosition,
-                      bottom: 170,
-                      child: const Icon(
-                        Icons.directions_car,
-                        color: Colors.blue,
-                        size: 50,
+                      bottom: 160,
+                      child: Image.asset(
+                        'images/car2.png', // Replace this with the path to your other car image
+                        width: 80, // Set the size as needed
+                        height: 70, // Set the size as needed
+                        fit: BoxFit
+                            .cover, // Adjusts how the image is fitted inside the container
                       ),
                     ),
                   ],

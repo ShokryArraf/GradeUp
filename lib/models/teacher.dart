@@ -2,6 +2,7 @@ class Teacher {
   final String teacherId;
   final String name;
   final Map<String, List<int>> lessonGradeMap; // Map lessons to grades
+  late final String school;
 
   Teacher({
     required this.teacherId,

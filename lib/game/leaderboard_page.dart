@@ -1,60 +1,28 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:grade_up/models/student.dart';
 import 'package:grade_up/service/cloud_storage_exceptions.dart';
+import 'package:grade_up/service/game_service.dart';
 
 class LeaderboardPage extends StatefulWidget {
-  const LeaderboardPage({super.key});
+  final Student student;
+  const LeaderboardPage({super.key, required this.student});
 
   @override
   LeaderboardPageState createState() => LeaderboardPageState();
 }
 
 class LeaderboardPageState extends State<LeaderboardPage> {
+  final GameService _gameService = GameService();
   List<Map<String, dynamic>> leaderboardData = [];
 
-  Future<void> fetchLeaderboardData() async {
+  void loadLeaderboard() async {
     try {
-      final List<Map<String, dynamic>> data = [];
-
-      QuerySnapshot usersSnapshot =
-          await FirebaseFirestore.instance.collection('userprogress').get();
-      if (usersSnapshot.docs.isEmpty) {
-        throw NoDocumentsFoundException;
-      }
-
-      for (var userDoc in usersSnapshot.docs) {
-        //final userId = userDoc.id;
-        int totalPoints = 0;
-
-        try {
-          QuerySnapshot lessonsSnapshot =
-              await userDoc.reference.collection('gameLesson').get();
-          if (lessonsSnapshot.docs.isEmpty) {
-            continue;
-          }
-          final name = lessonsSnapshot.docs[0]['name'] ??
-              'Unknown User'; // Fetch the user's name
-
-          for (var lessonDoc in lessonsSnapshot.docs) {
-            final points = lessonDoc['points'];
-            totalPoints +=
-                points is String ? int.tryParse(points) ?? 0 : points as int;
-          }
-
-          data.add({
-            'name': name,
-            'totalPoints': totalPoints,
-          });
-        } catch (e) {
-          continue;
-        }
-      }
-
-      data.sort((a, b) => b['totalPoints'].compareTo(a['totalPoints']));
+      List<Map<String, dynamic>> leaderboardData =
+          await _gameService.fetchLeaderboardData(widget.student);
       setState(() {
-        leaderboardData = data.take(10).toList();
+        this.leaderboardData = leaderboardData;
       });
-    } catch (e) {
+    } catch (_) {
       throw ErrorFetchingLeaderboardDataException;
     }
   }
@@ -62,7 +30,7 @@ class LeaderboardPageState extends State<LeaderboardPage> {
   @override
   void initState() {
     super.initState();
-    fetchLeaderboardData();
+    loadLeaderboard();
   }
 
   @override

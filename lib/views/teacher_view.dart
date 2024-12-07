@@ -1,10 +1,9 @@
-// ignore_for_file: use_build_context_synchronously
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:grade_up/constants/routes.dart';
 import 'package:grade_up/enums/menu_action.dart';
+import 'package:grade_up/game/game_editing_view.dart';
 import 'package:grade_up/models/teacher.dart';
 import 'package:grade_up/service/cloud_storage_exceptions.dart';
 import 'package:grade_up/utilities/build_dashboard_card.dart';
@@ -14,7 +13,9 @@ import 'package:grade_up/views/manage_courses.dart';
 import 'package:grade_up/views/student_progress_view.dart';
 
 class TeacherMainView extends StatefulWidget {
-  const TeacherMainView({super.key});
+  final String schoolName;
+
+  const TeacherMainView({super.key, required this.schoolName});
 
   @override
   State<TeacherMainView> createState() => _TeacherMainViewState();
@@ -34,6 +35,8 @@ class _TeacherMainViewState extends State<TeacherMainView> {
     if (user != null) {
       final teacherId = user.uid;
       final teacherDoc = await FirebaseFirestore.instance
+          .collection('schools')
+          .doc(widget.schoolName)
           .collection('teachers')
           .doc(teacherId)
           .get();
@@ -41,6 +44,7 @@ class _TeacherMainViewState extends State<TeacherMainView> {
       if (teacherDoc.exists) {
         setState(() {
           _teacher = Teacher.fromFirestore(teacherDoc.data()!, teacherId);
+          _teacher?.school = widget.schoolName;
         });
       } else {
         throw FailedToLoadTeacherDataException();
@@ -51,6 +55,7 @@ class _TeacherMainViewState extends State<TeacherMainView> {
   @override
   Widget build(BuildContext context) {
     final displayName = _teacher?.name ?? 'Teacher';
+    final schoolName = _teacher?.school ?? 'School';
 
     return Scaffold(
       appBar: AppBar(
@@ -80,12 +85,27 @@ class _TeacherMainViewState extends State<TeacherMainView> {
                     (_) => false,
                   );
                 }
+              case MenuAction.about:
+                Navigator.of(context).pushNamed(aboutRoute);
+                break;
+              case MenuAction.help:
+                // Navigate to help and support screen
+                Navigator.of(context).pushNamed(helpSupportRoute);
+                break;
             }
           }, itemBuilder: (context) {
             return [
               const PopupMenuItem<MenuAction>(
                 value: MenuAction.logout,
                 child: Text('Log out'),
+              ),
+              const PopupMenuItem<MenuAction>(
+                value: MenuAction.about,
+                child: Text('About App'),
+              ),
+              const PopupMenuItem<MenuAction>(
+                value: MenuAction.help,
+                child: Text('Help and Support'),
               ),
             ];
           })
@@ -98,7 +118,6 @@ class _TeacherMainViewState extends State<TeacherMainView> {
             Stack(
               alignment: Alignment.centerLeft,
               children: [
-                // Background gradient for the teacher info
                 Container(
                   height: 120,
                   decoration: BoxDecoration(
@@ -113,7 +132,6 @@ class _TeacherMainViewState extends State<TeacherMainView> {
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    // Teacher Image
                     Container(
                       margin: const EdgeInsets.all(16),
                       width: 80,
@@ -122,14 +140,12 @@ class _TeacherMainViewState extends State<TeacherMainView> {
                         shape: BoxShape.circle,
                         border: Border.all(color: Colors.white, width: 3),
                         image: const DecorationImage(
-                          image: AssetImage(
-                              'images/teacher_logo.png'), // Replace with your image path
+                          image: AssetImage('images/teacher_logo.png'),
                           fit: BoxFit.cover,
                         ),
                       ),
                     ),
                     const SizedBox(width: 16),
-                    // Teacher Info
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -139,6 +155,13 @@ class _TeacherMainViewState extends State<TeacherMainView> {
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
                             color: Colors.black87,
+                          ),
+                        ),
+                        Text(
+                          schoolName,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            color: Colors.black54,
                           ),
                         ),
                         const Text(
@@ -197,13 +220,24 @@ class _TeacherMainViewState extends State<TeacherMainView> {
                       ),
                     );
                   }),
-                  buildDashboardCard(Icons.settings, 'Settings', Colors.green,
-                      () {
-                    // Navigate to settings
-                  }),
+                  buildDashboardCard(
+                    Icons.warning_amber_rounded, // Warning icon
+                    'Emergency', // Title of the card
+                    Colors.red, // Red color for emergency
+                    () {
+                      // Navigate to Emergency Instructions
+                      Navigator.of(context).pushNamed(emergencyRoute);
+                    },
+                  ),
                   buildDashboardCard(Icons.add, 'Game Editing', Colors.teal,
                       () {
-                    Navigator.of(context).pushNamed(gameeditRoute);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            GameEditingView(teacher: _teacher!),
+                      ),
+                    );
                   }),
                 ],
               ),

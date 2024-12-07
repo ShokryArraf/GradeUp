@@ -1,17 +1,20 @@
-// ignore_for_file: use_build_context_synchronously
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:grade_up/constants/routes.dart';
 import 'package:grade_up/enums/menu_action.dart';
+import 'package:grade_up/game/game_options.dart';
 import 'package:grade_up/models/student.dart'; // Import the Student model
 import 'package:grade_up/service/cloud_storage_exceptions.dart';
 import 'package:grade_up/utilities/build_dashboard_card.dart';
 import 'package:grade_up/utilities/show_logout_dialog.dart';
 import 'package:grade_up/views/mycourses.dart';
 class StudentMainView extends StatefulWidget {
-  const StudentMainView({super.key});
+  final String schoolName;
+  final String grade;
+
+  const StudentMainView(
+      {super.key, required this.schoolName, required this.grade});
 
   @override
   State<StudentMainView> createState() => _StudentMainViewState();
@@ -31,6 +34,10 @@ class _StudentMainViewState extends State<StudentMainView> {
     if (user != null) {
       try {
         final studentDoc = await FirebaseFirestore.instance
+            .collection('schools')
+            .doc(widget.schoolName)
+            .collection('grades')
+            .doc(widget.grade)
             .collection('students')
             .doc(user.uid)
             .get();
@@ -40,6 +47,7 @@ class _StudentMainViewState extends State<StudentMainView> {
           if (studentData != null) {
             setState(() {
               _student = Student.fromFirestore(studentData, user.uid);
+              _student?.school = widget.schoolName;
             });
           }
         }
@@ -53,6 +61,7 @@ class _StudentMainViewState extends State<StudentMainView> {
   Widget build(BuildContext context) {
     final displayName = _student?.name ?? 'Student';
     final grade = _student?.grade.toString() ?? 'N/A';
+    final schoolName = _student?.school ?? 'School';
 
     return Scaffold(
       appBar: AppBar(
@@ -82,12 +91,27 @@ class _StudentMainViewState extends State<StudentMainView> {
                     (_) => false,
                   );
                 }
+              case MenuAction.about:
+                Navigator.of(context).pushNamed(aboutRoute);
+                break;
+              case MenuAction.help:
+                // Navigate to help and support screen
+                Navigator.of(context).pushNamed(helpSupportRoute);
+                break;
             }
           }, itemBuilder: (context) {
             return [
               const PopupMenuItem<MenuAction>(
                 value: MenuAction.logout,
                 child: Text('Log out'),
+              ),
+              const PopupMenuItem<MenuAction>(
+                value: MenuAction.about,
+                child: Text('About App'),
+              ),
+              const PopupMenuItem<MenuAction>(
+                value: MenuAction.help,
+                child: Text('Help and Support'),
               ),
             ];
           })
@@ -150,6 +174,13 @@ class _StudentMainViewState extends State<StudentMainView> {
                             color: Colors.black54,
                           ),
                         ),
+                        Text(
+                          schoolName,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            color: Colors.black54,
+                          ),
+                        ),
                       ],
                     ),
                   ],
@@ -195,14 +226,24 @@ class _StudentMainViewState extends State<StudentMainView> {
                       Icons.bar_chart, 'Progress & Grades', Colors.purple, () {
                     // View progress and grades
                   }),
-                  buildDashboardCard(Icons.settings, 'Settings', Colors.green,
-                      () {
-                    // Navigate to settings
-                  }),
+                  buildDashboardCard(
+                    Icons.warning_amber_rounded, // Warning icon
+                    'Emergency', // Title of the card
+                    Colors.red, // Red color for emergency
+                    () {
+                      // Navigate to Emergency Instructions
+                      Navigator.of(context).pushNamed(emergencyRoute);
+                    },
+                  ),
                   buildDashboardCard(
                       Icons.videogame_asset, 'Game', Colors.redAccent, () {
-                    Navigator.of(context)
-                        .pushNamed(gameoptionsRoute); // Route to the game page
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            GameOptionsPage(student: _student!),
+                      ),
+                    ); // Route to the game page
                   }),
                 ],
               ),
