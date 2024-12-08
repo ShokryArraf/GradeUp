@@ -117,12 +117,38 @@ class _ManageCoursesState extends State<ManageCourses> {
               setState(() {
                 _selectedLesson = lesson['id']; // Update selected lesson
               });
+              
+              // Navigate to a new screen
+              
             },
             child: buildDashboardCard(
-              Icons.book,
-              lesson['title'] as String,
-              isSelected ? Colors.green[800]! : Colors.blue, // Change color when selected
-              () {},
+              lesson['title'] == 'math' ? Icons.calculate 
+              : lesson['title'] == 'english' ? Icons.explicit 
+              : lesson['title'] == 'biology' ? Icons.biotech
+              : lesson['title'] == 'geography' ? Icons.public
+              : lesson['title'] == 'chemistry' ? Icons.science
+              : lesson['title'] == 'hebrew' ? Icons.book
+              : Icons.help,
+              lesson['title'].toString().toUpperCase(),
+              lesson['title'] == 'math' ? Colors.green
+              : lesson['title'] == 'english' ? Colors.red
+              : lesson['title'] == 'biology' ? Color.fromARGB(255, 131, 23, 50)
+              : lesson['title'] == 'geography' ? Colors.brown
+              : lesson['title'] == 'chemistry' ? Colors.yellow
+              : lesson['title'] == 'hebrew' ? Colors.black
+              :Colors.blue, // Change color when selected
+              () {
+                _selectedLesson = lesson['id'];
+                Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ManageCourse(
+                    teacher: widget.teacher, grade: int.parse(_selectedGrade!), lesson: _selectedLesson.toString()
+                  ),
+                ),
+              );
+              },
+              
             ),
           );
         }).toList(), // Convert the iterable to a list of widgets

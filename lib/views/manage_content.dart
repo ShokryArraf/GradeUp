@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:grade_up/models/teacher.dart'; // Import image_picker package
 import 'dart:io';  // To handle file paths
+import 'package:grade_up/service/teacher_courses_service.dart';
 
 class ManageContent extends StatefulWidget {
   final Teacher teacher;
+  final int grade;
+  final String lesson, materialID, contentID;
 
-  const ManageContent({super.key, required this.teacher});
+  const ManageContent({super.key, required this.teacher, required this.grade, required this.lesson, required this.materialID, required this.contentID});
 
   @override
   State<ManageContent> createState() =>
@@ -14,46 +17,74 @@ class ManageContent extends StatefulWidget {
 
 
 class _ManageContentState extends State<ManageContent> {
-
-  String? _selectedLesson;
-  String? _selectedGrade; // Example if you have other dependent dropdowns
+  final _coursesService = TeacherCoursesService();
   String? _selectedElement;
   List<Map<String, dynamic>> _contentList = [];
-  
+  bool _isLoading = true;
+
+  File? _selectedImage;  // Holds the selected image file
   // Controllers for text inputs
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _textController = TextEditingController();
-  
-  File? _selectedImage;  // Holds the selected image file
-  
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchBlocks(); // Fetch content blocks when the page loads
+  }
+
+  // Method to fetch blocks from the database
+  Future<void> _fetchBlocks() async {
+    try {
+      final blocks = await _coursesService.fetchBlocks(
+        lessonName: widget.lesson,
+        grade: widget.grade,
+        teacher: widget.teacher,
+        materialID: widget.materialID,
+      );
+      setState(() {
+        _contentList = blocks; // Update the content list with fetched blocks
+        _isLoading = false; // Stop loading
+      });
+    } catch (error) {
+      setState(() {
+        _isLoading = false; // Stop loading even if there is an error
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error fetching blocks: $error')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Create Content'),
+        title: const Text('Add Content'),
         centerTitle: true,
         backgroundColor: Colors.blueAccent,
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Add Element Section
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: _selectedElement == null
-                  ? _buildElementSelectionBox()
-                  : _buildElementInputBox(),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Add Element Section
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: _selectedElement == null
+                        ? _buildElementSelectionBox()
+                        : _buildElementInputBox(),
+                  ),
+                  const Divider(),
+                  // Display existing content
+                  ..._contentList.map((element) => _buildContentCard(element)),
+                ],
+              ),
             ),
-            const Divider(),
-            // Display existing content
-            ..._contentList.map((element) => _buildContentCard(element)).toList(),
-          ],
-        ),
-      ),
     );
   }
-
   // Element Selection UI
   Widget _buildElementSelectionBox() {
     return Container(
@@ -124,13 +155,27 @@ class _ManageContentState extends State<ManageContent> {
         ),
         const SizedBox(height: 10),
         ElevatedButton(
-          onPressed: () {
+          onPressed: () async {
             if (_titleController.text.isNotEmpty) {
-              setState(() {
-                _contentList.add({'type': 'title', 'data': _titleController.text});
-                _titleController.clear();
-                _selectedElement = null;
-              });
+              String newData = _titleController.text;
+              try {
+                await _coursesService.addBlock(
+                  widget.lesson, grade: widget.grade, teacher: widget.teacher, materialID: widget.materialID, type: 'title', data: newData
+                );
+                
+                  setState(() {
+                    _contentList.add({'type': 'title', 'data': _titleController.text});
+                    _titleController.clear();
+                    _selectedElement = null;
+                  });
+                   ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Content block added successfully!')),
+                    );
+              } catch (error){
+                ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Error adding content: $error')),
+                );
+              }
             }
           },
           child: const Text('Add Title'),
