@@ -41,6 +41,7 @@ class _ManageContentState extends State<ManageContent> {
         grade: widget.grade,
         teacher: widget.teacher,
         materialID: widget.materialID,
+        contentID: widget.contentID
       );
       setState(() {
         _contentList = blocks; // Update the content list with fetched blocks
@@ -160,7 +161,7 @@ class _ManageContentState extends State<ManageContent> {
               String newData = _titleController.text;
               try {
                 await _coursesService.addBlock(
-                  widget.lesson, grade: widget.grade, teacher: widget.teacher, materialID: widget.materialID, type: 'title', data: newData
+                  widget.lesson, grade: widget.grade, teacher: widget.teacher, materialID: widget.materialID, contentID: widget.contentID, type: 'title', data: newData
                 );
                 
                   setState(() {
@@ -169,7 +170,7 @@ class _ManageContentState extends State<ManageContent> {
                     _selectedElement = null;
                   });
                    ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Content block added successfully!')),
+                    const SnackBar(content: Text('Title block added successfully!')),
                     );
               } catch (error){
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -193,8 +194,6 @@ class _ManageContentState extends State<ManageContent> {
         const SizedBox(height: 10),
         ElevatedButton(
           onPressed:() {
-            print('hi');
-            _contentList.add({'type': 'media', 'data': '../images/beginner_badge.png'});
           },
           child: const Text('Upload Media'),
         ),
@@ -229,14 +228,28 @@ class _ManageContentState extends State<ManageContent> {
         ),
         const SizedBox(height: 10),
         ElevatedButton(
-          onPressed: () {
+          onPressed: () async{
             if (_textController.text.isNotEmpty) {
-              setState(() {
-                _contentList.add({'type': 'text', 'data': _textController.text});
-                _contentList.add({'type': 'text', 'data': 'test text'});
-                _textController.clear();
-                _selectedElement = null;
-              });
+              String newData = _textController.text;
+              try {
+                await _coursesService.addBlock(
+                  widget.lesson, grade: widget.grade, teacher: widget.teacher, materialID: widget.materialID, contentID: widget.contentID, type: 'text', data: newData
+                );
+                
+                  setState(() {
+                    _contentList.add({'type': 'text', 'data': _textController.text}); //add locally
+                    _contentList.add({'type': 'media', 'data': ''}); //add locally
+                    _textController.clear();
+                    _selectedElement = null;
+                  });
+                   ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Text block added successfully!')),
+                    );
+              } catch (error){
+                ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Error adding content: $error')),
+                );
+              }
             }
           },
           child: const Text('Add Text'),
@@ -256,7 +269,23 @@ class _ManageContentState extends State<ManageContent> {
           ),
         );
       case 'media':
-        return Image.file(element['data'], height: 150);
+        return Image.network(
+          'https://creatorset.com/cdn/shop/files/Screenshot_2024-01-29_223308_1920x.png?v=1706560563',
+          fit: BoxFit.cover, // Adjust how the image fits its container
+          loadingBuilder: (context, child, loadingProgress) {
+            if (loadingProgress == null) return child; // Show the image when fully loaded
+            return Center(
+            child: CircularProgressIndicator(
+              value: loadingProgress.expectedTotalBytes != null
+              ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
+              : null,
+            ),
+            );
+          },
+          errorBuilder: (context, error, stackTrace) {
+            return const Icon(Icons.error); // Show an error icon if the image fails to load
+          },
+        );
       case 'text':
         return ListTile(
           title: Text(element['data']),

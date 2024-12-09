@@ -55,6 +55,7 @@ class TeacherCoursesService {
     required int grade,
     required Teacher teacher,
     required String materialID,
+    required String contentID,
     required String type,
     required String data
   }) async {
@@ -73,7 +74,7 @@ class TeacherCoursesService {
         .collection('materials')
         .doc(materialID)
         .collection('content')
-        .doc(materialID)
+        .doc(contentID)
         .collection('blocks')
         .add(blockData);
   }
@@ -137,7 +138,8 @@ Future<List<Map<String, dynamic>>> fetchBlocks({
     required String lessonName,
     required int grade,
     required Teacher teacher,
-    required String materialID
+    required String materialID,
+    required String contentID
   }) async {
     // Reference the specific content document by its name (ID)
     final lessonRef = _firestore
@@ -148,7 +150,9 @@ Future<List<Map<String, dynamic>>> fetchBlocks({
         .collection('lessons')
         .doc(lessonName)
         .collection('materials')
-        .doc(materialID);
+        .doc(materialID)
+        .collection('content')
+        .doc(contentID);
 
     // Fetch the materials subcollection for this lesson
     final blockSnapshot = await lessonRef.collection('blocks').get();

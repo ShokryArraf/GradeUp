@@ -21,7 +21,6 @@ class ManageCourse extends StatefulWidget {
 
 
 class _ManageCourseState extends State<ManageCourse> {
-  final _formKey = GlobalKey<FormState>();
   final _coursesService = TeacherCoursesService();
   final TextEditingController _contentController = TextEditingController();
   
@@ -43,7 +42,7 @@ class _ManageCourseState extends State<ManageCourse> {
         teacher: widget.teacher,
       );
       setState(() {
-        _materials = materials; // Save materials to the list
+        _materials = materials.reversed.toList(); // Save materials to the list
         _isLoading = false; // Set loading to false
       });
     } catch (error) {
