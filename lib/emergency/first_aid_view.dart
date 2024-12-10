@@ -2,44 +2,76 @@ import 'package:flutter/material.dart';
 import 'package:grade_up/constants/emergency_constants.dart';
 
 class FirstAidView extends StatelessWidget {
-  const FirstAidView({super.key});
+  final String language;
+
+  const FirstAidView({super.key, required this.language});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('First Aid Instructions/הוראות עזרה ראשונה'),
+        title: Text(
+          language == 'English'
+              ? 'First Aid Instructions'
+              : 'הוראות עזרה ראשונה',
+        ),
       ),
-      body: const SingleChildScrollView(
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('CPR Instructions (English):',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-            Text(EmergencyInstructions.cprEnglish),
-            SizedBox(height: 20),
-            Text('CPR Instructions (Hebrew):',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-            Text(EmergencyInstructions.cprHebrew),
-            SizedBox(height: 20),
-            Text('Burns Instructions (English):',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-            Text(EmergencyInstructions.burnsEnglish),
-            SizedBox(height: 20),
-            Text('Burns Instructions (Hebrew):',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-            Text(EmergencyInstructions.burnsHebrew),
-            SizedBox(height: 20),
-            Text('Fracture Instructions (English):',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-            Text(EmergencyInstructions.fracturesEnglish),
-            SizedBox(height: 20),
-            Text('Fracture Instructions (Hebrew):',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-            Text(EmergencyInstructions.fracturesHebrew),
-            SizedBox(height: 20),
-          ],
+      body: Directionality(
+        textDirection:
+            language == 'English' ? TextDirection.ltr : TextDirection.rtl,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                language == 'English' ? 'CPR Instructions:' : 'הוראות החייאה:',
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                language == 'English'
+                    ? EmergencyInstructions.cprEnglish
+                    : EmergencyInstructions.cprHebrew,
+              ),
+              const SizedBox(height: 20),
+              Text(
+                language == 'English'
+                    ? 'Burns Instructions:'
+                    : 'הוראות לטיפול בכוויות:',
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                language == 'English'
+                    ? EmergencyInstructions.burnsEnglish
+                    : EmergencyInstructions.burnsHebrew,
+              ),
+              const SizedBox(height: 20),
+              Text(
+                language == 'English'
+                    ? 'Fracture Instructions:'
+                    : 'הוראות לטיפול בשברים:',
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                language == 'English'
+                    ? EmergencyInstructions.fracturesEnglish
+                    : EmergencyInstructions.fracturesHebrew,
+              ),
+              const SizedBox(height: 20),
+            ],
+          ),
         ),
       ),
     );

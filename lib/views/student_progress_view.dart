@@ -16,6 +16,11 @@ class StudentProgressViewState extends State<StudentProgressView> {
   final int _pageSize = 3; // Number of progress items per chunk
   late Future<List<Map<String, dynamic>>> _studentsFuture;
 
+  // Add search-related fields
+  final TextEditingController _searchController = TextEditingController();
+  List<Map<String, dynamic>> _allStudents = [];
+  List<Map<String, dynamic>> _filteredStudents = [];
+
   @override
   void initState() {
     super.initState();
@@ -43,7 +48,26 @@ class StudentProgressViewState extends State<StudentProgressView> {
       }
     }
 
+    // Initialize the filtered list with all students initially
+    _allStudents = students;
+    _filteredStudents = students;
+
     return students;
+  }
+
+  void _filterStudents(String query) {
+    if (query.isEmpty) {
+      setState(() {
+        _filteredStudents = _allStudents;
+      });
+    } else {
+      setState(() {
+        _filteredStudents = _allStudents
+            .where((student) =>
+                student['name'].toLowerCase().contains(query.toLowerCase()))
+            .toList();
+      });
+    }
   }
 
   @override
@@ -64,6 +88,26 @@ class StudentProgressViewState extends State<StudentProgressView> {
             ),
           ),
         ),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(50.0),
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextField(
+              controller: _searchController,
+              onChanged: _filterStudents,
+              decoration: InputDecoration(
+                hintText: 'Search by student name...',
+                prefixIcon: const Icon(Icons.search),
+                filled: true,
+                fillColor: Colors.white,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+            ),
+          ),
+        ),
       ),
       body: FutureBuilder<List<Map<String, dynamic>>>(
         future: _studentsFuture,
@@ -72,7 +116,7 @@ class StudentProgressViewState extends State<StudentProgressView> {
             return const Center(child: CircularProgressIndicator());
           }
 
-          final students = snapshot.data!;
+          final students = _filteredStudents; // Use the filtered list
           if (students.isEmpty) {
             return const Center(
               child: Text(

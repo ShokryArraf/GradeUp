@@ -10,7 +10,7 @@ class EmergencyContactsView extends StatelessWidget {
       {'name': 'Police/משטרה', 'number': '100'},
       {'name': 'Ambulance/אמבולנס', 'number': '101'},
       {'name': 'Fire Department/כיבוי אש', 'number': '102'},
-      {'name': 'פיקוד העורף', 'number': '104'},
+      {'name': 'Home Front Command/פיקוד העורף', 'number': '104'},
     ];
 
     return Scaffold(
