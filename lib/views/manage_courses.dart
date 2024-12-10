@@ -13,13 +13,6 @@ class ManageCourses extends StatefulWidget {
       _ManageCoursesState();
 }
 
-final List<Map<String, String>> _grades = [
-  {'id': 'grade1', 'title': '6'},
-  {'id': 'grade2', 'title': '7'},
-  {'id': 'grade3', 'title': '8'},
-  {'id': 'grade4', 'title': '9'},
-];
-
 
  
 
@@ -110,7 +103,6 @@ class _ManageCoursesState extends State<ManageCourses> {
           return _selectedGrade != null && grades.contains(int.parse(_selectedGrade!));
         })
         .map((lesson) {
-          bool isSelected = _selectedLesson == lesson['id']; // Check if this card is selected
           
           return GestureDetector( // Wrap the card in a GestureDetector
             onTap: () {

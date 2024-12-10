@@ -1,72 +1,74 @@
 import 'package:flutter/material.dart';
 import 'package:grade_up/models/student.dart';
-import 'package:grade_up/views/material_view.dart';
+import 'package:grade_up/views/content_view.dart';
 import 'package:grade_up/service/student_courses_service.dart';
 
-class CourseView extends StatefulWidget {
+class MaterialView extends StatefulWidget {
   final Student student;
-  final String lesson;
+  final String lesson, materialID, materialTitle;
 
-  const CourseView({super.key, required this.student, required this.lesson});
+  const MaterialView({super.key, required this.student, required this.lesson, required this.materialID, required this.materialTitle});
 
   @override
-  State<CourseView> createState() =>
-      _CourseViewState();
+  State<MaterialView> createState() =>
+      _MaterialViewState();
 }
 
-
-class _CourseViewState extends State<CourseView> {
+class _MaterialViewState extends State<MaterialView> {
   final _coursesService = StudentCoursesService();
-  List<Map<String, dynamic>> _materials = []; // List to hold fetched materials
-  bool _isLoading = true; // Loading state
+  bool _isLoading = true; // Loading state for fetching content
+  List<Map<String, dynamic>> _contentList = []; // List to store fetched content
 
   @override
   void initState() {
     super.initState();
-    _fetchAndSetMaterials();
+    _fetchContent(); // Fetch content when the widget is initialized
   }
 
-  Future<void> _fetchAndSetMaterials() async {
+  // Function to fetch content from Firestore
+  Future<void> _fetchContent() async {
     try {
-      final materials = await _coursesService.fetchMaterials(
-        lessonName: widget.lesson,
-        student: widget.student,
+      final content = await _coursesService.fetchContent(
+        lessonName: widget.lesson, 
+        student: widget.student, 
+        materialID: widget.materialID, 
       );
       setState(() {
-        _materials = materials.reversed.toList(); // Save materials to the list
-        _isLoading = false; // Set loading to false
+        _contentList = content; // Update the content list with fetched data
+        _isLoading = false; // Stop loading when data is fetched
       });
     } catch (error) {
-      // Handle error
-      print("Error fetching materials: $error");
       setState(() {
         _isLoading = false; // Stop loading even if there is an error
       });
+      print("Error fetching content: $error");
     }
   }
-
   @override
   Widget build(BuildContext context) {
+    String sTitle = widget.materialTitle;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Materials Overview'),
+        title: Text(sTitle),
         centerTitle: true,
         backgroundColor: Colors.blueAccent,
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator()) // Show spinner while loading
-          : ListView(
-              children: [
-                // Dynamic list of materials
-                ..._materials.map((material) {
-                  return Padding(
+          ? const Center(child: CircularProgressIndicator()) // Show loading indicator while fetching
+          :ListView.builder(
+            itemCount: _contentList.length, 
+            itemBuilder: (context, index) {
+              final content = _contentList[index];
+            // Regular content cards
+            return Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
                     child: GestureDetector(
                       onTap: () {
+                        // Navigate to ManageContent or handle content card tap
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => MaterialView(student: widget.student, lesson: widget.lesson, materialID: material['id'], materialTitle: material['title'],),
+                            builder: (context) => ContentView(student: widget.student, lesson: widget.lesson, materialID: widget.materialID, contentID: content['id'],),
                           ),
                         );
                       },
@@ -87,7 +89,7 @@ class _CourseViewState extends State<CourseView> {
                         ),
                         child: Center(
                           child: Text(
-                            material['title'] ?? 'No Title', // Display material title
+                            content['title'] ?? 'No Title', // Display content title from Firestore
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 20,
@@ -98,9 +100,8 @@ class _CourseViewState extends State<CourseView> {
                       ),
                     ),
                   );
-                }).toList(),
-              ],
-            ),
+        },
+      ),
     );
   }
 }

@@ -38,7 +38,7 @@ class TeacherCoursesService {
 
     return await _firestore
         .collection('schools')
-        .doc('Braude High School')
+        .doc(teacher.school)
         .collection('grades')
         .doc(grade.toString())
         .collection('lessons')
@@ -66,7 +66,7 @@ class TeacherCoursesService {
 
     return await _firestore
         .collection('schools')
-        .doc('Braude High School')
+        .doc(teacher.school)
         .collection('grades')
         .doc(grade.toString())
         .collection('lessons')
@@ -87,7 +87,7 @@ class TeacherCoursesService {
     // Reference the specific lesson document by its name (ID)
     final lessonRef = _firestore
         .collection('schools')
-        .doc('Braude High School')
+        .doc(teacher.school)
         .collection('grades')
         .doc(grade.toString())
         .collection('lessons')
@@ -115,7 +115,7 @@ Future<List<Map<String, dynamic>>> fetchContent({
     // Reference the specific content document by its name (ID)
     final lessonRef = _firestore
         .collection('schools')
-        .doc('Braude High School')
+        .doc(teacher.school)
         .collection('grades')
         .doc(grade.toString())
         .collection('lessons')
@@ -144,7 +144,7 @@ Future<List<Map<String, dynamic>>> fetchBlocks({
     // Reference the specific content document by its name (ID)
     final lessonRef = _firestore
         .collection('schools')
-        .doc('Braude High School')
+        .doc(teacher.school)
         .collection('grades')
         .doc(grade.toString())
         .collection('lessons')

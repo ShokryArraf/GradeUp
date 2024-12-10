@@ -15,12 +15,9 @@ class MyCourses extends StatefulWidget {
 
 
 class _MyCoursesState extends State<MyCourses> {
-
-  String? _selectedLesson;
-  String? _selectedGrade; // Example if you have other dependent dropdowns
-
   @override
   Widget build(BuildContext context) {
+    final _courses = widget.student.enrolledLessons;
   return Scaffold(
     appBar: AppBar(
       title: const Text('My Courses'),
@@ -40,42 +37,41 @@ class _MyCoursesState extends State<MyCourses> {
               crossAxisCount: 2,
               crossAxisSpacing: 16,
               mainAxisSpacing: 16,
-              children: [
-                buildDashboardCard(
-                  Icons.plus_one,
-                  'Math',
-                  Colors.green,
-                  () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            CourseView(student: widget.student),
-                      ),
-                    );
-                  },
+              children: _courses.map((course) {
+                      // Build a card for each course
+                      return GestureDetector(
+                        child: buildDashboardCard(
+              course == 'math' ? Icons.calculate 
+              : course == 'english' ? Icons.explicit 
+              : course == 'biology' ? Icons.biotech
+              : course == 'geography' ? Icons.public
+              : course == 'chemistry' ? Icons.science
+              : course == 'hebrew' ? Icons.book
+              : Icons.help,
+              course.toString().toUpperCase(),
+              course == 'math' ? Colors.green
+              : course == 'english' ? Colors.red
+              : course == 'biology' ? Color.fromARGB(255, 131, 23, 50)
+              : course == 'geography' ? Colors.brown
+              : course == 'chemistry' ? Colors.yellow
+              : course == 'hebrew' ? Colors.black
+              :Colors.blue, // Change color when selected
+              () {
+                Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => CourseView(student: widget.student, lesson: course),
                 ),
-                buildDashboardCard(
-                  Icons.biotech,
-                  'Biology',
-                  Colors.red,
-                  () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            CourseView(student: widget.student),
-                      ),
-                    );
-                  },
-                ),
-              ],
+              );
+              },
+              
             ),
-          ),
-        ],
-      ),
+                      );
+                    }).toList(),
+                  ),
+      ),],
     ),
-  );
+  ));
 }
 
 }
