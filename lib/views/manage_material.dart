@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:grade_up/models/teacher.dart';
+import 'package:grade_up/utilities/show_error_dialog.dart';
 import 'package:grade_up/views/manage_content.dart';
 import 'package:grade_up/service/teacher_courses_service.dart';
 
@@ -8,17 +9,21 @@ class ManageMaterial extends StatefulWidget {
   final int grade;
   final String lesson, materialID, materialTitle;
 
-  const ManageMaterial({super.key, required this.teacher, required this.grade, required this.lesson, required this.materialID, required this.materialTitle});
+  const ManageMaterial(
+      {super.key,
+      required this.teacher,
+      required this.grade,
+      required this.lesson,
+      required this.materialID,
+      required this.materialTitle});
 
   @override
-  State<ManageMaterial> createState() =>
-      _ManageMaterialState();
+  State<ManageMaterial> createState() => _ManageMaterialState();
 }
-
 
 class _ManageMaterialState extends State<ManageMaterial> {
   final _coursesService = TeacherCoursesService();
- // Example if you have other dependent dropdowns
+  // Example if you have other dependent dropdowns
   bool showAddContentBox = true; // Toggle flag
   final TextEditingController _titleController = TextEditingController();
   bool _isLoading = true; // Loading state for fetching content
@@ -47,10 +52,9 @@ class _ManageMaterialState extends State<ManageMaterial> {
       setState(() {
         _isLoading = false; // Stop loading even if there is an error
       });
-      print("Error fetching content: $error");
+      showErrorDialog(context, 'Error fetching content.');
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -62,19 +66,24 @@ class _ManageMaterialState extends State<ManageMaterial> {
         backgroundColor: Colors.blueAccent,
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator()) // Show loading indicator while fetching
+          ? const Center(
+              child:
+                  CircularProgressIndicator()) // Show loading indicator while fetching
           : ListView.builder(
-              itemCount: _contentList.length + 1, // 1 extra for "Add Content" card
+              itemCount:
+                  _contentList.length + 1, // 1 extra for "Add Content" card
               itemBuilder: (context, index) {
                 if (index == 0) {
                   // Special "Add Content" card at the top
                   return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 8.0, horizontal: 16.0),
                     child: showAddContentBox
                         ? GestureDetector(
                             onTap: () {
                               setState(() {
-                                showAddContentBox = false; // Show textbox on tap
+                                showAddContentBox =
+                                    false; // Show textbox on tap
                               });
                             },
                             child: Container(
@@ -92,9 +101,9 @@ class _ManageMaterialState extends State<ManageMaterial> {
                                   ),
                                 ],
                               ),
-                              child: Row(
+                              child: const Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
-                                children: const [
+                                children: [
                                   Icon(Icons.add, color: Colors.black54),
                                   SizedBox(width: 10),
                                   Text(
@@ -124,54 +133,77 @@ class _ManageMaterialState extends State<ManageMaterial> {
                               ),
                               const SizedBox(width: 10),
                               ElevatedButton(
-  onPressed: () async {
-    if (_titleController.text.isNotEmpty) {
-      String newTitle = _titleController.text;
+                                onPressed: () async {
+                                  if (_titleController.text.isNotEmpty) {
+                                    String newTitle = _titleController.text;
 
-      try {
-        // Add the new content to Firestore
-        await _coursesService.addContent(
-          widget.lesson, // Lesson name passed from the widget
-          grade: widget.grade, // Grade passed from the widget
-          teacher: widget.teacher, // Teacher passed from the widget
-          materialID: widget.materialID, // Material ID passed from the widget
-          title: newTitle, // Content title from the TextField
-        );
+                                    try {
+                                      // Add the new content to Firestore
+                                      await _coursesService.addContent(
+                                        widget
+                                            .lesson, // Lesson name passed from the widget
+                                        grade: widget
+                                            .grade, // Grade passed from the widget
+                                        teacher: widget
+                                            .teacher, // Teacher passed from the widget
+                                        materialID: widget
+                                            .materialID, // Material ID passed from the widget
+                                        title:
+                                            newTitle, // Content title from the TextField
+                                      );
 
-        // Update the local UI and reset the state
-        setState(() {
-          _contentList.add({'title': newTitle}); // Add the new content to the list
-          showAddContentBox = true; // Show "Add Content" box again
-          _titleController.clear(); // Clear the text field
-        });
+                                      // Update the local UI and reset the state
+                                      setState(() {
+                                        _contentList.add({
+                                          'title': newTitle
+                                        }); // Add the new content to the list
+                                        showAddContentBox =
+                                            true; // Show "Add Content" box again
+                                        _titleController
+                                            .clear(); // Clear the text field
+                                      });
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Content added successfully!')),
-        );
-      } catch (error) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error adding content: $error')),
-        );
-      }
-    }
-  },
-  child: const Text('Add'),
-),
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        const SnackBar(
+                                            content: Text(
+                                                'Content added successfully!')),
+                                      );
+                                    } catch (error) {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        SnackBar(
+                                            content: Text(
+                                                'Error adding content: $error')),
+                                      );
+                                    }
+                                  }
+                                },
+                                child: const Text('Add'),
+                              ),
                             ],
                           ),
                   );
                 } else {
                   // Regular content cards based on fetched data
-                  final content = _contentList[index - 1]; // Adjust index for content list
+                  final content =
+                      _contentList[index - 1]; // Adjust index for content list
                   return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 8.0, horizontal: 16.0),
                     child: GestureDetector(
                       onTap: () {
                         // Navigate to ManageContent or handle content card tap
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => ManageContent(teacher: widget.teacher, grade: widget.grade, lesson: widget.lesson, materialID: widget.materialID, contentID: content['id'],),
+                            builder: (context) => ManageContent(
+                              teacher: widget.teacher,
+                              grade: widget.grade,
+                              lesson: widget.lesson,
+                              materialID: widget.materialID,
+                              contentID: content['id'],
+                            ),
                           ),
                         );
                       },
@@ -192,7 +224,8 @@ class _ManageMaterialState extends State<ManageMaterial> {
                         ),
                         child: Center(
                           child: Text(
-                            content['title'] ?? 'No Title', // Display content title from Firestore
+                            content['title'] ??
+                                'No Title', // Display content title from Firestore
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 20,

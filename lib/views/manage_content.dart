@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart'; // File picker for selecting files
 import 'package:firebase_storage/firebase_storage.dart'; // Firebase Storage for file uploads
-import 'package:firebase_core/firebase_core.dart'; // Firebase core initialization
 import 'package:grade_up/models/teacher.dart'; // Import image_picker package
-import 'dart:io';  // To handle file paths
+import 'dart:io'; // To handle file paths
 import 'package:grade_up/service/teacher_courses_service.dart';
 
 class ManageContent extends StatefulWidget {
@@ -11,13 +10,17 @@ class ManageContent extends StatefulWidget {
   final int grade;
   final String lesson, materialID, contentID;
 
-  const ManageContent({super.key, required this.teacher, required this.grade, required this.lesson, required this.materialID, required this.contentID});
+  const ManageContent(
+      {super.key,
+      required this.teacher,
+      required this.grade,
+      required this.lesson,
+      required this.materialID,
+      required this.contentID});
 
   @override
-  State<ManageContent> createState() =>
-      _ManageContentState();
+  State<ManageContent> createState() => _ManageContentState();
 }
-
 
 class _ManageContentState extends State<ManageContent> {
   final _coursesService = TeacherCoursesService();
@@ -25,7 +28,7 @@ class _ManageContentState extends State<ManageContent> {
   List<Map<String, dynamic>> _contentList = [];
   bool _isLoading = true;
 
-  File? _selectedImage;  // Holds the selected image file
+  File? _selectedImage; // Holds the selected image file
   // Controllers for text inputs
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _textController = TextEditingController();
@@ -40,12 +43,11 @@ class _ManageContentState extends State<ManageContent> {
   Future<void> _fetchBlocks() async {
     try {
       final blocks = await _coursesService.fetchBlocks(
-        lessonName: widget.lesson,
-        grade: widget.grade,
-        teacher: widget.teacher,
-        materialID: widget.materialID,
-        contentID: widget.contentID
-      );
+          lessonName: widget.lesson,
+          grade: widget.grade,
+          teacher: widget.teacher,
+          materialID: widget.materialID,
+          contentID: widget.contentID);
       setState(() {
         _contentList = blocks; // Update the content list with fetched blocks
         _isLoading = false; // Stop loading
@@ -89,6 +91,7 @@ class _ManageContentState extends State<ManageContent> {
             ),
     );
   }
+
   // Element Selection UI
   Widget _buildElementSelectionBox() {
     return Container(
@@ -163,21 +166,27 @@ class _ManageContentState extends State<ManageContent> {
             if (_titleController.text.isNotEmpty) {
               String newData = _titleController.text;
               try {
-                await _coursesService.addBlock(
-                  widget.lesson, grade: widget.grade, teacher: widget.teacher, materialID: widget.materialID, contentID: widget.contentID, type: 'title', data: newData
-                );
-                
-                  setState(() {
-                    _contentList.add({'type': 'title', 'data': _titleController.text});
-                    _titleController.clear();
-                    _selectedElement = null;
-                  });
-                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Title block added successfully!')),
-                    );
-              } catch (error){
+                await _coursesService.addBlock(widget.lesson,
+                    grade: widget.grade,
+                    teacher: widget.teacher,
+                    materialID: widget.materialID,
+                    contentID: widget.contentID,
+                    type: 'title',
+                    data: newData);
+
+                setState(() {
+                  _contentList
+                      .add({'type': 'title', 'data': _titleController.text});
+                  _titleController.clear();
+                  _selectedElement = null;
+                });
                 ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Error adding content: $error')),
+                  const SnackBar(
+                      content: Text('Title block added successfully!')),
+                );
+              } catch (error) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Error adding content: $error')),
                 );
               }
             }
@@ -188,96 +197,99 @@ class _ManageContentState extends State<ManageContent> {
     );
   }
 
-String _getFileType(File file) {
-  final extension = file.path.split('.').last.toLowerCase();
-  if (['jpg', 'jpeg', 'png'].contains(extension)) return 'image';
-  if (['mp4'].contains(extension)) return 'video';
-  if (['pdf'].contains(extension)) return 'pdf';
-  return 'unknown';
-}
-
-
-Widget _buildFilePreview(File file) {
-  final fileType = _getFileType(file);
-
-  if (fileType == 'image') {
-    return Image.file(file, height: 150, fit: BoxFit.cover);
-  } else if (fileType == 'video') {
-    return const Icon(Icons.videocam, size: 100, color: Colors.blueAccent);
-  } else if (fileType == 'pdf') {
-    return const Icon(Icons.picture_as_pdf, size: 100, color: Colors.redAccent);
-  } else {
-    return const Icon(Icons.file_present, size: 100, color: Colors.grey);
+  String _getFileType(File file) {
+    final extension = file.path.split('.').last.toLowerCase();
+    if (['jpg', 'jpeg', 'png'].contains(extension)) return 'image';
+    if (['mp4'].contains(extension)) return 'video';
+    if (['pdf'].contains(extension)) return 'pdf';
+    return 'unknown';
   }
-}
 
+  Widget _buildFilePreview(File file) {
+    final fileType = _getFileType(file);
 
-Widget _buildMediaInput() {
-  return Column(
-    children: [
-      _selectedImage != null
-          ? _buildFilePreview(_selectedImage!)
-          : const Icon(Icons.file_present, size: 100, color: Colors.blueAccent),
-      const SizedBox(height: 10),
-      ElevatedButton(
-        onPressed: () async {
-          // Open the file picker
-          final result = await FilePicker.platform.pickFiles(
-            type: FileType.custom,
-            allowedExtensions: ['jpg', 'jpeg', 'png', 'mp4', 'pdf'], // Specify allowed file types
-          );
+    if (fileType == 'image') {
+      return Image.file(file, height: 150, fit: BoxFit.cover);
+    } else if (fileType == 'video') {
+      return const Icon(Icons.videocam, size: 100, color: Colors.blueAccent);
+    } else if (fileType == 'pdf') {
+      return const Icon(Icons.picture_as_pdf,
+          size: 100, color: Colors.redAccent);
+    } else {
+      return const Icon(Icons.file_present, size: 100, color: Colors.grey);
+    }
+  }
 
-          if (result != null) {
-            final file = File(result.files.single.path!);
-            setState(() {
-              _selectedImage = file; // Set the selected file
-            });
-          }
-        },
-        child: const Text('Select File'),
-      ),
-      const SizedBox(height: 10),
-      ElevatedButton(
-        onPressed: () async {
-          if (_selectedImage != null) {
-            try {
-              // Determine file type for path and metadata
-              final fileType = _getFileType(_selectedImage!);
-              final fileName =
-                  '${DateTime.now().millisecondsSinceEpoch}.${fileType}';
-              final storageRef =
-                  FirebaseStorage.instance.ref().child('uploads/$fileName');
+  Widget _buildMediaInput() {
+    return Column(
+      children: [
+        _selectedImage != null
+            ? _buildFilePreview(_selectedImage!)
+            : const Icon(Icons.file_present,
+                size: 100, color: Colors.blueAccent),
+        const SizedBox(height: 10),
+        ElevatedButton(
+          onPressed: () async {
+            // Open the file picker
+            final result = await FilePicker.platform.pickFiles(
+              type: FileType.custom,
+              allowedExtensions: [
+                'jpg',
+                'jpeg',
+                'png',
+                'mp4',
+                'pdf'
+              ], // Specify allowed file types
+            );
 
-              // Upload the file to Firebase Storage
-              final uploadTask = await storageRef.putFile(_selectedImage!);
-
-              // Get the download URL
-              final downloadURL = await storageRef.getDownloadURL();
-
-              // Update content list with the download URL and type
+            if (result != null) {
+              final file = File(result.files.single.path!);
               setState(() {
-                _contentList.add({'type': fileType, 'data': downloadURL});
-                _selectedImage = null;
-                _selectedElement = null;
+                _selectedImage = file; // Set the selected file
               });
-
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('File uploaded successfully!')),
-              );
-            } catch (error) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Error uploading file: $error')),
-              );
             }
-          }
-        },
-        child: const Text('Upload File'),
-      ),
-    ],
-  );
-}
+          },
+          child: const Text('Select File'),
+        ),
+        const SizedBox(height: 10),
+        ElevatedButton(
+          onPressed: () async {
+            if (_selectedImage != null) {
+              try {
+                // Determine file type for path and metadata
+                final fileType = _getFileType(_selectedImage!);
+                final fileName =
+                    '${DateTime.now().millisecondsSinceEpoch}.$fileType';
+                final storageRef =
+                    FirebaseStorage.instance.ref().child('uploads/$fileName');
 
+                // Upload the file to Firebase Storage
 
+                // Get the download URL
+                final downloadURL = await storageRef.getDownloadURL();
+
+                // Update content list with the download URL and type
+                setState(() {
+                  _contentList.add({'type': fileType, 'data': downloadURL});
+                  _selectedImage = null;
+                  _selectedElement = null;
+                });
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('File uploaded successfully!')),
+                );
+              } catch (error) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Error uploading file: $error')),
+                );
+              }
+            }
+          },
+          child: const Text('Upload File'),
+        ),
+      ],
+    );
+  }
 
   Widget _buildTextInput() {
     return Column(
@@ -292,26 +304,34 @@ Widget _buildMediaInput() {
         ),
         const SizedBox(height: 10),
         ElevatedButton(
-          onPressed: () async{
+          onPressed: () async {
             if (_textController.text.isNotEmpty) {
               String newData = _textController.text;
               try {
-                await _coursesService.addBlock(
-                  widget.lesson, grade: widget.grade, teacher: widget.teacher, materialID: widget.materialID, contentID: widget.contentID, type: 'text', data: newData
-                );
-                
-                  setState(() {
-                    _contentList.add({'type': 'text', 'data': _textController.text}); //add locally
-                    _contentList.add({'type': 'media', 'data': ''}); //add locally
-                    _textController.clear();
-                    _selectedElement = null;
-                  });
-                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Text block added successfully!')),
-                    );
-              } catch (error){
+                await _coursesService.addBlock(widget.lesson,
+                    grade: widget.grade,
+                    teacher: widget.teacher,
+                    materialID: widget.materialID,
+                    contentID: widget.contentID,
+                    type: 'text',
+                    data: newData);
+
+                setState(() {
+                  _contentList.add({
+                    'type': 'text',
+                    'data': _textController.text
+                  }); //add locally
+                  _contentList.add({'type': 'media', 'data': ''}); //add locally
+                  _textController.clear();
+                  _selectedElement = null;
+                });
                 ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Error adding content: $error')),
+                  const SnackBar(
+                      content: Text('Text block added successfully!')),
+                );
+              } catch (error) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Error adding content: $error')),
                 );
               }
             }
@@ -334,48 +354,49 @@ Widget _buildMediaInput() {
         );
       case 'media':
         final fileType = element['type'];
-  final fileData = element['data'];
+        final fileData = element['data'];
 
-  if (fileType == 'image') {
-    return Image.network(
-      fileData,
-      fit: BoxFit.cover,
-      loadingBuilder: (context, child, progress) {
-        if (progress == null) return child;
-        return Center(
-          child: CircularProgressIndicator(
-            value: progress.expectedTotalBytes != null
-                ? progress.cumulativeBytesLoaded / progress.expectedTotalBytes!
-                : null,
-          ),
-        );
-      },
-      errorBuilder: (context, error, stackTrace) {
-        return const Icon(Icons.error);
-      },
-    );
-  } else if (fileType == 'video') {
-    return ListTile(
-      leading: const Icon(Icons.videocam, color: Colors.blueAccent),
-      title: Text('Video: $fileData'),
-      onTap: () {
-        // Handle video preview or playback
-      },
-    );
-  } else if (fileType == 'pdf') {
-    return ListTile(
-      leading: const Icon(Icons.picture_as_pdf, color: Colors.redAccent),
-      title: Text('PDF: $fileData'),
-      onTap: () {
-        // Handle PDF opening
-      },
-    );
-  } else {
-    return ListTile(
-      leading: const Icon(Icons.file_present),
-      title: Text('Unknown file: $fileData'),
-    );
-  }
+        if (fileType == 'image') {
+          return Image.network(
+            fileData,
+            fit: BoxFit.cover,
+            loadingBuilder: (context, child, progress) {
+              if (progress == null) return child;
+              return Center(
+                child: CircularProgressIndicator(
+                  value: progress.expectedTotalBytes != null
+                      ? progress.cumulativeBytesLoaded /
+                          progress.expectedTotalBytes!
+                      : null,
+                ),
+              );
+            },
+            errorBuilder: (context, error, stackTrace) {
+              return const Icon(Icons.error);
+            },
+          );
+        } else if (fileType == 'video') {
+          return ListTile(
+            leading: const Icon(Icons.videocam, color: Colors.blueAccent),
+            title: Text('Video: $fileData'),
+            onTap: () {
+              // Handle video preview or playback
+            },
+          );
+        } else if (fileType == 'pdf') {
+          return ListTile(
+            leading: const Icon(Icons.picture_as_pdf, color: Colors.redAccent),
+            title: Text('PDF: $fileData'),
+            onTap: () {
+              // Handle PDF opening
+            },
+          );
+        } else {
+          return ListTile(
+            leading: const Icon(Icons.file_present),
+            title: Text('Unknown file: $fileData'),
+          );
+        }
       case 'text':
         return ListTile(
           title: Text(element['data']),

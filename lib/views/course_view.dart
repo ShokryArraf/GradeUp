@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:grade_up/models/student.dart';
+import 'package:grade_up/utilities/show_error_dialog.dart';
 import 'package:grade_up/views/material_view.dart';
 import 'package:grade_up/service/student_courses_service.dart';
 
@@ -10,10 +11,8 @@ class CourseView extends StatefulWidget {
   const CourseView({super.key, required this.student, required this.lesson});
 
   @override
-  State<CourseView> createState() =>
-      _CourseViewState();
+  State<CourseView> createState() => _CourseViewState();
 }
-
 
 class _CourseViewState extends State<CourseView> {
   final _coursesService = StudentCoursesService();
@@ -38,7 +37,7 @@ class _CourseViewState extends State<CourseView> {
       });
     } catch (error) {
       // Handle error
-      print("Error fetching materials: $error");
+      showErrorDialog(context, 'Error fetching materials');
       setState(() {
         _isLoading = false; // Stop loading even if there is an error
       });
@@ -54,19 +53,26 @@ class _CourseViewState extends State<CourseView> {
         backgroundColor: Colors.blueAccent,
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator()) // Show spinner while loading
+          ? const Center(
+              child: CircularProgressIndicator()) // Show spinner while loading
           : ListView(
               children: [
                 // Dynamic list of materials
                 ..._materials.map((material) {
                   return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 8.0, horizontal: 16.0),
                     child: GestureDetector(
                       onTap: () {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => MaterialView(student: widget.student, lesson: widget.lesson, materialID: material['id'], materialTitle: material['title'],),
+                            builder: (context) => MaterialView(
+                              student: widget.student,
+                              lesson: widget.lesson,
+                              materialID: material['id'],
+                              materialTitle: material['title'],
+                            ),
                           ),
                         );
                       },
@@ -87,7 +93,8 @@ class _CourseViewState extends State<CourseView> {
                         ),
                         child: Center(
                           child: Text(
-                            material['title'] ?? 'No Title', // Display material title
+                            material['title'] ??
+                                'No Title', // Display material title
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 20,
@@ -98,10 +105,9 @@ class _CourseViewState extends State<CourseView> {
                       ),
                     ),
                   );
-                }).toList(),
+                }),
               ],
             ),
     );
   }
 }
-

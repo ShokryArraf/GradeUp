@@ -1,25 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:grade_up/models/student.dart'; // Import image_picker package
-import 'dart:io';  // To handle file paths
 import 'package:grade_up/service/student_courses_service.dart';
 
 class ContentView extends StatefulWidget {
   final Student student;
   final String lesson, materialID, contentID;
 
-  const ContentView({super.key, required this.student, required this.lesson, required this.materialID, required this.contentID});
+  const ContentView(
+      {super.key,
+      required this.student,
+      required this.lesson,
+      required this.materialID,
+      required this.contentID});
 
   @override
-  State<ContentView> createState() =>
-      _ContentViewState();
+  State<ContentView> createState() => _ContentViewState();
 }
-
 
 class _ContentViewState extends State<ContentView> {
   final _coursesService = StudentCoursesService();
   bool _isLoading = true; // Loading state for fetching content
   List<Map<String, dynamic>> _contentList = []; // List to store fetched content
- 
 
   @override
   void initState() {
@@ -31,11 +32,10 @@ class _ContentViewState extends State<ContentView> {
   Future<void> _fetchBlocks() async {
     try {
       final blocks = await _coursesService.fetchBlocks(
-        lessonName: widget.lesson,
-        student: widget.student,
-        materialID: widget.materialID,
-        contentID: widget.contentID
-      );
+          lessonName: widget.lesson,
+          student: widget.student,
+          materialID: widget.materialID,
+          contentID: widget.contentID);
       setState(() {
         _contentList = blocks; // Update the content list with fetched blocks
         _isLoading = false; // Stop loading
@@ -71,7 +71,6 @@ class _ContentViewState extends State<ContentView> {
             ),
     );
   }
-
 
   // Render each content card dynamically
   Widget _buildContentCard(Map<String, dynamic> element) {
