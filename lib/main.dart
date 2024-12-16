@@ -13,6 +13,7 @@ void main() {
 
   runApp(
     MaterialApp(
+        debugShowCheckedModeBanner: false,
         title: 'Grade_Up',
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),

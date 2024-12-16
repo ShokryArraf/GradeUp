@@ -46,7 +46,7 @@ class _AssignmentManageOptionsState extends State<AssignmentManageOptions> {
             ),
             buildDashboardCard(
               Icons.search,
-              'Search & Delete Assignments',
+              'Search,Edit & Delete Assignments',
               Colors.red,
               () {
                 Navigator.push(

@@ -2,7 +2,9 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:csv/csv.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:grade_up/game/download_template.dart';
 import 'package:grade_up/models/teacher.dart';
 import 'package:grade_up/service/cloud_storage_exceptions.dart';
 import 'package:grade_up/service/game_service.dart';
@@ -26,9 +28,7 @@ class GameEditingViewState extends State<GameEditingView> {
   String? _correctAnswer;
   List<String> _answerOptions =
       List.filled(4, ''); // Initialize with 4 empty strings
-
   List<Map<String, dynamic>> _questions = [];
-
   final GameService gameService = GameService();
 
   Future<List<String>> _fetchAssignedLessons() async {
@@ -94,6 +94,14 @@ class GameEditingViewState extends State<GameEditingView> {
 
   bool areOptionsUnique(List<String> options) {
     return options.toSet().length == options.length;
+  }
+
+  bool areLessonGradeValid(String lesson, String grade) {
+    if (widget.teacher.lessonGradeMap.containsKey(lesson) &&
+        widget.teacher.lessonGradeMap[lesson]!.contains(int.parse(grade))) {
+      return true;
+    }
+    return false;
   }
 
   bool _validateInputs(
@@ -236,6 +244,13 @@ class GameEditingViewState extends State<GameEditingView> {
               .cast<String>()
               .toList();
 
+          if (!areLessonGradeValid(lesson, grade)) {
+            CustomDialog.show(
+                context,
+                "You are not assigned to the lesson/grade you entered. ",
+                "Validation failed at row ${i + 1}. Only rows up to $lastValidRow were processed.");
+            return;
+          }
           // Add question to the database
           if (!_validateInputs(questionText, answerOptions, correctAnswer)) {
             CustomDialog.show(
@@ -489,12 +504,87 @@ class GameEditingViewState extends State<GameEditingView> {
                       onPressed: _addQuestion,
                       child: const Text('Add Question'),
                     ),
-                    const SizedBox(height: 10),
-                    ElevatedButton.icon(
-                      onPressed: _bulkUploadQuestions,
-                      icon: const Icon(Icons.upload_file),
-                      label: const Text("Bulk Upload Questions"),
+                    const SizedBox(
+                      height: 10,
                     ),
+                    if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) ...[
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            "Use this option to upload multiple questions from a CSV file. "
+                            "Ensure the file follows the required format. Click the info icon for details or download a template.",
+                            style: TextStyle(fontSize: 14, color: Colors.grey),
+                          ),
+                          const SizedBox(height: 10),
+                          Row(
+                            children: [
+                              ElevatedButton.icon(
+                                onPressed: _bulkUploadQuestions,
+                                icon: const Icon(Icons.upload_file),
+                                label: const Text("Bulk Upload Questions"),
+                              ),
+                              const SizedBox(width: 8),
+                              IconButton(
+                                icon: const Icon(Icons.info_outline),
+                                onPressed: () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) => AlertDialog(
+                                      title:
+                                          const Text("CSV Format Instructions"),
+                                      content: const Text(
+                                        "The CSV file should contain the following columns:\n"
+                                        "1. Lesson (e.g., 'math')\n"
+                                        "2. Grade (e.g., '6')\n"
+                                        "3. Level (e.g., '1')\n"
+                                        "4. Question Text (e.g., 'What is 2+2?')\n"
+                                        "5. Correct Answer (e.g., '4')\n"
+                                        "6. Option 1 (e.g., '4')\n"
+                                        "7. Option 2 (e.g., '3')\n"
+                                        "8. Option 3 (e.g., '5')\n"
+                                        "9. Option 4 (e.g., '2')\n\n"
+                                        "Ensure all rows are properly filled.",
+                                      ),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () =>
+                                              Navigator.of(context).pop(),
+                                          child: const Text("Close"),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                          const SizedBox(
+                            height: 16,
+                          ),
+                          ElevatedButton.icon(
+                            onPressed: () async {
+                              const downloadTemplate = DownloadTemplate();
+                              await downloadTemplate.downloadTemplate();
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text("Downloading template..."),
+                                ),
+                              );
+                            },
+                            icon: const Icon(Icons.download),
+                            label: const Text("Download CSV Template"),
+                          ),
+                        ],
+                      ),
+                    ] else ...[
+                      const Center(
+                        child: Text(
+                          "You can upload multiple questions from a CSV file on mobile only.",
+                          style: TextStyle(fontSize: 16, color: Colors.blue),
+                        ),
+                      ),
+                    ]
                   ],
                 ),
               ),

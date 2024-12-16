@@ -112,7 +112,7 @@ class SearchDeleteAssignmentSectionState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Search and Delete Assignments'),
+        title: const Text('Search,Edit and Delete Assignments'),
         backgroundColor: Colors.blueAccent,
       ),
       body: SingleChildScrollView(
@@ -123,7 +123,7 @@ class SearchDeleteAssignmentSectionState
             children: [
               const SizedBox(height: 32),
               const Text(
-                'Search and Delete Assignments',
+                'Search,Edit and Delete Assignments',
                 style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
