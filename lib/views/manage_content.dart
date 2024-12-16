@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:file_picker/file_picker.dart'; // File picker for selecting files
+import 'package:firebase_storage/firebase_storage.dart'; // Firebase Storage for file uploads
+import 'package:firebase_core/firebase_core.dart'; // Firebase core initialization
 import 'package:grade_up/models/teacher.dart'; // Import image_picker package
 import 'dart:io';  // To handle file paths
 import 'package:grade_up/service/teacher_courses_service.dart';
@@ -185,34 +188,95 @@ class _ManageContentState extends State<ManageContent> {
     );
   }
 
-  Widget _buildMediaInput() {
-    return Column(
-      children: [
-        _selectedImage != null
-            ? Image.file(_selectedImage!, height: 150)
-            : const Icon(Icons.image, size: 100, color: Colors.blueAccent),
-        const SizedBox(height: 10),
-        ElevatedButton(
-          onPressed:() {
-          },
-          child: const Text('Upload Media'),
-        ),
-        const SizedBox(height: 10),
-        ElevatedButton(
-          onPressed: () {
-            if (_selectedImage != null) {
+String _getFileType(File file) {
+  final extension = file.path.split('.').last.toLowerCase();
+  if (['jpg', 'jpeg', 'png'].contains(extension)) return 'image';
+  if (['mp4'].contains(extension)) return 'video';
+  if (['pdf'].contains(extension)) return 'pdf';
+  return 'unknown';
+}
+
+
+Widget _buildFilePreview(File file) {
+  final fileType = _getFileType(file);
+
+  if (fileType == 'image') {
+    return Image.file(file, height: 150, fit: BoxFit.cover);
+  } else if (fileType == 'video') {
+    return const Icon(Icons.videocam, size: 100, color: Colors.blueAccent);
+  } else if (fileType == 'pdf') {
+    return const Icon(Icons.picture_as_pdf, size: 100, color: Colors.redAccent);
+  } else {
+    return const Icon(Icons.file_present, size: 100, color: Colors.grey);
+  }
+}
+
+
+Widget _buildMediaInput() {
+  return Column(
+    children: [
+      _selectedImage != null
+          ? _buildFilePreview(_selectedImage!)
+          : const Icon(Icons.file_present, size: 100, color: Colors.blueAccent),
+      const SizedBox(height: 10),
+      ElevatedButton(
+        onPressed: () async {
+          // Open the file picker
+          final result = await FilePicker.platform.pickFiles(
+            type: FileType.custom,
+            allowedExtensions: ['jpg', 'jpeg', 'png', 'mp4', 'pdf'], // Specify allowed file types
+          );
+
+          if (result != null) {
+            final file = File(result.files.single.path!);
+            setState(() {
+              _selectedImage = file; // Set the selected file
+            });
+          }
+        },
+        child: const Text('Select File'),
+      ),
+      const SizedBox(height: 10),
+      ElevatedButton(
+        onPressed: () async {
+          if (_selectedImage != null) {
+            try {
+              // Determine file type for path and metadata
+              final fileType = _getFileType(_selectedImage!);
+              final fileName =
+                  '${DateTime.now().millisecondsSinceEpoch}.${fileType}';
+              final storageRef =
+                  FirebaseStorage.instance.ref().child('uploads/$fileName');
+
+              // Upload the file to Firebase Storage
+              final uploadTask = await storageRef.putFile(_selectedImage!);
+
+              // Get the download URL
+              final downloadURL = await storageRef.getDownloadURL();
+
+              // Update content list with the download URL and type
               setState(() {
-                _contentList.add({'type': 'media', 'data': _selectedImage});
+                _contentList.add({'type': fileType, 'data': downloadURL});
                 _selectedImage = null;
                 _selectedElement = null;
               });
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('File uploaded successfully!')),
+              );
+            } catch (error) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Error uploading file: $error')),
+              );
             }
-          },
-          child: const Text('Add Media'),
-        ),
-      ],
-    );
-  }
+          }
+        },
+        child: const Text('Upload File'),
+      ),
+    ],
+  );
+}
+
 
 
   Widget _buildTextInput() {
@@ -269,23 +333,49 @@ class _ManageContentState extends State<ManageContent> {
           ),
         );
       case 'media':
-        return Image.network(
-          'https://creatorset.com/cdn/shop/files/Screenshot_2024-01-29_223308_1920x.png?v=1706560563',
-          fit: BoxFit.cover, // Adjust how the image fits its container
-          loadingBuilder: (context, child, loadingProgress) {
-            if (loadingProgress == null) return child; // Show the image when fully loaded
-            return Center(
-            child: CircularProgressIndicator(
-              value: loadingProgress.expectedTotalBytes != null
-              ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
-              : null,
-            ),
-            );
-          },
-          errorBuilder: (context, error, stackTrace) {
-            return const Icon(Icons.error); // Show an error icon if the image fails to load
-          },
+        final fileType = element['type'];
+  final fileData = element['data'];
+
+  if (fileType == 'image') {
+    return Image.network(
+      fileData,
+      fit: BoxFit.cover,
+      loadingBuilder: (context, child, progress) {
+        if (progress == null) return child;
+        return Center(
+          child: CircularProgressIndicator(
+            value: progress.expectedTotalBytes != null
+                ? progress.cumulativeBytesLoaded / progress.expectedTotalBytes!
+                : null,
+          ),
         );
+      },
+      errorBuilder: (context, error, stackTrace) {
+        return const Icon(Icons.error);
+      },
+    );
+  } else if (fileType == 'video') {
+    return ListTile(
+      leading: const Icon(Icons.videocam, color: Colors.blueAccent),
+      title: Text('Video: $fileData'),
+      onTap: () {
+        // Handle video preview or playback
+      },
+    );
+  } else if (fileType == 'pdf') {
+    return ListTile(
+      leading: const Icon(Icons.picture_as_pdf, color: Colors.redAccent),
+      title: Text('PDF: $fileData'),
+      onTap: () {
+        // Handle PDF opening
+      },
+    );
+  } else {
+    return ListTile(
+      leading: const Icon(Icons.file_present),
+      title: Text('Unknown file: $fileData'),
+    );
+  }
       case 'text':
         return ListTile(
           title: Text(element['data']),
