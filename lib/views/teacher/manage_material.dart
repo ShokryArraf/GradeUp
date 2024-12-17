@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:grade_up/models/teacher.dart';
 import 'package:grade_up/utilities/show_error_dialog.dart';
-import 'package:grade_up/views/manage_content.dart';
+import 'package:grade_up/views/teacher/manage_content.dart';
 import 'package:grade_up/service/teacher_courses_service.dart';
 
 class ManageMaterial extends StatefulWidget {

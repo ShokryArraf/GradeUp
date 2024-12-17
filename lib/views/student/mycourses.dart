@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:grade_up/models/student.dart';
 import 'package:grade_up/utilities/build_dashboard_card.dart';
-import 'package:grade_up/views/course_view.dart';
+import 'package:grade_up/views/student/course_view.dart';
 
 class MyCourses extends StatefulWidget {
   final Student student;

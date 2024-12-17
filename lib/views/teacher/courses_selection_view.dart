@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:grade_up/models/teacher.dart';
 import 'package:grade_up/utilities/build_dashboard_card.dart';
-import 'package:grade_up/views/manage_course.dart';
+import 'package:grade_up/views/teacher/manage_course.dart';
 
 class CoursesSelection extends StatelessWidget {
   final Teacher teacher;

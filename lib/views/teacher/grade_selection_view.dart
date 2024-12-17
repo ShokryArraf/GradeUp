@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:grade_up/models/teacher.dart';
-import 'package:grade_up/views/courses_selection_view.dart';
+import 'package:grade_up/views/teacher/courses_selection_view.dart';
 
 class GradeSelection extends StatelessWidget {
   final Teacher teacher;

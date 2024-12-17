@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:grade_up/models/teacher.dart';
 import 'package:grade_up/service/assignment_service.dart';
-import 'package:grade_up/views/edit_assignment_screen.dart';
+import 'package:grade_up/assignments/edit_assignment_screen.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class SearchDeleteAssignmentSection extends StatefulWidget {

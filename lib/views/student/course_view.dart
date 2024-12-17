@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:grade_up/models/student.dart';
 import 'package:grade_up/utilities/show_error_dialog.dart';
-import 'package:grade_up/views/material_view.dart';
+import 'package:grade_up/views/student/material_view.dart';
 import 'package:grade_up/service/student_courses_service.dart';
 
 class CourseView extends StatefulWidget {
