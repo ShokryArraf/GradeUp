@@ -124,7 +124,7 @@ class _ManageMaterialState extends State<ManageMaterial> {
                                 child: TextField(
                                   controller: _titleController,
                                   decoration: InputDecoration(
-                                    hintText: 'Enter content title',
+                                    hintText: 'Enter Subject',
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(10),
                                     ),
@@ -163,18 +163,20 @@ class _ManageMaterialState extends State<ManageMaterial> {
                                             .clear(); // Clear the text field
                                       });
 
+                                      _fetchContent();
+
                                       ScaffoldMessenger.of(context)
                                           .showSnackBar(
                                         const SnackBar(
                                             content: Text(
                                                 'Content added successfully!')),
                                       );
-                                    } catch (error) {
+                                    } catch (_) {
                                       ScaffoldMessenger.of(context)
                                           .showSnackBar(
-                                        SnackBar(
-                                            content: Text(
-                                                'Error adding content: $error')),
+                                        const SnackBar(
+                                            content:
+                                                Text('Error adding content:')),
                                       );
                                     }
                                   }

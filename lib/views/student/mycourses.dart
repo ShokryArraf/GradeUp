@@ -53,7 +53,7 @@ class _MyCoursesState extends State<MyCourses> {
                                             ? Icons.science
                                             : course == 'hebrew'
                                                 ? Icons.book
-                                                : Icons.help,
+                                                : Icons.bookmark,
                         course.toString().toUpperCase(),
                         course == 'math'
                             ? Colors.green

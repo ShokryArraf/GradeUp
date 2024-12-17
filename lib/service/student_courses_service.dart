@@ -4,30 +4,7 @@ import 'package:grade_up/models/student.dart';
 class StudentCoursesService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-
-    Future<List<Map<String, dynamic>>> fetchCourses({
-    required Student student
-  }) async {
-    // Reference the specific lesson document by its name (ID)
-    final lessonRef = _firestore
-        .collection('schools')
-        .doc(student.school)
-        .collection('grades')
-        .doc(student.grade.toString());
-
-    // Fetch the materials subcollection for this lesson
-    final materialsSnapshot = await lessonRef.collection('lessons').get();
-
-    // Filter assignments based on teacherName and grade
-    return materialsSnapshot.docs
-        .map((doc) => {
-              'id': doc.id, // Assignment ID
-              ...doc.data(), // Include all fields in the assignment
-            })
-        .toList();
-  }
-
-    Future<List<Map<String, dynamic>>> fetchMaterials({
+  Future<List<Map<String, dynamic>>> fetchMaterials({
     required String lessonName,
     required Student student,
   }) async {
@@ -52,12 +29,10 @@ class StudentCoursesService {
         .toList();
   }
 
-
-Future<List<Map<String, dynamic>>> fetchContent({
-    required String lessonName,
-    required Student student,
-    required String materialID
-  }) async {
+  Future<List<Map<String, dynamic>>> fetchContent(
+      {required String lessonName,
+      required Student student,
+      required String materialID}) async {
     // Reference the specific content document by its name (ID)
     final lessonRef = _firestore
         .collection('schools')
@@ -80,12 +55,11 @@ Future<List<Map<String, dynamic>>> fetchContent({
         .toList();
   }
 
-Future<List<Map<String, dynamic>>> fetchBlocks({
-    required String lessonName,
-    required Student student,
-    required String materialID,
-    required String contentID
-  }) async {
+  Future<List<Map<String, dynamic>>> fetchBlocks(
+      {required String lessonName,
+      required Student student,
+      required String materialID,
+      required String contentID}) async {
     // Reference the specific content document by its name (ID)
     final lessonRef = _firestore
         .collection('schools')
@@ -109,43 +83,4 @@ Future<List<Map<String, dynamic>>> fetchBlocks({
             })
         .toList();
   }
-
-
-  Future<void> deleteAssignment(String lessonName, String assignmentId,
-      String school, String grade) async {
-    await _firestore
-        .collection('schools')
-        .doc(school)
-        .collection('grades')
-        .doc(grade)
-        .collection('lessons')
-        .doc(lessonName)
-        .collection('assignments')
-        .doc(assignmentId)
-        .delete();
-
-    final studentsSnapshot = await _firestore
-        .collection('schools')
-        .doc(school)
-        .collection('grades')
-        .doc(grade)
-        .collection('students')
-        .where('enrolledLessons', arrayContains: lessonName)
-        .get();
-
-    for (var student in studentsSnapshot.docs) {
-      await _firestore
-          .collection('schools')
-          .doc(school)
-          .collection('grades')
-          .doc(grade)
-          .collection('students')
-          .doc(student.id)
-          .collection('assignmentsToDo')
-          .doc(assignmentId)
-          .delete();
-    }
-  }
-
-
 }

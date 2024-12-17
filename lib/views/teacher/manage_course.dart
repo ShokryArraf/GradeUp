@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:grade_up/models/teacher.dart';
 import 'package:grade_up/utilities/show_error_dialog.dart';
@@ -71,14 +70,13 @@ class _ManageCourseState extends State<ManageCourse> {
           const SnackBar(
               content: Text('Assignment created and assigned to students!')),
         );
-        // Update the local _materials list
         setState(() {
-          _materials.add({'title': newTitle});
           _isAddingContent = false;
           _contentController.clear(); // Clear the input
         });
-      } catch (error) {
-        exit(0);
+        await _fetchAndSetMaterials(); // Fetch updated materials
+      } catch (_) {
+        showErrorDialog(context, "Could not update the new content.");
       }
     }
   }
@@ -107,7 +105,7 @@ class _ManageCourseState extends State<ManageCourse> {
                               child: TextField(
                                 controller: _contentController,
                                 decoration: InputDecoration(
-                                  hintText: 'Enter content title',
+                                  hintText: 'Enter content title(Week 1)',
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(10),
                                   ),
