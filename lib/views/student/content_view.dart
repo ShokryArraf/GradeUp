@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:grade_up/models/student.dart'; // Import image_picker package
+import 'package:grade_up/models/student.dart';
 import 'package:grade_up/service/student_courses_service.dart';
 
 class ContentView extends StatefulWidget {
@@ -32,10 +32,11 @@ class _ContentViewState extends State<ContentView> {
   Future<void> _fetchBlocks() async {
     try {
       final blocks = await _coursesService.fetchBlocks(
-          lessonName: widget.lesson,
-          student: widget.student,
-          materialID: widget.materialID,
-          contentID: widget.contentID);
+        lessonName: widget.lesson,
+        student: widget.student,
+        materialID: widget.materialID,
+        contentID: widget.contentID,
+      );
       setState(() {
         _contentList = blocks; // Update the content list with fetched blocks
         _isLoading = false; // Stop loading
@@ -77,13 +78,27 @@ class _ContentViewState extends State<ContentView> {
     switch (element['type']) {
       case 'title':
         return ListTile(
-          title: Text(
+            title: Text(element['data'],
+                style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    decoration: TextDecoration.underline)));
+      case 'image': // Handle image content type
+        return Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Image.network(
             element['data'],
-            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            height: 350,
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) {
+              return const Icon(Icons.broken_image, size: 150);
+            },
+            loadingBuilder: (context, child, loadingProgress) {
+              if (loadingProgress == null) return child;
+              return const Center(child: CircularProgressIndicator());
+            },
           ),
         );
-      case 'media':
-        return Image.file(element['data'], height: 150);
       case 'text':
         return ListTile(
           title: Text(element['data']),

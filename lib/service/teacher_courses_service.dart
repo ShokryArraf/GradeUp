@@ -47,16 +47,17 @@ class TeacherCoursesService {
         .add(contentData);
   }
 
-  Future<DocumentReference> addBlock(String lessonName,
-      {required int grade,
-      required Teacher teacher,
-      required String materialID,
-      required String contentID,
-      required String type,
-      required String data}) async {
-    Map<String, dynamic> blockData = {'type': type, 'data': data};
-
-    return await _firestore
+  Future<void> addBlock({
+    required String lessonName,
+    required int grade,
+    required Teacher teacher,
+    required String materialID,
+    required String contentID,
+    required String type,
+    required String data,
+    required String timestamp,
+  }) async {
+    final contentRef = FirebaseFirestore.instance
         .collection('schools')
         .doc(teacher.school)
         .collection('grades')
@@ -67,8 +68,13 @@ class TeacherCoursesService {
         .doc(materialID)
         .collection('content')
         .doc(contentID)
-        .collection('blocks')
-        .add(blockData);
+        .collection('blocks');
+
+    await contentRef.add({
+      'type': type,
+      'data': data,
+      'timestamp': timestamp,
+    });
   }
 
   Future<List<Map<String, dynamic>>> fetchMaterials({
@@ -124,12 +130,14 @@ class TeacherCoursesService {
         .toList();
   }
 
-  Future<List<Map<String, dynamic>>> fetchBlocks(
-      {required String lessonName,
-      required int grade,
-      required Teacher teacher,
-      required String materialID,
-      required String contentID}) async {
+  Future<List<Map<String, dynamic>>> fetchBlocks({
+    required String lessonName,
+    required int grade,
+    required Teacher teacher,
+    required String materialID,
+    required String contentID,
+    String orderBy = 'timestamp',
+  }) async {
     // Reference the specific content document by its name (ID)
     final lessonRef = _firestore
         .collection('schools')
@@ -141,12 +149,11 @@ class TeacherCoursesService {
         .collection('materials')
         .doc(materialID)
         .collection('content')
-        .doc(contentID);
+        .doc(contentID)
+        .collection('blocks');
 
-    // Fetch the materials subcollection for this lesson
-    final blockSnapshot = await lessonRef.collection('blocks').get();
-
-    return blockSnapshot.docs
+    final querySnapshot = await lessonRef.orderBy(orderBy).get();
+    return querySnapshot.docs
         .map((doc) => {
               'id': doc.id, // Assignment ID
               ...doc.data(), // Include all fields in the content
