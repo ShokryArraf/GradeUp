@@ -94,6 +94,7 @@ class CreateAssignmentViewState extends State<CreateAssignmentView> {
       appBar: AppBar(
         title: const Text('Manage Assignments'),
         centerTitle: true,
+        backgroundColor: Colors.blueAccent,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),

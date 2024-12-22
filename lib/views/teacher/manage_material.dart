@@ -61,10 +61,17 @@ class _ManageMaterialState extends State<ManageMaterial> {
     String titleS = widget.materialTitle;
     return Scaffold(
       appBar: AppBar(
-        title: Text('Manage \'$titleS\''),
-        centerTitle: true,
-        backgroundColor: Colors.blueAccent,
-      ),
+          title: Text('Manage \'$titleS\''),
+          centerTitle: true,
+          flexibleSpace: Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color(0xFF00C6FF), Color(0xFF0072FF)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+            ),
+          )),
       body: _isLoading
           ? const Center(
               child:
@@ -213,7 +220,7 @@ class _ManageMaterialState extends State<ManageMaterial> {
                         width: double.infinity,
                         height: 60,
                         decoration: BoxDecoration(
-                          color: Colors.blueAccent,
+                          color: Colors.teal.shade200,
                           borderRadius: BorderRadius.circular(10),
                           boxShadow: [
                             BoxShadow(

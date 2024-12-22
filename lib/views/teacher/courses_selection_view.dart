@@ -29,10 +29,17 @@ class CoursesSelection extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Courses for Grade $selectedGrade'),
-        centerTitle: true,
-        backgroundColor: Colors.blueAccent,
-      ),
+          title: Text('Courses for Grade $selectedGrade'),
+          centerTitle: true,
+          flexibleSpace: Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color(0xFF00C6FF), Color(0xFF0072FF)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+            ),
+          )),
       body: lessons.isNotEmpty
           ? Padding(
               padding: const EdgeInsets.all(16.0),

@@ -10,12 +10,21 @@ class FirstAidView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          language == 'English'
-              ? 'First Aid Instructions'
-              : 'הוראות עזרה ראשונה',
-        ),
-      ),
+          title: Text(
+            language == 'English'
+                ? 'First Aid Instructions'
+                : 'הוראות עזרה ראשונה',
+          ),
+          centerTitle: true,
+          flexibleSpace: Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color(0xFF00C6FF), Color(0xFF0072FF)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+            ),
+          )),
       body: Directionality(
         textDirection:
             language == 'English' ? TextDirection.ltr : TextDirection.rtl,

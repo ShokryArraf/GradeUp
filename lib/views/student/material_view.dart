@@ -55,10 +55,17 @@ class _MaterialViewState extends State<MaterialView> {
     String sTitle = widget.materialTitle;
     return Scaffold(
       appBar: AppBar(
-        title: Text(sTitle),
-        centerTitle: true,
-        backgroundColor: Colors.blueAccent,
-      ),
+          title: Text(sTitle),
+          centerTitle: true,
+          flexibleSpace: Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color(0xFF00C6FF), Color(0xFF0072FF)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+            ),
+          )),
       body: _isLoading
           ? const Center(
               child:

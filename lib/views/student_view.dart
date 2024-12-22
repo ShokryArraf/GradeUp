@@ -220,22 +220,9 @@ class _StudentMainViewState extends State<StudentMainView> {
                     );
                   }),
                   buildDashboardCard(
-                      Icons.assignment, 'Assignments', Colors.orange, () {
-                    // Navigate to assignments page
-                  }),
-                  buildDashboardCard(
                       Icons.bar_chart, 'Progress & Grades', Colors.purple, () {
                     // View progress and grades
                   }),
-                  buildDashboardCard(
-                    Icons.warning_amber_rounded, // Warning icon
-                    'Emergency', // Title of the card
-                    Colors.red, // Red color for emergency
-                    () {
-                      // Navigate to Emergency Instructions
-                      Navigator.of(context).pushNamed(emergencyRoute);
-                    },
-                  ),
                   buildDashboardCard(
                       Icons.videogame_asset, 'Game', Colors.redAccent, () {
                     Navigator.push(
@@ -246,6 +233,15 @@ class _StudentMainViewState extends State<StudentMainView> {
                       ),
                     ); // Route to the game page
                   }),
+                  buildDashboardCard(
+                    Icons.warning_amber_rounded, // Warning icon
+                    'Emergency', // Title of the card
+                    Colors.red, // Red color for emergency
+                    () {
+                      // Navigate to Emergency Instructions
+                      Navigator.of(context).pushNamed(emergencyRoute);
+                    },
+                  ),
                 ],
               ),
             ),

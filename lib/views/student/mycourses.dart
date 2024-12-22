@@ -18,10 +18,17 @@ class _MyCoursesState extends State<MyCourses> {
     final courses = widget.student.enrolledLessons;
     return Scaffold(
         appBar: AppBar(
-          title: const Text('My Courses'),
-          centerTitle: true,
-          backgroundColor: Colors.blueAccent,
-        ),
+            title: const Text('My Courses'),
+            centerTitle: true,
+            flexibleSpace: Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Color(0xFF00C6FF), Color(0xFF0072FF)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+              ),
+            )),
         body: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(

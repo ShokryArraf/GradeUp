@@ -85,10 +85,17 @@ class _ManageCourseState extends State<ManageCourse> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Materials Overview'),
-        centerTitle: true,
-        backgroundColor: Colors.blueAccent,
-      ),
+          title: const Text('Materials Overview'),
+          centerTitle: true,
+          flexibleSpace: Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color(0xFF00C6FF), Color(0xFF0072FF)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+            ),
+          )),
       body: _isLoading
           ? const Center(
               child: CircularProgressIndicator()) // Show spinner while loading
@@ -183,7 +190,7 @@ class _ManageCourseState extends State<ManageCourse> {
                         width: double.infinity,
                         height: 60,
                         decoration: BoxDecoration(
-                          color: Colors.blueAccent,
+                          color: Colors.teal.shade200,
                           borderRadius: BorderRadius.circular(10),
                           boxShadow: [
                             BoxShadow(

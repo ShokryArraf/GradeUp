@@ -21,10 +21,17 @@ class GradeSelection extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Select Grade'),
-        centerTitle: true,
-        backgroundColor: Colors.blueAccent,
-      ),
+          title: const Text('Select Grade'),
+          centerTitle: true,
+          flexibleSpace: Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color(0xFF00C6FF), Color(0xFF0072FF)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+            ),
+          )),
       body: grades.isNotEmpty
           ? GridView.builder(
               padding: const EdgeInsets.all(16.0),

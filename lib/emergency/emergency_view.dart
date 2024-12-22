@@ -27,6 +27,16 @@ class _EmergencyViewState extends State<EmergencyView> {
           title: Text(
             isHebrew ? 'מדור חירום' : 'Emergency Section',
           ),
+          centerTitle: true,
+          flexibleSpace: Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color(0xFF00C6FF), Color(0xFF0072FF)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+            ),
+          ),
           actions: [
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -71,7 +81,7 @@ class _EmergencyViewState extends State<EmergencyView> {
                   style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
-                    color: Colors.red,
+                    color: Colors.teal,
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -125,7 +135,7 @@ class _EmergencyViewState extends State<EmergencyView> {
                           : 'Visit Home Front Command',
                     ),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red,
+                      backgroundColor: Colors.teal.shade50,
                     ),
                   ),
                 ),

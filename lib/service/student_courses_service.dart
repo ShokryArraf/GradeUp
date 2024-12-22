@@ -55,35 +55,6 @@ class StudentCoursesService {
         .toList();
   }
 
-  // Future<List<Map<String, dynamic>>> fetchBlocks(
-  //     {required String lessonName,
-  //     required Student student,
-  //     required String materialID,
-  //     required String contentID}) async {
-  //   // Reference the specific content document by its name (ID)
-  //   final lessonRef = _firestore
-  //       .collection('schools')
-  //       .doc(student.school)
-  //       .collection('grades')
-  //       .doc(student.grade.toString())
-  //       .collection('lessons')
-  //       .doc(lessonName)
-  //       .collection('materials')
-  //       .doc(materialID)
-  //       .collection('content')
-  //       .doc(contentID);
-
-  //   // Fetch the materials subcollection for this lesson
-  //   final blockSnapshot = await lessonRef.collection('blocks').get();
-
-  //   return blockSnapshot.docs
-  //       .map((doc) => {
-  //             'id': doc.id, // Assignment ID
-  //             ...doc.data(), // Include all fields in the content
-  //           })
-  //       .toList();
-  // }
-
   Future<List<Map<String, dynamic>>> fetchBlocks(
       {required String lessonName,
       required Student student,
@@ -112,6 +83,32 @@ class StudentCoursesService {
         .map((doc) => {
               'id': doc.id, // Assignment ID
               ...doc.data(), // Include all fields in the content
+            })
+        .toList();
+  }
+
+  Future<List<Map<String, dynamic>>> fetchAssignments({
+    required String lessonName,
+    required Student student,
+  }) async {
+    // Reference the specific lesson document by its name (ID)
+    final lessonRef = _firestore
+        .collection('schools')
+        .doc(student.school)
+        .collection('grades')
+        .doc(student.grade.toString())
+        .collection('lessons')
+        .doc(lessonName);
+
+    // Fetch the assignments subcollection for this lesson
+    final assignmentsSnapshot = await lessonRef.collection('assignments').get();
+
+    // Filter assignments based on teacherName and grade
+    return assignmentsSnapshot.docs
+        .map((doc) => {
+              'id': doc.id, // Assignment ID
+              'lessonName': lessonName, // Add lesson name
+              ...doc.data(), // Include all fields in the assignment
             })
         .toList();
   }
