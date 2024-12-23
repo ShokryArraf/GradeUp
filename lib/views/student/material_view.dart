@@ -97,7 +97,7 @@ class _MaterialViewState extends State<MaterialView> {
                       width: double.infinity,
                       height: 60,
                       decoration: BoxDecoration(
-                        color: Colors.blueAccent,
+                        color: Colors.teal.shade200,
                         borderRadius: BorderRadius.circular(10),
                         boxShadow: [
                           BoxShadow(

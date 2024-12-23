@@ -186,9 +186,27 @@ class _ManageMaterialState extends State<ManageMaterial> {
                                                 Text('Error adding content:')),
                                       );
                                     }
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                          content: Text(
+                                              'Please enter the content title to add.')),
+                                    );
                                   }
                                 },
                                 child: const Text('Add'),
+                              ),
+                              const SizedBox(width: 10),
+                              ElevatedButton(
+                                onPressed: () {
+                                  setState(() {
+                                    showAddContentBox =
+                                        true; // Switch back to the default view
+                                    _titleController
+                                        .clear(); // Clear the text field if canceling
+                                  });
+                                },
+                                child: const Text('Cancel'),
                               ),
                             ],
                           ),

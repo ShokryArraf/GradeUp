@@ -368,14 +368,14 @@ class GamePageState extends State<GamePage> {
             createParticlePath: (size) => Path()
               ..addOval(Rect.fromCircle(center: Offset.zero, radius: 5)),
           ),
-          Positioned.fill(
-            child: Container(
-              decoration: const BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage('images/background.png'),
-                  fit: BoxFit.fitWidth,
-                  alignment: Alignment.topCenter,
-                ),
+          Container(
+            height: MediaQuery.of(context).size.height /
+                2, // Half of the screen height
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage(
+                    'images/background.png'), // Replace with your image path
+                fit: BoxFit.cover, // Adjust the image size as needed
               ),
             ),
           ),

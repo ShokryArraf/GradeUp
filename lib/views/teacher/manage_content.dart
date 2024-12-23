@@ -65,34 +65,6 @@ class _ManageContentState extends State<ManageContent> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Add Content'),
-        centerTitle: true,
-        backgroundColor: Colors.blueAccent,
-      ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: _selectedElement == null
-                        ? _buildElementSelectionBox()
-                        : _buildElementInputBox(),
-                  ),
-                  const Divider(),
-                  ..._contentList.map((element) => _buildContentCard(element)),
-                ],
-              ),
-            ),
-    );
-  }
-
   Widget _buildElementSelectionBox() {
     return Container(
       padding: const EdgeInsets.all(16.0),
@@ -192,9 +164,24 @@ class _ManageContentState extends State<ManageContent> {
                   SnackBar(content: Text('Error adding content: $error')),
                 );
               }
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                    content: Text('Please enter the content title to add.')),
+              );
             }
           },
           child: const Text('Add Title'),
+        ),
+        const SizedBox(height: 10),
+        ElevatedButton(
+          onPressed: () {
+            setState(() {
+              _titleController.clear();
+              _selectedElement = null; // Reset selection
+            });
+          },
+          child: const Text('Cancel'),
         ),
       ],
     );
@@ -296,6 +283,16 @@ class _ManageContentState extends State<ManageContent> {
                 },
                 child: const Text('Upload Image'),
               ),
+        const SizedBox(height: 10),
+        ElevatedButton(
+          onPressed: () {
+            setState(() {
+              _selectedImage = null; // Clear the selected image
+              _selectedElement = null; // Reset selection
+            });
+          },
+          child: const Text('Cancel'),
+        ),
       ],
     );
   }
@@ -343,9 +340,23 @@ class _ManageContentState extends State<ManageContent> {
                   SnackBar(content: Text('Error adding content: $error')),
                 );
               }
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Please enter the text to add.')),
+              );
             }
           },
           child: const Text('Add Text'),
+        ),
+        const SizedBox(height: 10),
+        ElevatedButton(
+          onPressed: () {
+            setState(() {
+              _textController.clear();
+              _selectedElement = null; // Reset selection
+            });
+          },
+          child: const Text('Cancel'),
         ),
       ],
     );
@@ -403,5 +414,33 @@ class _ManageContentState extends State<ManageContent> {
         fit: BoxFit.cover,
       );
     }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Add Content'),
+        centerTitle: true,
+        backgroundColor: Colors.blueAccent,
+      ),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: _selectedElement == null
+                        ? _buildElementSelectionBox()
+                        : _buildElementInputBox(),
+                  ),
+                  const Divider(),
+                  ..._contentList.map((element) => _buildContentCard(element)),
+                ],
+              ),
+            ),
+    );
   }
 }

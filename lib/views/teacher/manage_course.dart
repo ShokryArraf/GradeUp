@@ -78,146 +78,160 @@ class _ManageCourseState extends State<ManageCourse> {
       } catch (_) {
         showErrorDialog(context, "Could not update the new content.");
       }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter the content title to add.')),
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-          title: const Text('Materials Overview'),
-          centerTitle: true,
-          flexibleSpace: Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Color(0xFF00C6FF), Color(0xFF0072FF)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
+        appBar: AppBar(
+            title: const Text('Materials Overview'),
+            centerTitle: true,
+            flexibleSpace: Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Color(0xFF00C6FF), Color(0xFF0072FF)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
               ),
-            ),
-          )),
-      body: _isLoading
-          ? const Center(
-              child: CircularProgressIndicator()) // Show spinner while loading
-          : ListView(
-              children: [
-                // "Add Content" section
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                      vertical: 8.0, horizontal: 16.0),
-                  child: _isAddingContent
-                      ? Row(
-                          children: [
-                            Expanded(
-                              child: TextField(
-                                controller: _contentController,
-                                decoration: InputDecoration(
-                                  hintText: 'Enter content title(Week 1)',
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10),
+            )),
+        body: _isLoading
+            ? const Center(
+                child:
+                    CircularProgressIndicator()) // Show spinner while loading
+            : ListView(
+                children: [
+                  // "Add Content" section
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 8.0, horizontal: 16.0),
+                    child: _isAddingContent
+                        ? Row(
+                            children: [
+                              Expanded(
+                                child: TextField(
+                                  controller: _contentController,
+                                  decoration: InputDecoration(
+                                    hintText: 'Enter content title(Week 1)',
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                            const SizedBox(width: 10),
-                            ElevatedButton(
-                              onPressed: _addContent,
-                              child: const Text('Add'),
-                            ),
-                          ],
-                        )
-                      : GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              _isAddingContent =
-                                  true; // Switch to text box view
-                            });
-                          },
-                          child: Container(
-                            width: double.infinity,
-                            height: 60,
-                            decoration: BoxDecoration(
-                              color: Colors.grey[300],
-                              borderRadius: BorderRadius.circular(10),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.grey.withOpacity(0.3),
-                                  spreadRadius: 2,
-                                  blurRadius: 5,
-                                  offset: const Offset(0, 3),
-                                ),
-                              ],
-                            ),
-                            child: const Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(Icons.add, color: Colors.black54),
-                                SizedBox(width: 10),
-                                Text(
-                                  'Add Content',
-                                  style: TextStyle(
-                                    color: Colors.black87,
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
+                              const SizedBox(width: 10),
+                              ElevatedButton(
+                                onPressed: _addContent,
+                                child: const Text('Add'),
+                              ),
+                              const SizedBox(width: 10),
+                              ElevatedButton(
+                                onPressed: () {
+                                  setState(() {
+                                    _isAddingContent =
+                                        false; // Switch back to the default view
+                                  });
+                                },
+                                child: const Text('Cancel'),
+                              ),
+                            ],
+                          )
+                        : GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                _isAddingContent =
+                                    true; // Switch to text box view
+                              });
+                            },
+                            child: Container(
+                              width: double.infinity,
+                              height: 60,
+                              decoration: BoxDecoration(
+                                color: Colors.grey[300],
+                                borderRadius: BorderRadius.circular(10),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.grey.withOpacity(0.3),
+                                    spreadRadius: 2,
+                                    blurRadius: 5,
+                                    offset: const Offset(0, 3),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
+                              child: const Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.add, color: Colors.black54),
+                                  SizedBox(width: 10),
+                                  Text(
+                                    'Add Content',
+                                    style: TextStyle(
+                                      color: Colors.black87,
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
-                        ),
-                ),
-                // Dynamic list of materials
-                ..._materials.map((material) {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 8.0, horizontal: 16.0),
-                    child: GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => ManageMaterial(
-                              teacher: widget.teacher,
-                              grade: widget.grade,
-                              lesson: widget.lesson,
-                              materialID: material['id'],
-                              materialTitle: material['title'],
+                  ),
+                  // Dynamic list of materials
+                  ..._materials.map((material) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 8.0, horizontal: 16.0),
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ManageMaterial(
+                                teacher: widget.teacher,
+                                grade: widget.grade,
+                                lesson: widget.lesson,
+                                materialID: material['id'],
+                                materialTitle: material['title'],
+                              ),
                             ),
+                          );
+                        },
+                        child: Container(
+                          width: double.infinity,
+                          height: 60,
+                          decoration: BoxDecoration(
+                            color: Colors.teal.shade200,
+                            borderRadius: BorderRadius.circular(10),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.withOpacity(0.3),
+                                spreadRadius: 2,
+                                blurRadius: 5,
+                                offset: const Offset(0, 3),
+                              ),
+                            ],
                           ),
-                        );
-                      },
-                      child: Container(
-                        width: double.infinity,
-                        height: 60,
-                        decoration: BoxDecoration(
-                          color: Colors.teal.shade200,
-                          borderRadius: BorderRadius.circular(10),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey.withOpacity(0.3),
-                              spreadRadius: 2,
-                              blurRadius: 5,
-                              offset: const Offset(0, 3),
-                            ),
-                          ],
-                        ),
-                        child: Center(
-                          child: Text(
-                            material['title'] ??
-                                'No Title', // Display material title
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
+                          child: Center(
+                            child: Text(
+                              material['title'] ??
+                                  'No Title', // Display material title
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                  );
-                }),
-              ],
-            ),
-    );
+                    );
+                  }),
+                ],
+              ));
   }
 }

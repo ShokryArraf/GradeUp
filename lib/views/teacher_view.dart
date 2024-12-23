@@ -220,15 +220,6 @@ class _TeacherMainViewState extends State<TeacherMainView> {
                       ),
                     );
                   }),
-                  buildDashboardCard(
-                    Icons.warning_amber_rounded, // Warning icon
-                    'Emergency', // Title of the card
-                    Colors.red, // Red color for emergency
-                    () {
-                      // Navigate to Emergency Instructions
-                      Navigator.of(context).pushNamed(emergencyRoute);
-                    },
-                  ),
                   buildDashboardCard(Icons.add, 'Game Editing', Colors.teal,
                       () {
                     Navigator.push(
@@ -239,6 +230,15 @@ class _TeacherMainViewState extends State<TeacherMainView> {
                       ),
                     );
                   }),
+                  buildDashboardCard(
+                    Icons.warning_amber_rounded, // Warning icon
+                    'Emergency', // Title of the card
+                    Colors.red, // Red color for emergency
+                    () {
+                      // Navigate to Emergency Instructions
+                      Navigator.of(context).pushNamed(emergencyRoute);
+                    },
+                  ),
                 ],
               ),
             ),
