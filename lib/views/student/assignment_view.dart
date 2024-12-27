@@ -96,99 +96,114 @@ class _AssignmentsViewState extends State<AssignmentsView> {
           : Padding(
               padding:
                   const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
-              child: ListView(
-                children: [
-                  // Dynamic list of assignments
-                  ..._assignments.map((assignment) {
-                    final assignmentId = assignment['id'];
-                    return FutureBuilder<Map<String, dynamic>>(
-                      future: _getAssignmentStatusAndScore(assignmentId),
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return const Center(
-                              child: CircularProgressIndicator());
-                        }
+              child: _assignments.isEmpty
+                  ? Center(
+                      child: Text(
+                        'No assignments available yet!',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black.withOpacity(0.6),
+                        ),
+                      ),
+                    )
+                  : ListView(
+                      children: [
+                        // Dynamic list of assignments
+                        ..._assignments.map((assignment) {
+                          final assignmentId = assignment['id'];
+                          return FutureBuilder<Map<String, dynamic>>(
+                            future: _getAssignmentStatusAndScore(assignmentId),
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return const Center(
+                                    child: CircularProgressIndicator());
+                              }
 
-                        final statusData = snapshot.data ?? {};
-                        final status = statusData['status'] ?? 'Not Submitted';
-                        final score = statusData['score'] ?? 'N/A';
+                              final statusData = snapshot.data ?? {};
+                              final status =
+                                  statusData['status'] ?? 'Not Submitted';
+                              final score = statusData['score'] ?? 'N/A';
 
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 10.0),
-                          child: Container(
-                            width: double.infinity,
-                            decoration: BoxDecoration(
-                              color: Colors.teal.shade200,
-                              borderRadius: BorderRadius.circular(15),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.grey.withOpacity(0.2),
-                                  spreadRadius: 1,
-                                  blurRadius: 4,
-                                  offset: const Offset(0, 3),
+                              return Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 10.0),
+                                child: Container(
+                                  width: double.infinity,
+                                  decoration: BoxDecoration(
+                                    color: Colors.teal.shade200,
+                                    borderRadius: BorderRadius.circular(15),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.grey.withOpacity(0.2),
+                                        spreadRadius: 1,
+                                        blurRadius: 4,
+                                        offset: const Offset(0, 3),
+                                      ),
+                                    ],
+                                  ),
+                                  child: ListTile(
+                                    contentPadding: const EdgeInsets.symmetric(
+                                        horizontal: 20.0),
+                                    title: Text(
+                                      assignment['title'] ??
+                                          'No Title', // Display assignment title
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    subtitle: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Due Date: ${_formatDueDate(assignment['dueDate'] ?? 'Not specified')}',
+                                          style: const TextStyle(
+                                            color: Colors.white70,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 5),
+                                        Text(
+                                          'Status: $status',
+                                          style: const TextStyle(
+                                            color: Colors.white70,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 5),
+                                        Text(
+                                          'Score: $score',
+                                          style: const TextStyle(
+                                            color: Colors.white70,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              AssignmentDetailView(
+                                            assignment: assignment,
+                                            student: widget.student,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
                                 ),
-                              ],
-                            ),
-                            child: ListTile(
-                              contentPadding:
-                                  const EdgeInsets.symmetric(horizontal: 20.0),
-                              title: Text(
-                                assignment['title'] ??
-                                    'No Title', // Display assignment title
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              subtitle: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Due Date: ${_formatDueDate(assignment['dueDate'] ?? 'Not specified')}',
-                                    style: const TextStyle(
-                                      color: Colors.white70,
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 5),
-                                  Text(
-                                    'Status: $status',
-                                    style: const TextStyle(
-                                      color: Colors.white70,
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 5),
-                                  Text(
-                                    'Score: $score',
-                                    style: const TextStyle(
-                                      color: Colors.white70,
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => AssignmentDetailView(
-                                      assignment: assignment,
-                                      student: widget.student,
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                        );
-                      },
-                    );
-                  }),
-                ],
-              ),
+                              );
+                            },
+                          );
+                        }),
+                      ],
+                    ),
             ),
     );
   }

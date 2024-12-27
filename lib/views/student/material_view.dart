@@ -70,60 +70,71 @@ class _MaterialViewState extends State<MaterialView> {
           ? const Center(
               child:
                   CircularProgressIndicator()) // Show loading indicator while fetching
-          : ListView.builder(
-              itemCount: _contentList.length,
-              itemBuilder: (context, index) {
-                final content = _contentList[index];
-                // Regular content cards
-                return Padding(
-                  padding: const EdgeInsets.symmetric(
-                      vertical: 8.0, horizontal: 16.0),
-                  child: GestureDetector(
-                    onTap: () {
-                      // Navigate to ManageContent or handle content card tap
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ContentView(
-                            student: widget.student,
-                            lesson: widget.lesson,
-                            materialID: widget.materialID,
-                            contentID: content['id'],
-                          ),
-                        ),
-                      );
-                    },
-                    child: Container(
-                      width: double.infinity,
-                      height: 60,
-                      decoration: BoxDecoration(
-                        color: Colors.teal.shade200,
-                        borderRadius: BorderRadius.circular(10),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withOpacity(0.3),
-                            spreadRadius: 2,
-                            blurRadius: 5,
-                            offset: const Offset(0, 3),
-                          ),
-                        ],
-                      ),
-                      child: Center(
-                        child: Text(
-                          content['title'] ??
-                              'No Title', // Display content title from Firestore
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
+          : _contentList.isEmpty // Check if content list is empty
+              ? const Center(
+                  child: Text(
+                    'No content available.',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey,
                     ),
                   ),
-                );
-              },
-            ),
+                ) // Show message if no content is available
+              : ListView.builder(
+                  itemCount: _contentList.length,
+                  itemBuilder: (context, index) {
+                    final content = _contentList[index];
+                    // Regular content cards
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 8.0, horizontal: 16.0),
+                      child: GestureDetector(
+                        onTap: () {
+                          // Navigate to ManageContent or handle content card tap
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ContentView(
+                                student: widget.student,
+                                lesson: widget.lesson,
+                                materialID: widget.materialID,
+                                contentID: content['id'],
+                              ),
+                            ),
+                          );
+                        },
+                        child: Container(
+                          width: double.infinity,
+                          height: 60,
+                          decoration: BoxDecoration(
+                            color: Colors.teal.shade200,
+                            borderRadius: BorderRadius.circular(10),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.withOpacity(0.3),
+                                spreadRadius: 2,
+                                blurRadius: 5,
+                                offset: const Offset(0, 3),
+                              ),
+                            ],
+                          ),
+                          child: Center(
+                            child: Text(
+                              content['title'] ??
+                                  'No Title', // Display content title from Firestore
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
     );
   }
 }

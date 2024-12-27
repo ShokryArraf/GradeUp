@@ -1,9 +1,10 @@
-import 'package:flutter/foundation.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:grade_up/models/teacher.dart'; // Import image_picker package
-import 'package:grade_up/service/firebase_storage_service.dart';
+import 'package:grade_up/service/storage_service.dart';
 import 'dart:io'; // To handle file paths
 import 'package:grade_up/service/teacher_courses_service.dart';
+import 'package:grade_up/utilities/build_content_card.dart';
 import 'package:image_picker/image_picker.dart';
 
 class ManageContent extends StatefulWidget {
@@ -24,7 +25,7 @@ class ManageContent extends StatefulWidget {
 }
 
 class _ManageContentState extends State<ManageContent> {
-  final FirebaseService _firebaseService = FirebaseService();
+  final StorageService _storageService = StorageService();
   final _coursesService = TeacherCoursesService();
   String? _selectedElement;
   List<Map<String, dynamic>> _contentList = [];
@@ -159,9 +160,9 @@ class _ManageContentState extends State<ManageContent> {
                   const SnackBar(
                       content: Text('Title block added successfully!')),
                 );
-              } catch (error) {
+              } catch (_) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Error adding content: $error')),
+                  const SnackBar(content: Text('Error adding content')),
                 );
               }
             } else {
@@ -240,7 +241,7 @@ class _ManageContentState extends State<ManageContent> {
 
                     try {
                       final String? downloadURL =
-                          await _firebaseService.uploadImage(_selectedImage!);
+                          await _storageService.uploadImage(_selectedImage!);
 
                       // Save the image block to Firestore
                       await _coursesService.addBlock(
@@ -335,9 +336,9 @@ class _ManageContentState extends State<ManageContent> {
                   const SnackBar(
                       content: Text('Text block added successfully!')),
                 );
-              } catch (error) {
+              } catch (_) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Error adding content: $error')),
+                  const SnackBar(content: Text('Error adding content')),
                 );
               }
             } else {
@@ -362,56 +363,67 @@ class _ManageContentState extends State<ManageContent> {
     );
   }
 
-  Widget _buildContentCard(Map<String, dynamic> element) {
-    switch (element['type']) {
-      case 'title':
-        return ListTile(
-          title: Text(
-            element['data'],
-            style: const TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                decoration: TextDecoration.underline),
-          ),
-        );
-      case 'image': // Handle image type
-        return _buildImage(element['data']);
-      case 'text':
-        return ListTile(
-          title: Text(element['data']),
-        );
-      default:
-        return const SizedBox.shrink();
-    }
-  }
-
-// New helper method to build images dynamically based on platform
-  Widget _buildImage(String url) {
-    if (kIsWeb) {
-      // For web: Use Image.network with loading and error handling
-      return Image.network(
-        url,
-        loadingBuilder: (context, child, progress) {
-          if (progress == null) return child;
-          return const Center(child: CircularProgressIndicator());
-        },
-        errorBuilder: (context, error, stackTrace) {
-          return const Icon(Icons.error, color: Colors.red, size: 100);
-        },
-        fit: BoxFit.cover,
+  Future<void> _uploadFile() async {
+    try {
+      // Pick file
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['pdf', 'doc', 'docx'],
       );
-    } else {
-      // For mobile: Use the same approach
-      return Image.network(
-        url,
-        loadingBuilder: (context, child, progress) {
-          if (progress == null) return child;
-          return const Center(child: CircularProgressIndicator());
-        },
-        errorBuilder: (context, error, stackTrace) {
-          return const Icon(Icons.error, color: Colors.red, size: 100);
-        },
-        fit: BoxFit.cover,
+
+      if (result == null || result.files.isEmpty) return;
+
+      final filePath = result.files.first.path;
+      final fileName = result.files.first.name;
+
+      if (filePath != null) {
+        final file = File(filePath);
+
+        // Extract file type dynamically from the extension
+        final fileType = fileName.split('.').last.toLowerCase();
+
+        setState(() {
+          _isLoading = true;
+        });
+
+        // Upload file via FirebaseService
+        final downloadUrl = await _storageService.uploadFile(file, fileName);
+
+        if (downloadUrl != null) {
+          await _coursesService.addBlock(
+            lessonName: widget.lesson,
+            grade: widget.grade,
+            teacher: widget.teacher,
+            materialID: widget.materialID,
+            contentID: widget.contentID,
+            type: fileType,
+            data: downloadUrl,
+            timestamp: DateTime.now().toIso8601String(),
+            filename: fileName,
+          );
+          setState(() {
+            _contentList.add({
+              'data': downloadUrl,
+              'filename': fileName,
+              'type': fileType, // Dynamically set file type
+            });
+          });
+        }
+
+        setState(() {
+          _isLoading = false;
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('File uploaded successfully')),
+        );
+      }
+    } catch (_) {
+      setState(() {
+        _isLoading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('File upload failed')),
       );
     }
   }
@@ -436,8 +448,16 @@ class _ManageContentState extends State<ManageContent> {
                         ? _buildElementSelectionBox()
                         : _buildElementInputBox(),
                   ),
+                  ElevatedButton.icon(
+                    onPressed: _uploadFile,
+                    icon: const Icon(Icons.upload_file),
+                    label: const Text('Upload PDF/Word File'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blueAccent,
+                    ),
+                  ),
                   const Divider(),
-                  ..._contentList.map((element) => _buildContentCard(element)),
+                  ..._contentList.map((element) => buildContentCard(element)),
                 ],
               ),
             ),

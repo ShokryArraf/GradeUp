@@ -15,18 +15,18 @@ class StudentCoursesService {
         .collection('grades')
         .doc(student.grade.toString())
         .collection('lessons')
-        .doc(lessonName);
+        .doc(lessonName)
+        .collection('materials');
 
-    // Fetch the materials subcollection for this lesson
-    final materialsSnapshot = await lessonRef.collection('materials').get();
+    final querySnapshot = await lessonRef.orderBy('index').get();
 
-    // Filter assignments based on teacherName and grade
-    return materialsSnapshot.docs
-        .map((doc) => {
-              'id': doc.id, // Assignment ID
-              ...doc.data(), // Include all fields in the assignment
-            })
-        .toList();
+    // Return a list of maps with 'id' and other material data
+    return querySnapshot.docs.map((doc) {
+      return {
+        'id': doc.id, // Include the document ID
+        ...doc.data(), // Include the other fields in the material
+      };
+    }).toList();
   }
 
   Future<List<Map<String, dynamic>>> fetchContent(

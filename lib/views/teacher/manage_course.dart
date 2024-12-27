@@ -67,8 +67,7 @@ class _ManageCourseState extends State<ManageCourse> {
           title: newTitle,
         );
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text('Assignment created and assigned to students!')),
+          const SnackBar(content: Text('New content added.')),
         );
         setState(() {
           _isAddingContent = false;
@@ -117,7 +116,7 @@ class _ManageCourseState extends State<ManageCourse> {
                                 child: TextField(
                                   controller: _contentController,
                                   decoration: InputDecoration(
-                                    hintText: 'Enter content title(Week 1)',
+                                    hintText: 'Week 1',
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(10),
                                     ),

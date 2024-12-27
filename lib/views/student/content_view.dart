@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:grade_up/models/student.dart';
 import 'package:grade_up/service/student_courses_service.dart';
+import 'package:grade_up/utilities/build_content_card.dart';
 
 class ContentView extends StatefulWidget {
   final Student student;
@@ -73,45 +74,10 @@ class _ContentViewState extends State<ContentView> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   // Display existing content
-                  ..._contentList.map((element) => _buildContentCard(element)),
+                  ..._contentList.map((element) => buildContentCard(element)),
                 ],
               ),
             ),
     );
-  }
-
-  // Render each content card dynamically
-  Widget _buildContentCard(Map<String, dynamic> element) {
-    switch (element['type']) {
-      case 'title':
-        return ListTile(
-            title: Text(element['data'],
-                style: const TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    decoration: TextDecoration.underline)));
-      case 'image': // Handle image content type
-        return Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Image.network(
-            element['data'],
-            height: 350,
-            fit: BoxFit.cover,
-            errorBuilder: (context, error, stackTrace) {
-              return const Icon(Icons.broken_image, size: 150);
-            },
-            loadingBuilder: (context, child, loadingProgress) {
-              if (loadingProgress == null) return child;
-              return const Center(child: CircularProgressIndicator());
-            },
-          ),
-        );
-      case 'text':
-        return ListTile(
-          title: Text(element['data']),
-        );
-      default:
-        return const SizedBox.shrink();
-    }
   }
 }
