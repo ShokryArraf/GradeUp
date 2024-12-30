@@ -29,6 +29,7 @@ class _EditAssignmentScreenState extends State<EditAssignmentScreen> {
   late TextEditingController _questionsController;
   late DateTime? _dueDate;
   late bool isEditable;
+  late TextEditingController _notesController;
 
   @override
   void initState() {
@@ -46,6 +47,8 @@ class _EditAssignmentScreenState extends State<EditAssignmentScreen> {
     _dueDate = widget.assignmentData['dueDate'] != null
         ? DateTime.parse(widget.assignmentData['dueDate'])
         : null;
+    _notesController =
+        TextEditingController(text: widget.assignmentData['additionalNotes']);
 
 // Determine if the assignment is editable
     isEditable = _dueDate == null ||
@@ -62,10 +65,13 @@ class _EditAssignmentScreenState extends State<EditAssignmentScreen> {
     _subjectController.dispose();
     _linkController.dispose();
     _questionsController.dispose();
+    _notesController.dispose();
+
     super.dispose();
   }
 
   Future<void> _saveChanges() async {
+    final notes = _notesController.text.trim();
     final title = _titleController.text.trim();
     final description = _descriptionController.text.trim();
     final subject = _subjectController.text.trim();
@@ -96,6 +102,7 @@ class _EditAssignmentScreenState extends State<EditAssignmentScreen> {
         questions: questions.isEmpty ? null : questions,
         subject: subject.isNotEmpty ? subject : null,
         link: link.isNotEmpty ? link : null,
+        notes: notes.isNotEmpty ? notes : null,
       );
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -112,7 +119,18 @@ class _EditAssignmentScreenState extends State<EditAssignmentScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Edit Assignment')),
+      appBar: AppBar(
+          title: const Text('Edit Assignment'),
+          centerTitle: true,
+          flexibleSpace: Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color(0xFF00C6FF), Color(0xFF0072FF)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+            ),
+          )),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -161,6 +179,22 @@ class _EditAssignmentScreenState extends State<EditAssignmentScreen> {
                     decoration: const InputDecoration(
                         labelText: 'Questions (comma-separated)'),
                     enabled: isEditable,
+                  ),
+                  const Divider(height: 20, color: Colors.grey),
+                  Flexible(
+                    child: TextField(
+                      controller: _notesController,
+                      decoration: InputDecoration(
+                        labelText: 'Additional Notes',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      enabled: isEditable,
+                      maxLines: 5, // Maximum of 5 lines visible
+                      keyboardType:
+                          TextInputType.multiline, // Allows multi-line input
+                    ),
                   ),
                   const SizedBox(height: 16),
                   ListTile(

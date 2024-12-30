@@ -16,6 +16,8 @@ class AssignmentService {
     required Teacher teacher,
     required String subject,
     required String? link,
+    required String? additionalNotes,
+    required String? uploadedFileUrl,
   }) async {
     Map<String, dynamic> assignmentData = {
       'title': title,
@@ -26,6 +28,8 @@ class AssignmentService {
       'teacherName': teacherName,
       'subject': subject,
       'link': link,
+      'additionalNotes': additionalNotes,
+      'uploadedFileUrl': uploadedFileUrl,
     };
 
     return await _firestore
@@ -147,6 +151,8 @@ class AssignmentService {
     int? gradeValue,
     String? subject,
     String? link,
+    String? notes,
+    String? file,
   }) async {
     // Reference the assignment document
     final assignmentRef = _firestore
@@ -168,7 +174,10 @@ class AssignmentService {
     if (questions != null) updatedData['questions'] = questions;
     if (gradeValue != null) updatedData['grade'] = gradeValue;
     if (subject != null) updatedData['subject'] = subject;
-    updatedData['link'] = link;
+    if (file != null) {
+      updatedData['uploadedFileUrl'] = file;
+    }
+    updatedData['additionalNotes'] = notes;
 
     // Update the assignment document
     await assignmentRef.update(updatedData);

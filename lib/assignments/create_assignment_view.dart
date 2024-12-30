@@ -1,7 +1,11 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:grade_up/models/teacher.dart';
 import 'package:grade_up/service/assignment_service.dart';
+import 'package:grade_up/service/storage_service.dart';
 
 class CreateAssignmentView extends StatefulWidget {
   final Teacher teacher;
@@ -15,6 +19,7 @@ class CreateAssignmentView extends StatefulWidget {
 class CreateAssignmentViewState extends State<CreateAssignmentView> {
   final _formKey = GlobalKey<FormState>();
   final _assignmentService = AssignmentService();
+  final StorageService _storageService = StorageService();
 
   String? _selectedLesson;
   int? _selectedGrade;
@@ -23,7 +28,9 @@ class CreateAssignmentViewState extends State<CreateAssignmentView> {
   final TextEditingController _questionsController = TextEditingController();
   final TextEditingController _linkController = TextEditingController();
   final TextEditingController _selectedSubject = TextEditingController();
-
+  final TextEditingController _additionalInputController =
+      TextEditingController();
+  PlatformFile? _selectedFile;
   DateTime? _dueDate;
 
   // Retrieve lessons as a list of maps with their associated grades
@@ -45,6 +52,8 @@ class CreateAssignmentViewState extends State<CreateAssignmentView> {
         _selectedLesson != null &&
         _selectedGrade != null &&
         _dueDate != null) {
+      final uploadedFileUrl = await _uploadFile();
+
       // Create the assignment
       DocumentReference assignmentRef =
           await _assignmentService.createAssignment(
@@ -65,6 +74,10 @@ class CreateAssignmentViewState extends State<CreateAssignmentView> {
         link: _linkController.text.isNotEmpty
             ? _linkController.text
             : null, // Added link
+        additionalNotes: _additionalInputController.text.isNotEmpty
+            ? _additionalInputController.text
+            : null,
+        uploadedFileUrl: uploadedFileUrl,
       );
 
       // Assign to all enrolled students
@@ -89,14 +102,82 @@ class CreateAssignmentViewState extends State<CreateAssignmentView> {
     }
   }
 
+  Future<String?> _uploadFile() async {
+    // Early return if no file is selected
+    if (_selectedFile == null) {
+      return null;
+    }
+
+    final filePath = _selectedFile!.path;
+    final fileName = _selectedFile!.name;
+
+    if (filePath == null) {
+      return null; // In case path is somehow null
+    }
+
+    final file = File(filePath);
+
+    // Check for valid file types (e.g., pdf, docx)
+    final fileExtension = fileName.split('.').last.toLowerCase();
+    final allowedExtensions = ['pdf', 'docx', 'doc'];
+
+    if (!allowedExtensions.contains(fileExtension)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Unsupported file type: $fileExtension')),
+      );
+      return null; // Return null if the file type is unsupported
+    }
+
+    try {
+      // Upload file using the existing storage service method
+      final uploadedUrl = await _storageService.uploadFile(file, fileName);
+      return uploadedUrl; // Return the file URL or null if upload fails
+    } catch (_) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('File upload failed')),
+      );
+      return null;
+    }
+  }
+
+  Future<void> _pickFile() async {
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: [
+          'pdf',
+          'doc',
+          'docx'
+        ], // Limit to specific file types
+      );
+
+      if (result != null) {
+        setState(() {
+          _selectedFile = result.files.first;
+        });
+      }
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to pick file!')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Manage Assignments'),
-        centerTitle: true,
-        backgroundColor: Colors.blueAccent,
-      ),
+          title: const Text('Manage Assignments'),
+          centerTitle: true,
+          flexibleSpace: Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color(0xFF00C6FF), Color(0xFF0072FF)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+            ),
+          )),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -243,6 +324,37 @@ class CreateAssignmentViewState extends State<CreateAssignmentView> {
                   ),
                 ),
               ),
+              const Divider(height: 20, color: Colors.grey),
+              TextField(
+                controller: _additionalInputController,
+                maxLines: 10,
+                decoration: InputDecoration(
+                  labelText: 'Additional Notes',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+              const Divider(height: 20, color: Colors.grey),
+              ElevatedButton.icon(
+                onPressed: _pickFile, // Added: Pick file function
+                icon: const Icon(Icons.attach_file),
+                label: const Text('Attach Word/PDF File'),
+              ),
+              if (_selectedFile != null)
+                Row(
+                  children: [
+                    Text('Selected File: ${_selectedFile!.name}'),
+                    IconButton(
+                      icon: const Icon(Icons.delete, color: Colors.red),
+                      onPressed: () {
+                        setState(() {
+                          _selectedFile = null; // Clear the selected file
+                        });
+                      },
+                    ),
+                  ],
+                ),
               const SizedBox(height: 16),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,

@@ -5,6 +5,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:grade_up/models/student.dart';
 import 'package:grade_up/service/storage_service.dart';
+import 'package:grade_up/utilities/open_file.dart';
 import 'package:grade_up/views/student/submission_details_view.dart';
 import 'package:intl/intl.dart';
 
@@ -28,8 +29,7 @@ class _AssignmentDetailViewState extends State<AssignmentDetailView> {
       TextEditingController();
   final StorageService _storageService = StorageService();
 
-  PlatformFile? _selectedFile; // Added: To store the selected file
-
+  PlatformFile? _selectedFile;
   bool _isSubmitted = false;
   DateTime? _dueDate;
   String _statusMessage = '';
@@ -331,8 +331,43 @@ class _AssignmentDetailViewState extends State<AssignmentDetailView> {
             const Divider(height: 20, color: Colors.grey),
             Text(
               assignment['description'] ?? 'No description provided.',
-              style: const TextStyle(fontSize: 18),
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
             ),
+            if (assignment['additionalNotes'] != null &&
+                assignment['additionalNotes']!.isNotEmpty) ...[
+              const SizedBox(height: 20),
+              const Divider(height: 20, color: Colors.grey),
+              const Text(
+                'Additional Notes:',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                assignment['additionalNotes']!,
+                style: const TextStyle(fontSize: 16),
+              ),
+            ],
+            if (assignment['uploadedFileUrl'] != null &&
+                assignment['uploadedFileUrl']!.isNotEmpty) ...[
+              const SizedBox(height: 20),
+              ElevatedButton.icon(
+                onPressed: () {
+                  // Handle file download or open
+                  openFile(widget.assignment['uploadedFileUrl']!);
+                },
+                icon: const Icon(Icons.file_download),
+                label: const Text('Download Attached File'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.teal.shade50,
+                ),
+              ),
+            ],
             const SizedBox(height: 10),
             const Divider(height: 20, color: Colors.grey),
             if (!_isSubmitted ||
@@ -415,34 +450,36 @@ class _AssignmentDetailViewState extends State<AssignmentDetailView> {
                   child: const Text('Submit Answers'),
                 ),
               ),
-            const SizedBox(height: 15),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => SubmissionDetailsPage(
-                      schoolId: widget.student.school, // Pass the school ID
-                      gradeId:
-                          widget.student.grade.toString(), // Pass the grade ID
-                      studentId:
-                          widget.student.studentId, // Pass the student ID
-                      assignmentId:
-                          widget.assignment['id'], // Pass the assignment ID
+            if (_isSubmitted) ...[
+              const SizedBox(height: 15),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => SubmissionDetailsPage(
+                        schoolId: widget.student.school, // Pass the school ID
+                        gradeId: widget.student.grade
+                            .toString(), // Pass the grade ID
+                        studentId:
+                            widget.student.studentId, // Pass the student ID
+                        assignmentId:
+                            widget.assignment['id'], // Pass the assignment ID
+                      ),
                     ),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.teal.shade50,
+                  padding: const EdgeInsets.symmetric(vertical: 15),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15),
                   ),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.teal.shade50,
-                padding: const EdgeInsets.symmetric(vertical: 15),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15),
+                  textStyle: const TextStyle(fontSize: 16),
                 ),
-                textStyle: const TextStyle(fontSize: 16),
-              ),
-              child: const Text(' View Your Submission '),
-            )
+                child: const Text(' View Your Submission '),
+              )
+            ],
           ],
         ),
       ),
