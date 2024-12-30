@@ -1,6 +1,11 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:grade_up/models/student.dart';
+import 'package:grade_up/service/storage_service.dart';
+import 'package:grade_up/views/student/submission_details_view.dart';
 import 'package:intl/intl.dart';
 
 class AssignmentDetailView extends StatefulWidget {
@@ -19,6 +24,12 @@ class AssignmentDetailView extends StatefulWidget {
 
 class _AssignmentDetailViewState extends State<AssignmentDetailView> {
   final Map<String, TextEditingController> _answersControllers = {};
+  final TextEditingController _additionalInputController =
+      TextEditingController();
+  final StorageService _storageService = StorageService();
+
+  PlatformFile? _selectedFile; // Added: To store the selected file
+
   bool _isSubmitted = false;
   DateTime? _dueDate;
   String _statusMessage = '';
@@ -94,10 +105,22 @@ class _AssignmentDetailViewState extends State<AssignmentDetailView> {
     }
   }
 
+  @override
+  void dispose() {
+    // Dispose controllers to avoid memory leaks
+    for (var controller in _answersControllers.values) {
+      controller.dispose();
+    }
+    _additionalInputController
+        .dispose(); // Added: Dispose the additional input controller
+    super.dispose();
+  }
+
   Future<void> _submitAnswers() async {
     final answers = _answersControllers.map(
       (key, controller) => MapEntry(key, controller.text.trim()),
     );
+    final additionalInput = _additionalInputController.text.trim();
 
     if (answers.values.any((answer) => answer.isEmpty)) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -132,6 +155,7 @@ class _AssignmentDetailViewState extends State<AssignmentDetailView> {
         );
         return; // Prevent submission after due date.
       }
+      final uploadedFileUrl = await _uploadFile();
 
       await firestore
           .collection('schools')
@@ -149,6 +173,8 @@ class _AssignmentDetailViewState extends State<AssignmentDetailView> {
         'score': null,
         'dueDate': dueDateStr,
         'answers': answers,
+        'additionalInput': additionalInput,
+        'uploadedFileUrl': uploadedFileUrl,
       }, SetOptions(merge: true));
 
       setState(() {
@@ -173,13 +199,74 @@ class _AssignmentDetailViewState extends State<AssignmentDetailView> {
         .format(dueDate); // Format without extra time zeros
   }
 
+  Future<void> _pickFile() async {
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: [
+          'pdf',
+          'doc',
+          'docx'
+        ], // Limit to specific file types
+      );
+
+      if (result != null) {
+        setState(() {
+          _selectedFile = result.files.first;
+        });
+      }
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to pick file!')),
+      );
+    }
+  }
+
+  Future<String?> _uploadFile() async {
+    // Early return if no file is selected
+    if (_selectedFile == null) {
+      return null;
+    }
+
+    final filePath = _selectedFile!.path;
+    final fileName = _selectedFile!.name;
+
+    if (filePath == null) {
+      return null; // In case path is somehow null
+    }
+
+    final file = File(filePath);
+
+    // Check for valid file types (e.g., pdf, docx)
+    final fileExtension = fileName.split('.').last.toLowerCase();
+    final allowedExtensions = ['pdf', 'docx', 'doc'];
+
+    if (!allowedExtensions.contains(fileExtension)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Unsupported file type: $fileExtension')),
+      );
+      return null; // Return null if the file type is unsupported
+    }
+
+    try {
+      // Upload file using the existing storage service method
+      final uploadedUrl = await _storageService.uploadFile(file, fileName);
+      return uploadedUrl; // Return the file URL or null if upload fails
+    } catch (_) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('File upload failed')),
+      );
+      return null;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final assignment = widget.assignment;
 
     return Scaffold(
       appBar: AppBar(
-          title: Text(assignment['title'] ?? 'Assignment'),
+          title: const Text('Assignment'),
           centerTitle: true,
           flexibleSpace: Container(
             decoration: const BoxDecoration(
@@ -281,6 +368,38 @@ class _AssignmentDetailViewState extends State<AssignmentDetailView> {
               }).toList()),
             const Divider(height: 20, color: Colors.grey),
             if (!_isSubmitted || DateTime.now().isBefore(_dueDate!))
+              TextField(
+                controller: _additionalInputController,
+                maxLines: 10,
+                decoration: InputDecoration(
+                  labelText: 'Additional Notes',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            const Divider(height: 20, color: Colors.grey),
+            ElevatedButton.icon(
+              onPressed: _pickFile, // Added: Pick file function
+              icon: const Icon(Icons.attach_file),
+              label: const Text('Attach Word/PDF File'),
+            ),
+            if (_selectedFile != null)
+              Row(
+                children: [
+                  Text('Selected File: ${_selectedFile!.name}'),
+                  IconButton(
+                    icon: const Icon(Icons.delete, color: Colors.red),
+                    onPressed: () {
+                      setState(() {
+                        _selectedFile = null; // Clear the selected file
+                      });
+                    },
+                  ),
+                ],
+              ),
+            const Divider(height: 20, color: Colors.grey),
+            if (!_isSubmitted || DateTime.now().isBefore(_dueDate!))
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -296,6 +415,34 @@ class _AssignmentDetailViewState extends State<AssignmentDetailView> {
                   child: const Text('Submit Answers'),
                 ),
               ),
+            const SizedBox(height: 15),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => SubmissionDetailsPage(
+                      schoolId: widget.student.school, // Pass the school ID
+                      gradeId:
+                          widget.student.grade.toString(), // Pass the grade ID
+                      studentId:
+                          widget.student.studentId, // Pass the student ID
+                      assignmentId:
+                          widget.assignment['id'], // Pass the assignment ID
+                    ),
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.teal.shade50,
+                padding: const EdgeInsets.symmetric(vertical: 15),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                textStyle: const TextStyle(fontSize: 16),
+              ),
+              child: const Text(' View Your Submission '),
+            )
           ],
         ),
       ),

@@ -17,8 +17,8 @@ class StorageService {
       await uploadTask;
       final downloadURL = await storageRef.getDownloadURL();
       return downloadURL;
-    } catch (e) {
-      throw Exception('Error uploading image: $e');
+    } catch (_) {
+      throw Exception('Error uploading image.');
     }
   }
 
@@ -35,8 +35,8 @@ class StorageService {
       await uploadTask;
       final downloadURL = await storageRef.getDownloadURL();
       return downloadURL;
-    } catch (e) {
-      throw Exception('Error uploading file: $e');
+    } catch (_) {
+      throw Exception('Error uploading file.');
     }
   }
 }

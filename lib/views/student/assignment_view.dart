@@ -51,8 +51,7 @@ class _AssignmentsViewState extends State<AssignmentsView> {
   String _formatDueDate(String dueDate) {
     try {
       final parsedDate = DateTime.parse(dueDate);
-      return DateFormat('yyyy-MM-dd – kk:mm')
-          .format(parsedDate); // Format as per your preference
+      return DateFormat('yyyy-MM-dd – kk:mm').format(parsedDate);
     } catch (e) {
       return 'Invalid date';
     }
