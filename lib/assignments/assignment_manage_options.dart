@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:grade_up/assignments/create_assignment_view.dart';
+import 'package:grade_up/assignments/submitted_assignment_view.dart';
 import 'package:grade_up/models/teacher.dart';
 import 'package:grade_up/utilities/build_dashboard_card.dart';
 import 'package:grade_up/assignments/search_delete_assignment_view.dart';
@@ -62,6 +63,21 @@ class _AssignmentManageOptionsState extends State<AssignmentManageOptions> {
                     builder: (context) => SearchDeleteAssignmentSection(
                       teacher: widget.teacher,
                     ),
+                  ),
+                );
+              },
+            ),
+            buildDashboardCard(
+              Icons.assignment_turned_in,
+              'View Submitted Assignments',
+              Colors.blue,
+              () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ViewSubmittedAssignmentsView(
+                      teacher: widget.teacher,
+                    ), // Replace with your new view
                   ),
                 );
               },

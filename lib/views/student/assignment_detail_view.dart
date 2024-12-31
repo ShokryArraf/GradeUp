@@ -5,9 +5,9 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:grade_up/models/student.dart';
 import 'package:grade_up/service/storage_service.dart';
+import 'package:grade_up/utilities/format_date.dart';
 import 'package:grade_up/utilities/open_file.dart';
 import 'package:grade_up/views/student/submission_details_view.dart';
-import 'package:intl/intl.dart';
 
 class AssignmentDetailView extends StatefulWidget {
   final Map<String, dynamic> assignment;
@@ -120,7 +120,9 @@ class _AssignmentDetailViewState extends State<AssignmentDetailView> {
     final answers = _answersControllers.map(
       (key, controller) => MapEntry(key, controller.text.trim()),
     );
-    final additionalInput = _additionalInputController.text.trim();
+    final additionalInput = _additionalInputController.text.trim().isEmpty
+        ? null
+        : _additionalInputController.text.trim();
 
     if (answers.values.any((answer) => answer.isEmpty)) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -136,6 +138,7 @@ class _AssignmentDetailViewState extends State<AssignmentDetailView> {
     final assignmentId = widget.assignment['id'];
     final title = widget.assignment['title'] ?? 'No Title';
     final dueDateStr = widget.assignment['dueDate'];
+    final questions = widget.assignment['questions'] ?? 'No Questions';
 
     final dueDate = DateTime.tryParse(dueDateStr);
     if (dueDate == null) {
@@ -173,6 +176,7 @@ class _AssignmentDetailViewState extends State<AssignmentDetailView> {
         'score': null,
         'dueDate': dueDateStr,
         'answers': answers,
+        'questions': questions,
         'additionalInput': additionalInput,
         'uploadedFileUrl': uploadedFileUrl,
       }, SetOptions(merge: true));
@@ -191,12 +195,6 @@ class _AssignmentDetailViewState extends State<AssignmentDetailView> {
         const SnackBar(content: Text('Failed to submit answers!')),
       );
     }
-  }
-
-  String _formatDueDate(DateTime? dueDate) {
-    if (dueDate == null) return 'Not specified';
-    return DateFormat('yyyy-MM-dd')
-        .format(dueDate); // Format without extra time zeros
   }
 
   Future<void> _pickFile() async {
@@ -263,7 +261,6 @@ class _AssignmentDetailViewState extends State<AssignmentDetailView> {
   @override
   Widget build(BuildContext context) {
     final assignment = widget.assignment;
-
     return Scaffold(
       appBar: AppBar(
           title: const Text('Assignment'),
@@ -318,7 +315,7 @@ class _AssignmentDetailViewState extends State<AssignmentDetailView> {
                           style: const TextStyle(fontSize: 18),
                         ),
                         Text(
-                          'Due: ${_formatDueDate(_dueDate)}',
+                          'Due: ${formatDueDate(_dueDate)}',
                           style: const TextStyle(fontSize: 18),
                         ),
                       ],
@@ -401,8 +398,8 @@ class _AssignmentDetailViewState extends State<AssignmentDetailView> {
                   ],
                 );
               }).toList()),
-            const Divider(height: 20, color: Colors.grey),
-            if (!_isSubmitted || DateTime.now().isBefore(_dueDate!))
+            if (!_isSubmitted || DateTime.now().isBefore(_dueDate!)) ...[
+              const Divider(height: 20, color: Colors.grey),
               TextField(
                 controller: _additionalInputController,
                 maxLines: 10,
@@ -413,28 +410,29 @@ class _AssignmentDetailViewState extends State<AssignmentDetailView> {
                   ),
                 ),
               ),
-            const Divider(height: 20, color: Colors.grey),
-            ElevatedButton.icon(
-              onPressed: _pickFile, // Added: Pick file function
-              icon: const Icon(Icons.attach_file),
-              label: const Text('Attach Word/PDF File'),
-            ),
-            if (_selectedFile != null)
-              Row(
-                children: [
-                  Text('Selected File: ${_selectedFile!.name}'),
-                  IconButton(
-                    icon: const Icon(Icons.delete, color: Colors.red),
-                    onPressed: () {
-                      setState(() {
-                        _selectedFile = null; // Clear the selected file
-                      });
-                    },
-                  ),
-                ],
+              const Divider(height: 20, color: Colors.grey),
+              ElevatedButton.icon(
+                onPressed: _pickFile, // Added: Pick file function
+                icon: const Icon(Icons.attach_file),
+                label: const Text('Attach Word/PDF File'),
               ),
-            const Divider(height: 20, color: Colors.grey),
-            if (!_isSubmitted || DateTime.now().isBefore(_dueDate!))
+              if (_selectedFile != null)
+                Row(
+                  children: [
+                    Text('Selected File: ${_selectedFile!.name}'),
+                    IconButton(
+                      icon: const Icon(Icons.delete, color: Colors.red),
+                      onPressed: () {
+                        setState(() {
+                          _selectedFile = null; // Clear the selected file
+                        });
+                      },
+                    ),
+                  ],
+                ),
+            ],
+            if (!_isSubmitted || DateTime.now().isBefore(_dueDate!)) ...[
+              const Divider(height: 20, color: Colors.grey),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -450,6 +448,7 @@ class _AssignmentDetailViewState extends State<AssignmentDetailView> {
                   child: const Text('Submit Answers'),
                 ),
               ),
+            ],
             if (_isSubmitted) ...[
               const SizedBox(height: 15),
               ElevatedButton(
