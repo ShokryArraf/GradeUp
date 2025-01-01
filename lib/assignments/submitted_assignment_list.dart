@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:grade_up/utilities/format_date.dart';
 import 'package:grade_up/utilities/open_file.dart';
 
-class SubmittedAssignmentsList extends StatelessWidget {
+class SubmittedAssignmentsList extends StatefulWidget {
   final String school;
   final String grade;
   final String lesson;
@@ -16,11 +16,30 @@ class SubmittedAssignmentsList extends StatelessWidget {
   });
 
   @override
+  SubmittedAssignmentsListState createState() =>
+      SubmittedAssignmentsListState();
+}
+
+class SubmittedAssignmentsListState extends State<SubmittedAssignmentsList> {
+  // Controllers for score and review inputs
+  final TextEditingController scoreController = TextEditingController();
+  final TextEditingController reviewController = TextEditingController();
+  bool isEditing = false;
+
+  @override
+  void dispose() {
+    scoreController.dispose();
+    reviewController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         toolbarHeight: 80, // Set this height
-        title: Text('Submitted Assignments \n $lesson - Grade $grade'),
+        title: Text(
+            'Submitted Assignments \n ${widget.lesson} - Grade ${widget.grade}'),
         centerTitle: true,
         flexibleSpace: Container(
           decoration: const BoxDecoration(
@@ -35,10 +54,11 @@ class SubmittedAssignmentsList extends StatelessWidget {
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
             .collection('schools')
-            .doc(school)
+            .doc(widget.school)
             .collection('grades')
-            .doc(grade)
+            .doc(widget.grade)
             .collection('students')
+            .where('enrolledLessons', arrayContains: widget.lesson)
             .snapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
@@ -63,13 +83,14 @@ class SubmittedAssignmentsList extends StatelessWidget {
               return FutureBuilder<QuerySnapshot>(
                 future: FirebaseFirestore.instance
                     .collection('schools')
-                    .doc(school)
+                    .doc(widget.school)
                     .collection('grades')
-                    .doc(grade)
+                    .doc(widget.grade)
                     .collection('students')
                     .doc(student.id)
                     .collection('assignmentsToDo')
                     .where('status', isEqualTo: 'submitted')
+                    .where('lesson', isEqualTo: widget.lesson)
                     .get(),
                 builder: (context, assignmentSnapshot) {
                   if (!assignmentSnapshot.hasData) {
@@ -134,8 +155,10 @@ class SubmittedAssignmentsList extends StatelessWidget {
                                 Text(
                                   'Assignment: ${assignment['title']}',
                                   style: const TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold),
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    decoration: TextDecoration.underline,
+                                  ),
                                 ),
                                 const SizedBox(height: 8.0),
                                 Text(
@@ -153,14 +176,6 @@ class SubmittedAssignmentsList extends StatelessWidget {
                                       style: TextStyle(color: Colors.grey)),
                                 ],
                                 const SizedBox(height: 8.0),
-                                // Display Score
-                                if (assignment['score'] != null)
-                                  Text(
-                                    'Score: ${assignment['score']}',
-                                    style: const TextStyle(fontSize: 16),
-                                  ),
-                                const SizedBox(height: 8.0),
-                                // Allow opening the uploaded file
                                 if (assignment['uploadedFileUrl'] != null) ...[
                                   Padding(
                                     padding: const EdgeInsets.only(top: 8.0),
@@ -176,8 +191,7 @@ class SubmittedAssignmentsList extends StatelessWidget {
                                     child: Row(
                                       children: [
                                         Icon(
-                                          Icons
-                                              .warning_amber_outlined, // Use a warning icon
+                                          Icons.warning_amber_outlined,
                                           color: Colors.red,
                                         ),
                                         SizedBox(width: 8.0),
@@ -186,7 +200,6 @@ class SubmittedAssignmentsList extends StatelessWidget {
                                     ),
                                   ),
                                 ],
-                                // Display questions and answers
                                 if (assignment['questions'] != null &&
                                     assignment['answers'] != null)
                                   Padding(
@@ -198,20 +211,15 @@ class SubmittedAssignmentsList extends StatelessWidget {
                                     ),
                                   ),
                                 const SizedBox(height: 8.0),
-                                // Display additional notes
                                 if (assignment['additionalInput'] != null)
                                   Container(
-                                    padding: const EdgeInsets.all(
-                                        12.0), // Padding inside the box
+                                    padding: const EdgeInsets.all(12.0),
                                     decoration: BoxDecoration(
-                                      color: Colors
-                                          .grey[200], // Light background color
-                                      borderRadius: BorderRadius.circular(
-                                          8.0), // Rounded corners
+                                      color: Colors.grey[200],
+                                      borderRadius: BorderRadius.circular(8.0),
                                       border: Border.all(
-                                        color:
-                                            Colors.grey[400]!, // Border color
-                                        width: 1.0, // Border width
+                                        color: Colors.grey[400]!,
+                                        width: 1.0,
                                       ),
                                     ),
                                     child: Text(
@@ -219,51 +227,168 @@ class SubmittedAssignmentsList extends StatelessWidget {
                                       style: const TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.bold,
-                                        color: Colors.blueAccent, // Text color
+                                        color: Colors.blueAccent,
                                       ),
                                     ),
                                   ),
-                                // Allow teacher to input a score and review
-                                const SizedBox(height: 25),
-                                const Text(
-                                  'Provide Score and Review:',
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                ),
-                                // Score input field
                                 const SizedBox(height: 10),
+                                if (assignment['score'] != null &&
+                                    assignment['review'] != null)
+                                  Column(
+                                    children: [
+                                      RichText(
+                                        text: TextSpan(
+                                          text:
+                                              'Score:                             ',
+                                          style: const TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.black,
+                                          ),
+                                          children: [
+                                            TextSpan(
+                                              text: '${assignment['score']}',
+                                              style: const TextStyle(
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.normal,
+                                                decoration:
+                                                    TextDecoration.underline,
+                                                color: Colors.green,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      const SizedBox(height: 10),
+                                      RichText(
+                                        text: TextSpan(
+                                          text: 'Review:',
+                                          style: const TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.black,
+                                          ),
+                                          children: [
+                                            TextSpan(
+                                              text: '  ${assignment['review']}',
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.normal,
+                                                decoration: TextDecoration.none,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      const SizedBox(height: 15),
+                                      ElevatedButton(
+                                        onPressed: () {
+                                          // Allow the teacher to give a new score and review
+                                          scoreController.text =
+                                              assignment['score'].toString();
+                                          reviewController.text =
+                                              assignment['review'];
+                                          setState(() {
+                                            isEditing = true;
+                                          });
+                                        },
+                                        child:
+                                            const Text('Edit Score and Review'),
+                                      ),
+                                    ],
+                                  ),
+                                if (isEditing ||
+                                    assignment['score'] == null ||
+                                    assignment['review'] == null)
+                                  Column(
+                                    children: [
+                                      const SizedBox(height: 8.0),
+                                      const Text(
+                                        'Provide Score and Review:',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                      const SizedBox(
+                                        height: 15,
+                                      ),
+                                      TextField(
+                                        controller: scoreController,
+                                        decoration: const InputDecoration(
+                                          labelText: 'Enter score',
+                                          border: OutlineInputBorder(),
+                                          contentPadding: EdgeInsets.symmetric(
+                                              vertical: 10.0, horizontal: 20.0),
+                                        ),
+                                        keyboardType: TextInputType.number,
+                                      ),
+                                      const SizedBox(height: 15),
+                                      TextField(
+                                        controller: reviewController,
+                                        maxLines: 5,
+                                        decoration: const InputDecoration(
+                                          labelText: 'Write your review...',
+                                          border: OutlineInputBorder(),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 15),
+                                      ElevatedButton(
+                                        onPressed: () async {
+                                          int? score = int.tryParse(
+                                              scoreController.text);
 
-                                TextField(
-                                  decoration: const InputDecoration(
-                                    labelText: 'Enter score',
-                                    border: OutlineInputBorder(),
-                                    contentPadding: EdgeInsets.symmetric(
-                                        vertical: 10.0, horizontal: 20.0),
+                                          if (score == null ||
+                                              score < 0 ||
+                                              score > 100) {
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(
+                                              const SnackBar(
+                                                  content: Text(
+                                                      'Invalid score. Please enter a value between 0 and 100.')),
+                                            );
+                                            return;
+                                          }
+
+                                          String review = reviewController.text;
+
+                                          try {
+                                            await FirebaseFirestore.instance
+                                                .collection('schools')
+                                                .doc(widget.school)
+                                                .collection('grades')
+                                                .doc(widget.grade)
+                                                .collection('students')
+                                                .doc(student.id)
+                                                .collection('assignmentsToDo')
+                                                .doc(assignment.id)
+                                                .update({
+                                              'score': score,
+                                              'review': review,
+                                            });
+
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(
+                                              const SnackBar(
+                                                  content: Text(
+                                                      'Score and review submitted successfully!')),
+                                            );
+                                            scoreController.clear();
+                                            reviewController.clear();
+                                            setState(() {
+                                              isEditing = false;
+                                            });
+                                          } catch (e) {
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(
+                                              SnackBar(
+                                                  content: Text(
+                                                      'Error: ${e.toString()}')),
+                                            );
+                                          }
+                                        },
+                                        child: const Text(
+                                            'Submit Score and Review'),
+                                      ),
+                                    ],
                                   ),
-                                  keyboardType: TextInputType.number,
-                                  onChanged: (value) {
-                                    // Ensure the value is a number and within the valid range (0-100)
-                                    int? score = int.tryParse(value);
-                                    if (score != null &&
-                                        score >= 0 &&
-                                        score <= 100) {
-                                      // Update score value logic
-                                    } else {
-                                      // Handle invalid score input, e.g., show a warning or reset the field
-                                    }
-                                  },
-                                ),
-                                const SizedBox(height: 15),
-                                // Review input field (large text area)
-                                TextField(
-                                  maxLines: 5,
-                                  decoration: const InputDecoration(
-                                    labelText: 'Write your review...',
-                                    border: OutlineInputBorder(),
-                                  ),
-                                  onChanged: (value) {
-                                    // Update review logic
-                                  },
-                                ),
                               ],
                             ),
                           ),
@@ -302,27 +427,24 @@ class SubmittedAssignmentsList extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.all(12.0),
               child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Q: $question',
+                          question ?? 'No question text available',
                           style: const TextStyle(
-                            fontSize: 16,
+                            fontSize: 18,
                             fontWeight: FontWeight.bold,
+                            decoration: TextDecoration.underline,
                           ),
                         ),
                         const SizedBox(height: 8.0),
                         Text(
-                          'A: $answer',
+                          'Answer: $answer',
                           style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.green, // Text color
-                          ),
+                              fontSize: 18, color: Colors.green),
                         ),
                       ],
                     ),
@@ -334,8 +456,7 @@ class SubmittedAssignmentsList extends StatelessWidget {
         },
       );
     } else {
-      return const Center(
-          child: Text("Invalid data format for questions or answers"));
+      return const Center(child: Text('Invalid question or answer data'));
     }
   }
 }

@@ -32,6 +32,7 @@ class CreateAssignmentViewState extends State<CreateAssignmentView> {
       TextEditingController();
   PlatformFile? _selectedFile;
   DateTime? _dueDate;
+  bool _isLoading = false;
 
   // Retrieve lessons as a list of maps with their associated grades
   List<Map<String, dynamic>> get _lessons => widget.teacher.lessonGradeMap.keys
@@ -47,52 +48,123 @@ class CreateAssignmentViewState extends State<CreateAssignmentView> {
       ? (widget.teacher.lessonGradeMap[_selectedLesson!] ?? [])
       : [];
 
+  // Future<void> _createAndAssignToStudents() async {
+  //   if (_formKey.currentState!.validate() &&
+  //       _selectedLesson != null &&
+  //       _selectedGrade != null &&
+  //       _dueDate != null) {
+  //     setState(() {
+  //       _isLoading = true; // Show loading indicator
+  //     });
+
+  //     final uploadedFileUrl = await _uploadFile();
+
+  //     // Create the assignment
+  //     DocumentReference assignmentRef =
+  //         await _assignmentService.createAssignment(
+  //       _selectedLesson!,
+  //       title: _titleController.text,
+  //       description: _descriptionController.text,
+  //       dueDate: _dueDate!,
+  //       questions: _questionsController.text
+  //           .split('\n')
+  //           .map((question) => question.trim())
+  //           .where((question) => question.isNotEmpty)
+  //           .toList(),
+
+  //       grade: _selectedGrade!,
+  //       teacherName: widget.teacher.name,
+  //       teacher: widget.teacher,
+  //       subject: _selectedSubject.text,
+  //       link: _linkController.text.isNotEmpty
+  //           ? _linkController.text
+  //           : null, // Added link
+  //       additionalNotes: _additionalInputController.text.isNotEmpty
+  //           ? _additionalInputController.text
+  //           : null,
+  //       uploadedFileUrl: uploadedFileUrl,
+  //     );
+
+  //     // Assign to all enrolled students
+  //     await _assignmentService.assignToEnrolledStudents(
+  //       _selectedLesson!,
+  //       assignmentRef.id,
+  //       _selectedGrade.toString(),
+  //       widget.teacher,
+  //     );
+
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       const SnackBar(
+  //           content: Text('Assignment created and assigned to students!')),
+  //     );
+  //     Navigator.pop(context);
+  //   } else {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       const SnackBar(
+  //         content: Text('Please fill out all fields and select a lesson.'),
+  //       ),
+  //     );
+  //   }
+  // }
+
   Future<void> _createAndAssignToStudents() async {
     if (_formKey.currentState!.validate() &&
         _selectedLesson != null &&
         _selectedGrade != null &&
         _dueDate != null) {
-      final uploadedFileUrl = await _uploadFile();
+      setState(() {
+        _isLoading = true; // Show loading indicator
+      });
+      try {
+        final uploadedFileUrl = await _uploadFile();
 
-      // Create the assignment
-      DocumentReference assignmentRef =
-          await _assignmentService.createAssignment(
-        _selectedLesson!,
-        title: _titleController.text,
-        description: _descriptionController.text,
-        dueDate: _dueDate!,
-        questions: _questionsController.text
-            .split('\n')
-            .map((question) => question.trim())
-            .where((question) => question.isNotEmpty)
-            .toList(),
+        // Create the assignment
+        DocumentReference assignmentRef =
+            await _assignmentService.createAssignment(
+          _selectedLesson!,
+          title: _titleController.text,
+          description: _descriptionController.text,
+          dueDate: _dueDate!,
+          questions: _questionsController.text
+              .split('\n')
+              .map((question) => question.trim())
+              .where((question) => question.isNotEmpty)
+              .toList(),
+          grade: _selectedGrade!,
+          teacherName: widget.teacher.name,
+          teacher: widget.teacher,
+          subject: _selectedSubject.text,
+          link: _linkController.text.isNotEmpty ? _linkController.text : null,
+          additionalNotes: _additionalInputController.text.isNotEmpty
+              ? _additionalInputController.text
+              : null,
+          uploadedFileUrl: uploadedFileUrl,
+        );
 
-        grade: _selectedGrade!,
-        teacherName: widget.teacher.name,
-        teacher: widget.teacher,
-        subject: _selectedSubject.text,
-        link: _linkController.text.isNotEmpty
-            ? _linkController.text
-            : null, // Added link
-        additionalNotes: _additionalInputController.text.isNotEmpty
-            ? _additionalInputController.text
-            : null,
-        uploadedFileUrl: uploadedFileUrl,
-      );
+        // Assign to all enrolled students
+        await _assignmentService.assignToEnrolledStudents(
+          _selectedLesson!,
+          assignmentRef.id,
+          _selectedGrade.toString(),
+          widget.teacher,
+        );
 
-      // Assign to all enrolled students
-      await _assignmentService.assignToEnrolledStudents(
-        _selectedLesson!,
-        assignmentRef.id,
-        _selectedGrade.toString(),
-        widget.teacher,
-      );
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Assignment created and assigned to students!')),
-      );
-      Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text('Assignment created and assigned to students!')),
+        );
+        Navigator.pop(context);
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Error occurred while creating assignment.'),
+          ),
+        );
+      } finally {
+        setState(() {
+          _isLoading = false; // Hide loading indicator
+        });
+      }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -386,8 +458,19 @@ class CreateAssignmentViewState extends State<CreateAssignmentView> {
               const SizedBox(height: 24),
               Center(
                 child: ElevatedButton(
-                  onPressed: _createAndAssignToStudents,
-                  child: const Text('Create Assignment'),
+                  onPressed: _isLoading
+                      ? null
+                      : _createAndAssignToStudents, // Disable when loading
+                  child: _isLoading
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : const Text('Create Assignment'),
                 ),
               ),
             ],

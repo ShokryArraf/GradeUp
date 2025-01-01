@@ -31,6 +31,8 @@ class _AssignmentDetailViewState extends State<AssignmentDetailView> {
 
   PlatformFile? _selectedFile;
   bool _isSubmitted = false;
+  bool _isLoading = false;
+
   DateTime? _dueDate;
   String _statusMessage = '';
 
@@ -116,7 +118,59 @@ class _AssignmentDetailViewState extends State<AssignmentDetailView> {
     super.dispose();
   }
 
+// Future<void> _submitAnswers() async {
+//   if (_isLoading) return; // Prevent duplicate submissions
+
+//   setState(() {
+//     _isLoading = true;
+//   });
+
+//   try {
+//     final answers = _answersControllers.map(
+//       (key, controller) => MapEntry(key, controller.text.trim()),
+//     );
+//     final additionalInput = _additionalInputController.text.trim().isEmpty
+//         ? null
+//         : _additionalInputController.text.trim();
+
+//     if (answers.values.any((answer) => answer.isEmpty)) {
+//       ScaffoldMessenger.of(context).showSnackBar(
+//         const SnackBar(content: Text('All questions must be answered!')),
+//       );
+//       return;
+//     }
+
+//     // Your existing submission logic...
+//     final uploadedFileUrl = await _uploadFile();
+//     // Save data to Firestore
+//     // ...
+
+//     setState(() {
+//       _isSubmitted = true;
+//     });
+
+//     ScaffoldMessenger.of(context).showSnackBar(
+//       const SnackBar(content: Text('Answers submitted successfully!')),
+//     );
+//     Navigator.pop(context);
+//   } catch (error) {
+//     ScaffoldMessenger.of(context).showSnackBar(
+//       const SnackBar(content: Text('Failed to submit answers!')),
+//     );
+//   } finally {
+//     setState(() {
+//       _isLoading = false;
+//     });
+//   }
+// }
+
   Future<void> _submitAnswers() async {
+    if (_isLoading) return; // Prevent duplicate submissions
+
+    setState(() {
+      _isLoading = true;
+    });
+
     final answers = _answersControllers.map(
       (key, controller) => MapEntry(key, controller.text.trim()),
     );
@@ -195,6 +249,9 @@ class _AssignmentDetailViewState extends State<AssignmentDetailView> {
         const SnackBar(content: Text('Failed to submit answers!')),
       );
     }
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   Future<void> _pickFile() async {
@@ -258,6 +315,233 @@ class _AssignmentDetailViewState extends State<AssignmentDetailView> {
     }
   }
 
+  // @override
+  // Widget build(BuildContext context) {
+  //   final assignment = widget.assignment;
+  //   return Scaffold(
+  //     appBar: AppBar(
+  //         title: const Text('Assignment'),
+  //         centerTitle: true,
+  //         flexibleSpace: Container(
+  //           decoration: const BoxDecoration(
+  //             gradient: LinearGradient(
+  //               colors: [Color(0xFF00C6FF), Color(0xFF0072FF)],
+  //               begin: Alignment.topLeft,
+  //               end: Alignment.bottomRight,
+  //             ),
+  //           ),
+  //         )),
+  //     body: SingleChildScrollView(
+  //       padding: const EdgeInsets.all(20.0),
+  //       child: Column(
+  //         crossAxisAlignment: CrossAxisAlignment.start,
+  //         children: [
+  //           Card(
+  //             elevation: 5,
+  //             shape: RoundedRectangleBorder(
+  //               borderRadius: BorderRadius.circular(15),
+  //             ),
+  //             color: Colors.teal.shade50,
+  //             child: Padding(
+  //               padding: const EdgeInsets.all(16.0),
+  //               child: Column(
+  //                 crossAxisAlignment: CrossAxisAlignment.start,
+  //                 children: [
+  //                   Text(
+  //                     assignment['title'] ?? 'No Title',
+  //                     style: const TextStyle(
+  //                       fontSize: 28,
+  //                       fontWeight: FontWeight.bold,
+  //                       color: Colors.black87,
+  //                     ),
+  //                   ),
+  //                   const SizedBox(height: 10),
+  //                   Text(
+  //                     _statusMessage,
+  //                     style: TextStyle(
+  //                       fontSize: 18,
+  //                       color: _isSubmitted ? Colors.green : Colors.red,
+  //                     ),
+  //                   ),
+  //                   const SizedBox(height: 10),
+  //                   Row(
+  //                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //                     children: [
+  //                       Text(
+  //                         'Subject: ${assignment['subject'] ?? 'Unknown'}',
+  //                         style: const TextStyle(fontSize: 18),
+  //                       ),
+  //                       Text(
+  //                         'Due: ${formatDueDate(_dueDate)}',
+  //                         style: const TextStyle(fontSize: 18),
+  //                       ),
+  //                     ],
+  //                   ),
+  //                 ],
+  //               ),
+  //             ),
+  //           ),
+  //           const SizedBox(height: 20),
+  //           const Divider(height: 20, color: Colors.grey),
+  //           Text(
+  //             assignment['description'] ?? 'No description provided.',
+  //             style: const TextStyle(
+  //               fontSize: 18,
+  //               fontWeight: FontWeight.bold,
+  //             ),
+  //           ),
+  //           if (assignment['additionalNotes'] != null &&
+  //               assignment['additionalNotes']!.isNotEmpty) ...[
+  //             const SizedBox(height: 20),
+  //             const Divider(height: 20, color: Colors.grey),
+  //             const Text(
+  //               'Additional Notes:',
+  //               style: TextStyle(
+  //                 fontSize: 18,
+  //                 fontWeight: FontWeight.bold,
+  //               ),
+  //             ),
+  //             const SizedBox(height: 10),
+  //             Text(
+  //               assignment['additionalNotes']!,
+  //               style: const TextStyle(fontSize: 16),
+  //             ),
+  //           ],
+  //           if (assignment['uploadedFileUrl'] != null &&
+  //               assignment['uploadedFileUrl']!.isNotEmpty) ...[
+  //             const SizedBox(height: 20),
+  //             ElevatedButton.icon(
+  //               onPressed: () {
+  //                 // Handle file download or open
+  //                 openFile(widget.assignment['uploadedFileUrl']!);
+  //               },
+  //               icon: const Icon(Icons.file_download),
+  //               label: const Text('Download Attached File'),
+  //               style: ElevatedButton.styleFrom(
+  //                 backgroundColor: Colors.teal.shade50,
+  //               ),
+  //             ),
+  //           ],
+  //           const SizedBox(height: 10),
+  //           const Divider(height: 20, color: Colors.grey),
+  //           if (!_isSubmitted ||
+  //               _isSubmitted && _dueDate == null ||
+  //               DateTime.now().isBefore(_dueDate!))
+  //             ...((assignment['questions'] as List<dynamic>? ?? [])
+  //                 .asMap()
+  //                 .entries
+  //                 .map((entry) {
+  //               final index = entry.key;
+  //               final question =
+  //                   entry.value as String? ?? 'No question provided';
+  //               return Column(
+  //                 crossAxisAlignment: CrossAxisAlignment.start,
+  //                 children: [
+  //                   Text(
+  //                     '${index + 1}. $question',
+  //                     style: const TextStyle(fontSize: 18),
+  //                   ),
+  //                   const SizedBox(height: 5),
+  //                   TextField(
+  //                     controller: _answersControllers[index.toString()],
+  //                     decoration: InputDecoration(
+  //                       labelText: 'Your Answer',
+  //                       border: OutlineInputBorder(
+  //                         borderRadius: BorderRadius.circular(12),
+  //                       ),
+  //                     ),
+  //                   ),
+  //                   const SizedBox(height: 15),
+  //                 ],
+  //               );
+  //             }).toList()),
+  //           if (!_isSubmitted || DateTime.now().isBefore(_dueDate!)) ...[
+  //             const Divider(height: 20, color: Colors.grey),
+  //             TextField(
+  //               controller: _additionalInputController,
+  //               maxLines: 10,
+  //               decoration: InputDecoration(
+  //                 labelText: 'Additional Notes',
+  //                 border: OutlineInputBorder(
+  //                   borderRadius: BorderRadius.circular(12),
+  //                 ),
+  //               ),
+  //             ),
+  //             const Divider(height: 20, color: Colors.grey),
+  //             ElevatedButton.icon(
+  //               onPressed: _pickFile, // Added: Pick file function
+  //               icon: const Icon(Icons.attach_file),
+  //               label: const Text('Attach Word/PDF File'),
+  //             ),
+  //             if (_selectedFile != null)
+  //               Row(
+  //                 children: [
+  //                   Text('Selected File: ${_selectedFile!.name}'),
+  //                   IconButton(
+  //                     icon: const Icon(Icons.delete, color: Colors.red),
+  //                     onPressed: () {
+  //                       setState(() {
+  //                         _selectedFile = null; // Clear the selected file
+  //                       });
+  //                     },
+  //                   ),
+  //                 ],
+  //               ),
+  //           ],
+  //           if (!_isSubmitted || DateTime.now().isBefore(_dueDate!)) ...[
+  //             const Divider(height: 20, color: Colors.grey),
+  //             SizedBox(
+  //               width: double.infinity,
+  //               child: ElevatedButton(
+  //                 onPressed: _submitAnswers,
+  //                 style: ElevatedButton.styleFrom(
+  //                   backgroundColor: Colors.teal.shade50,
+  //                   padding: const EdgeInsets.symmetric(vertical: 15),
+  //                   shape: RoundedRectangleBorder(
+  //                     borderRadius: BorderRadius.circular(15),
+  //                   ),
+  //                   textStyle: const TextStyle(fontSize: 18),
+  //                 ),
+  //                 child: const Text('Submit Answers'),
+  //               ),
+  //             ),
+  //           ],
+  //           if (_isSubmitted) ...[
+  //             const SizedBox(height: 15),
+  //             ElevatedButton(
+  //               onPressed: () {
+  //                 Navigator.push(
+  //                   context,
+  //                   MaterialPageRoute(
+  //                     builder: (context) => SubmissionDetailsPage(
+  //                       schoolId: widget.student.school, // Pass the school ID
+  //                       gradeId: widget.student.grade
+  //                           .toString(), // Pass the grade ID
+  //                       studentId:
+  //                           widget.student.studentId, // Pass the student ID
+  //                       assignmentId:
+  //                           widget.assignment['id'], // Pass the assignment ID
+  //                     ),
+  //                   ),
+  //                 );
+  //               },
+  //               style: ElevatedButton.styleFrom(
+  //                 backgroundColor: Colors.teal.shade50,
+  //                 padding: const EdgeInsets.symmetric(vertical: 15),
+  //                 shape: RoundedRectangleBorder(
+  //                   borderRadius: BorderRadius.circular(15),
+  //                 ),
+  //                 textStyle: const TextStyle(fontSize: 16),
+  //               ),
+  //               child: const Text(' View Your Submission '),
+  //             )
+  //           ],
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
+
   @override
   Widget build(BuildContext context) {
     final assignment = widget.assignment;
@@ -274,213 +558,223 @@ class _AssignmentDetailViewState extends State<AssignmentDetailView> {
               ),
             ),
           )),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Card(
-              elevation: 5,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15),
-              ),
-              color: Colors.teal.shade50,
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      assignment['title'] ?? 'No Title',
-                      style: const TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    Text(
-                      _statusMessage,
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: _isSubmitted ? Colors.green : Colors.red,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Subject: ${assignment['subject'] ?? 'Unknown'}',
-                          style: const TextStyle(fontSize: 18),
-                        ),
-                        Text(
-                          'Due: ${formatDueDate(_dueDate)}',
-                          style: const TextStyle(fontSize: 18),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
-            const Divider(height: 20, color: Colors.grey),
-            Text(
-              assignment['description'] ?? 'No description provided.',
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            if (assignment['additionalNotes'] != null &&
-                assignment['additionalNotes']!.isNotEmpty) ...[
-              const SizedBox(height: 20),
-              const Divider(height: 20, color: Colors.grey),
-              const Text(
-                'Additional Notes:',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 10),
-              Text(
-                assignment['additionalNotes']!,
-                style: const TextStyle(fontSize: 16),
-              ),
-            ],
-            if (assignment['uploadedFileUrl'] != null &&
-                assignment['uploadedFileUrl']!.isNotEmpty) ...[
-              const SizedBox(height: 20),
-              ElevatedButton.icon(
-                onPressed: () {
-                  // Handle file download or open
-                  openFile(widget.assignment['uploadedFileUrl']!);
-                },
-                icon: const Icon(Icons.file_download),
-                label: const Text('Download Attached File'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.teal.shade50,
-                ),
-              ),
-            ],
-            const SizedBox(height: 10),
-            const Divider(height: 20, color: Colors.grey),
-            if (!_isSubmitted ||
-                _isSubmitted && _dueDate == null ||
-                DateTime.now().isBefore(_dueDate!))
-              ...((assignment['questions'] as List<dynamic>? ?? [])
-                  .asMap()
-                  .entries
-                  .map((entry) {
-                final index = entry.key;
-                final question =
-                    entry.value as String? ?? 'No question provided';
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '${index + 1}. $question',
-                      style: const TextStyle(fontSize: 18),
-                    ),
-                    const SizedBox(height: 5),
-                    TextField(
-                      controller: _answersControllers[index.toString()],
-                      decoration: InputDecoration(
-                        labelText: 'Your Answer',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 15),
-                  ],
-                );
-              }).toList()),
-            if (!_isSubmitted || DateTime.now().isBefore(_dueDate!)) ...[
-              const Divider(height: 20, color: Colors.grey),
-              TextField(
-                controller: _additionalInputController,
-                maxLines: 10,
-                decoration: InputDecoration(
-                  labelText: 'Additional Notes',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              ),
-              const Divider(height: 20, color: Colors.grey),
-              ElevatedButton.icon(
-                onPressed: _pickFile, // Added: Pick file function
-                icon: const Icon(Icons.attach_file),
-                label: const Text('Attach Word/PDF File'),
-              ),
-              if (_selectedFile != null)
-                Row(
-                  children: [
-                    Text('Selected File: ${_selectedFile!.name}'),
-                    IconButton(
-                      icon: const Icon(Icons.delete, color: Colors.red),
-                      onPressed: () {
-                        setState(() {
-                          _selectedFile = null; // Clear the selected file
-                        });
-                      },
-                    ),
-                  ],
-                ),
-            ],
-            if (!_isSubmitted || DateTime.now().isBefore(_dueDate!)) ...[
-              const Divider(height: 20, color: Colors.grey),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: _submitAnswers,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.teal.shade50,
-                    padding: const EdgeInsets.symmetric(vertical: 15),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                    textStyle: const TextStyle(fontSize: 18),
-                  ),
-                  child: const Text('Submit Answers'),
-                ),
-              ),
-            ],
-            if (_isSubmitted) ...[
-              const SizedBox(height: 15),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => SubmissionDetailsPage(
-                        schoolId: widget.student.school, // Pass the school ID
-                        gradeId: widget.student.grade
-                            .toString(), // Pass the grade ID
-                        studentId:
-                            widget.student.studentId, // Pass the student ID
-                        assignmentId:
-                            widget.assignment['id'], // Pass the assignment ID
-                      ),
-                    ),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.teal.shade50,
-                  padding: const EdgeInsets.symmetric(vertical: 15),
+      body: Stack(
+        children: [
+          SingleChildScrollView(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Card(
+                  elevation: 5,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15),
                   ),
-                  textStyle: const TextStyle(fontSize: 16),
+                  color: Colors.teal.shade50,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          assignment['title'] ?? 'No Title',
+                          style: const TextStyle(
+                            fontSize: 28,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
+                          _statusMessage,
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: _isSubmitted ? Colors.green : Colors.red,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Subject: ${assignment['subject'] ?? 'Unknown'}',
+                              style: const TextStyle(fontSize: 18),
+                            ),
+                            Text(
+                              'Due: ${formatDueDate(_dueDate)}',
+                              style: const TextStyle(fontSize: 18),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-                child: const Text(' View Your Submission '),
-              )
-            ],
-          ],
-        ),
+                const SizedBox(height: 20),
+                const Divider(height: 20, color: Colors.grey),
+                Text(
+                  assignment['description'] ?? 'No description provided.',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                if (assignment['additionalNotes'] != null &&
+                    assignment['additionalNotes']!.isNotEmpty) ...[
+                  const SizedBox(height: 20),
+                  const Divider(height: 20, color: Colors.grey),
+                  const Text(
+                    'Additional Notes:',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    assignment['additionalNotes']!,
+                    style: const TextStyle(fontSize: 16),
+                  ),
+                ],
+                if (assignment['uploadedFileUrl'] != null &&
+                    assignment['uploadedFileUrl']!.isNotEmpty) ...[
+                  const SizedBox(height: 20),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      // Handle file download or open
+                      openFile(widget.assignment['uploadedFileUrl']!);
+                    },
+                    icon: const Icon(Icons.file_download),
+                    label: const Text('Download Attached File'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.teal.shade50,
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 10),
+                const Divider(height: 20, color: Colors.grey),
+                if (!_isSubmitted ||
+                    (_isSubmitted && _dueDate == null) ||
+                    DateTime.now().isBefore(_dueDate!))
+                  ...((assignment['questions'] as List<dynamic>? ?? [])
+                      .asMap()
+                      .entries
+                      .map((entry) {
+                    final index = entry.key;
+                    final question =
+                        entry.value as String? ?? 'No question provided';
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '${index + 1}. $question',
+                          style: const TextStyle(fontSize: 18),
+                        ),
+                        const SizedBox(height: 5),
+                        TextField(
+                          controller: _answersControllers[index.toString()],
+                          decoration: InputDecoration(
+                            labelText: 'Your Answer',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 15),
+                      ],
+                    );
+                  }).toList()),
+                if (!_isSubmitted || DateTime.now().isBefore(_dueDate!)) ...[
+                  const Divider(height: 20, color: Colors.grey),
+                  TextField(
+                    controller: _additionalInputController,
+                    maxLines: 10,
+                    decoration: InputDecoration(
+                      labelText: 'Additional Notes',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
+                  const Divider(height: 20, color: Colors.grey),
+                  ElevatedButton.icon(
+                    onPressed: _pickFile, // Pick file function
+                    icon: const Icon(Icons.attach_file),
+                    label: const Text('Attach Word/PDF File'),
+                  ),
+                  if (_selectedFile != null)
+                    Row(
+                      children: [
+                        Text('Selected File: ${_selectedFile!.name}'),
+                        IconButton(
+                          icon: const Icon(Icons.delete, color: Colors.red),
+                          onPressed: () {
+                            setState(() {
+                              _selectedFile = null; // Clear selected file
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                ],
+                if (!_isSubmitted || DateTime.now().isBefore(_dueDate!)) ...[
+                  const Divider(height: 20, color: Colors.grey),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: _isLoading
+                          ? null
+                          : _submitAnswers, // Disable when loading
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.teal.shade50,
+                        padding: const EdgeInsets.symmetric(vertical: 15),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        textStyle: const TextStyle(fontSize: 18),
+                      ),
+                      child: const Text('Submit Answers'),
+                    ),
+                  ),
+                ],
+                if (_isSubmitted) ...[
+                  const SizedBox(height: 15),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => SubmissionDetailsPage(
+                            schoolId: widget.student.school,
+                            gradeId: widget.student.grade.toString(),
+                            studentId: widget.student.studentId,
+                            assignmentId: widget.assignment['id'],
+                          ),
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.teal.shade50,
+                      padding: const EdgeInsets.symmetric(vertical: 15),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      textStyle: const TextStyle(fontSize: 16),
+                    ),
+                    child: const Text(' View Your Submission '),
+                  )
+                ],
+              ],
+            ),
+          ),
+          if (_isLoading)
+            Container(
+              color: Colors.black54, // Semi-transparent background
+              child: const Center(
+                child: CircularProgressIndicator(color: Colors.white),
+              ),
+            ),
+        ],
       ),
     );
   }

@@ -69,6 +69,8 @@ class AssignmentService {
         'status': 'assigned',
         'score': null,
         'submissionDate': null,
+        'lesson': lessonId,
+        'review': null,
       });
     }
   }
