@@ -1,7 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:grade_up/utilities/build_detail_card.dart';
+import 'package:grade_up/utilities/format_date.dart';
 import 'package:grade_up/utilities/open_file.dart';
-import 'package:intl/intl.dart';
 
 class SubmissionDetailsPage extends StatefulWidget {
   final String schoolId;
@@ -29,6 +30,7 @@ class SubmissionDetailsPageState extends State<SubmissionDetailsPage> {
   String? _score;
   String? _dueDate;
   String? _status;
+  String? _review;
 
   @override
   void initState() {
@@ -61,19 +63,11 @@ class SubmissionDetailsPageState extends State<SubmissionDetailsPage> {
           _submittedFileUrl = data['uploadedFileUrl'];
           _additionalInput = data['additionalInput'];
           _score = data['score']?.toString();
-          _dueDate = _formatDueDate(data['dueDate']);
+          _dueDate = formatDueDate(data['dueDate']);
           _status = data['status'];
+          _review = data['review'];
         });
       }
-    }
-  }
-
-  String _formatDueDate(String dueDate) {
-    try {
-      final parsedDate = DateTime.parse(dueDate);
-      return DateFormat('yyyy-MM-dd – kk:mm').format(parsedDate);
-    } catch (e) {
-      return 'Invalid date';
     }
   }
 
@@ -104,9 +98,9 @@ class SubmissionDetailsPageState extends State<SubmissionDetailsPage> {
               ),
               const SizedBox(height: 20),
               // Status & Submission Date
-              _buildDetailCard('Status', _status ?? 'Not Submitted',
+              buildDetailCard('Status', _status ?? 'Not Submitted',
                   Icons.assignment, Colors.blue),
-              _buildDetailCard('Due Date', _dueDate ?? 'N/A',
+              buildDetailCard('Due Date', _dueDate ?? 'N/A',
                   Icons.calendar_today, Colors.orange),
 
               const SizedBox(height: 20),
@@ -130,7 +124,7 @@ class SubmissionDetailsPageState extends State<SubmissionDetailsPage> {
                         entry.value.value; // Access the value of the map entry
 
                     // Return the DetailCard with dynamic title and value
-                    return _buildDetailCard(answerTitle, answerValue,
+                    return buildDetailCard(answerTitle, answerValue,
                         Icons.question_answer, Colors.green);
                   },
                 ),
@@ -138,14 +132,21 @@ class SubmissionDetailsPageState extends State<SubmissionDetailsPage> {
 
               // Additional Input
               if (_additionalInput != null && _additionalInput!.isNotEmpty)
-                _buildDetailCard('Additional Input', _additionalInput!,
+                buildDetailCard('Additional Input', _additionalInput!,
                     Icons.notes, Colors.purple),
 
               const SizedBox(height: 20),
 
               // Score
               if (_score != null)
-                _buildDetailCard('Score', _score!, Icons.grade, Colors.red),
+                buildDetailCard('Score', _score!, Icons.grade, Colors.red),
+
+              const SizedBox(height: 20),
+
+              // Review
+              if (_review != null)
+                buildDetailCard(
+                    'Teacher Review', _review!, Icons.reviews, Colors.grey),
 
               const SizedBox(height: 20),
 
@@ -172,26 +173,6 @@ class SubmissionDetailsPageState extends State<SubmissionDetailsPage> {
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildDetailCard(
-      String title, String value, IconData icon, Color iconColor) {
-    return Card(
-      elevation: 5,
-      margin: const EdgeInsets.only(bottom: 12),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: ListTile(
-        contentPadding:
-            const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
-        leading: Icon(icon, color: iconColor, size: 30),
-        title: Text(title,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-        subtitle: Text(value,
-            style: TextStyle(fontSize: 16, color: Colors.grey.shade700)),
       ),
     );
   }

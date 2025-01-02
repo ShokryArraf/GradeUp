@@ -33,56 +33,76 @@ class _AssignmentManageOptionsState extends State<AssignmentManageOptions> {
           )),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: GridView.count(
-          crossAxisCount: 2,
-          crossAxisSpacing: 16,
-          mainAxisSpacing: 16,
-          children: [
-            buildDashboardCard(
-              Icons.create,
-              'Create Assignments',
-              Colors.green,
-              () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        CreateAssignmentView(teacher: widget.teacher),
-                  ),
-                );
-              },
-            ),
-            buildDashboardCard(
-              Icons.search,
-              'Search,Edit & Delete Assignments',
-              Colors.red,
-              () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => SearchDeleteAssignmentSection(
-                      teacher: widget.teacher,
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Wrap(
+                spacing: 16.0,
+                runSpacing: 16.0,
+                alignment: WrapAlignment.center,
+                children: [
+                  SizedBox(
+                    width: 200,
+                    height: 200,
+                    child: buildDashboardCard(
+                      Icons.create,
+                      'Create Assignments',
+                      Colors.green,
+                      () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                CreateAssignmentView(teacher: widget.teacher),
+                          ),
+                        );
+                      },
                     ),
                   ),
-                );
-              },
-            ),
-            buildDashboardCard(
-              Icons.assignment_turned_in,
-              'View Submitted Assignments',
-              Colors.blue,
-              () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ViewSubmittedAssignmentsView(
-                      teacher: widget.teacher,
-                    ), // Replace with your new view
+                  SizedBox(
+                    width: 200,
+                    height: 200,
+                    child: buildDashboardCard(
+                      Icons.search,
+                      'Search,Edit & Delete Assignments',
+                      Colors.red,
+                      () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => SearchDeleteAssignmentSection(
+                              teacher: widget.teacher,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
                   ),
-                );
-              },
-            ),
-          ],
+                ],
+              ),
+              const SizedBox(height: 16),
+              SizedBox(
+                width: 200,
+                height: 200,
+                child: buildDashboardCard(
+                  Icons.assignment_turned_in,
+                  'View Submitted Assignments',
+                  Colors.blue,
+                  () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ViewSubmittedAssignmentsView(
+                          teacher: widget.teacher,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

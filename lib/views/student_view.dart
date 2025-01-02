@@ -9,6 +9,7 @@ import 'package:grade_up/service/cloud_storage_exceptions.dart';
 import 'package:grade_up/utilities/build_dashboard_card.dart';
 import 'package:grade_up/utilities/show_logout_dialog.dart';
 import 'package:grade_up/views/student/mycourses.dart';
+import 'package:grade_up/views/student/student_progress_view.dart';
 
 class StudentMainView extends StatefulWidget {
   final String schoolName;
@@ -221,6 +222,13 @@ class _StudentMainViewState extends State<StudentMainView> {
                   }),
                   buildDashboardCard(
                       Icons.bar_chart, 'Progress & Grades', Colors.purple, () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            StudentProgressSummaryView(student: _student!),
+                      ),
+                    );
                     // View progress and grades
                   }),
                   buildDashboardCard(

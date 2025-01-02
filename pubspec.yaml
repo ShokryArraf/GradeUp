@@ -49,6 +49,10 @@ dependencies:
   firebase_app_check: ^0.3.1+7
   image_picker: ^1.1.2
   intl: ^0.20.1
+  fl_chart: ^0.69.2
+  google_fonts: ^6.2.1
+  flutter_pdfview: ^1.4.0
+  pdf: ^3.11.1
 
 dev_dependencies:
   flutter_test:

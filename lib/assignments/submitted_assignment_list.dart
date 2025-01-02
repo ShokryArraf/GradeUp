@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:grade_up/utilities/build_questions_answers.dart';
 import 'package:grade_up/utilities/format_date.dart';
 import 'package:grade_up/utilities/open_file.dart';
 
@@ -25,6 +26,7 @@ class SubmittedAssignmentsListState extends State<SubmittedAssignmentsList> {
   final TextEditingController scoreController = TextEditingController();
   final TextEditingController reviewController = TextEditingController();
   bool isEditing = false;
+  String? editingAssignmentId;
 
   @override
   void dispose() {
@@ -168,7 +170,7 @@ class SubmittedAssignmentsListState extends State<SubmittedAssignmentsList> {
                                 const SizedBox(height: 8.0),
                                 if (assignment['dueDate'] != null) ...[
                                   Text(
-                                    'Due Date: ${formatDueDate(DateTime.tryParse(assignment['dueDate']))}',
+                                    'Due Date: ${formatDueDate(assignment['dueDate'])}',
                                     style: const TextStyle(color: Colors.grey),
                                   ),
                                 ] else ...[
@@ -204,7 +206,7 @@ class SubmittedAssignmentsListState extends State<SubmittedAssignmentsList> {
                                     assignment['answers'] != null)
                                   Padding(
                                     padding: const EdgeInsets.only(top: 8.0),
-                                    child: _buildQuestionsAndAnswers(
+                                    child: buildQuestionsAndAnswers(
                                       assignment['questions'] as List<dynamic>,
                                       assignment['answers']
                                           as Map<String, dynamic>,
@@ -231,164 +233,141 @@ class SubmittedAssignmentsListState extends State<SubmittedAssignmentsList> {
                                       ),
                                     ),
                                   ),
-                                const SizedBox(height: 10),
-                                if (assignment['score'] != null &&
-                                    assignment['review'] != null)
-                                  Column(
-                                    children: [
-                                      RichText(
-                                        text: TextSpan(
-                                          text:
-                                              'Score:                             ',
-                                          style: const TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.black,
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    if (assignment['score'] != null &&
+                                        assignment['review'] != null)
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          const SizedBox(
+                                            height: 10,
                                           ),
-                                          children: [
-                                            TextSpan(
-                                              text: '${assignment['score']}',
-                                              style: const TextStyle(
-                                                fontSize: 20,
-                                                fontWeight: FontWeight.normal,
-                                                decoration:
-                                                    TextDecoration.underline,
-                                                color: Colors.green,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      const SizedBox(height: 10),
-                                      RichText(
-                                        text: TextSpan(
-                                          text: 'Review:',
-                                          style: const TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.black,
+                                          Text(
+                                            'Current Score: ${assignment['score']}',
+                                            style:
+                                                const TextStyle(fontSize: 16),
                                           ),
-                                          children: [
-                                            TextSpan(
-                                              text: '  ${assignment['review']}',
-                                              style: const TextStyle(
-                                                fontWeight: FontWeight.normal,
-                                                decoration: TextDecoration.none,
-                                              ),
+                                          Text(
+                                            'Current Review: ${assignment['review']}',
+                                            style:
+                                                const TextStyle(fontSize: 16),
+                                          ),
+                                          const SizedBox(height: 15),
+                                          ElevatedButton(
+                                            onPressed: () {
+                                              scoreController.clear();
+                                              reviewController.clear();
+                                              setState(() {
+                                                editingAssignmentId = assignment
+                                                    .id; // Only this assignment is being edited
+                                              });
+                                            },
+                                            child: const Text(
+                                              'Edit Score and Review',
                                             ),
-                                          ],
-                                        ),
+                                          ),
+                                        ],
                                       ),
-                                      const SizedBox(height: 15),
-                                      ElevatedButton(
-                                        onPressed: () {
-                                          // Allow the teacher to give a new score and review
-                                          scoreController.text =
-                                              assignment['score'].toString();
-                                          reviewController.text =
-                                              assignment['review'];
-                                          setState(() {
-                                            isEditing = true;
-                                          });
-                                        },
-                                        child:
-                                            const Text('Edit Score and Review'),
-                                      ),
-                                    ],
-                                  ),
-                                if (isEditing ||
-                                    assignment['score'] == null ||
-                                    assignment['review'] == null)
-                                  Column(
-                                    children: [
-                                      const SizedBox(height: 8.0),
-                                      const Text(
-                                        'Provide Score and Review:',
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                      const SizedBox(
-                                        height: 15,
-                                      ),
-                                      TextField(
-                                        controller: scoreController,
-                                        decoration: const InputDecoration(
-                                          labelText: 'Enter score',
-                                          border: OutlineInputBorder(),
-                                          contentPadding: EdgeInsets.symmetric(
-                                              vertical: 10.0, horizontal: 20.0),
-                                        ),
-                                        keyboardType: TextInputType.number,
-                                      ),
-                                      const SizedBox(height: 15),
-                                      TextField(
-                                        controller: reviewController,
-                                        maxLines: 5,
-                                        decoration: const InputDecoration(
-                                          labelText: 'Write your review...',
-                                          border: OutlineInputBorder(),
-                                        ),
-                                      ),
-                                      const SizedBox(height: 15),
-                                      ElevatedButton(
-                                        onPressed: () async {
-                                          int? score = int.tryParse(
-                                              scoreController.text);
+                                    if (editingAssignmentId == assignment.id ||
+                                        assignment['score'] == null ||
+                                        assignment['review'] == null)
+                                      Column(
+                                        children: [
+                                          const SizedBox(height: 8.0),
+                                          const Text(
+                                            'Provide Score and Review:',
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                          const SizedBox(height: 15),
+                                          TextField(
+                                            controller: scoreController,
+                                            decoration: const InputDecoration(
+                                              labelText: 'Enter score',
+                                              border: OutlineInputBorder(),
+                                              contentPadding:
+                                                  EdgeInsets.symmetric(
+                                                      vertical: 10.0,
+                                                      horizontal: 20.0),
+                                            ),
+                                            keyboardType: TextInputType.number,
+                                          ),
+                                          const SizedBox(height: 15),
+                                          TextField(
+                                            controller: reviewController,
+                                            maxLines: 5,
+                                            decoration: const InputDecoration(
+                                              labelText: 'Write your review...',
+                                              border: OutlineInputBorder(),
+                                            ),
+                                          ),
+                                          const SizedBox(height: 15),
+                                          ElevatedButton(
+                                            onPressed: () async {
+                                              int? score = int.tryParse(
+                                                  scoreController.text);
 
-                                          if (score == null ||
-                                              score < 0 ||
-                                              score > 100) {
-                                            ScaffoldMessenger.of(context)
-                                                .showSnackBar(
-                                              const SnackBar(
-                                                  content: Text(
-                                                      'Invalid score. Please enter a value between 0 and 100.')),
-                                            );
-                                            return;
-                                          }
+                                              if (score == null ||
+                                                  score < 0 ||
+                                                  score > 100) {
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(
+                                                  const SnackBar(
+                                                      content: Text(
+                                                          'Invalid score. Please enter a value between 0 and 100.')),
+                                                );
+                                                return;
+                                              }
 
-                                          String review = reviewController.text;
+                                              String review =
+                                                  reviewController.text;
 
-                                          try {
-                                            await FirebaseFirestore.instance
-                                                .collection('schools')
-                                                .doc(widget.school)
-                                                .collection('grades')
-                                                .doc(widget.grade)
-                                                .collection('students')
-                                                .doc(student.id)
-                                                .collection('assignmentsToDo')
-                                                .doc(assignment.id)
-                                                .update({
-                                              'score': score,
-                                              'review': review,
-                                            });
+                                              try {
+                                                await FirebaseFirestore.instance
+                                                    .collection('schools')
+                                                    .doc(widget.school)
+                                                    .collection('grades')
+                                                    .doc(widget.grade)
+                                                    .collection('students')
+                                                    .doc(student.id)
+                                                    .collection(
+                                                        'assignmentsToDo')
+                                                    .doc(assignment.id)
+                                                    .update({
+                                                  'score': score,
+                                                  'review': review,
+                                                });
 
-                                            ScaffoldMessenger.of(context)
-                                                .showSnackBar(
-                                              const SnackBar(
-                                                  content: Text(
-                                                      'Score and review submitted successfully!')),
-                                            );
-                                            scoreController.clear();
-                                            reviewController.clear();
-                                            setState(() {
-                                              isEditing = false;
-                                            });
-                                          } catch (e) {
-                                            ScaffoldMessenger.of(context)
-                                                .showSnackBar(
-                                              SnackBar(
-                                                  content: Text(
-                                                      'Error: ${e.toString()}')),
-                                            );
-                                          }
-                                        },
-                                        child: const Text(
-                                            'Submit Score and Review'),
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(
+                                                  const SnackBar(
+                                                      content: Text(
+                                                          'Score and review submitted successfully!')),
+                                                );
+                                                scoreController.clear();
+                                                reviewController.clear();
+                                                setState(() {
+                                                  editingAssignmentId =
+                                                      null; // Stop editing
+                                                });
+                                              } catch (_) {
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(
+                                                  const SnackBar(
+                                                      content: Text('Error')),
+                                                );
+                                              }
+                                            },
+                                            child: const Text(
+                                                'Submit Score and Review'),
+                                          ),
+                                        ],
                                       ),
-                                    ],
-                                  ),
+                                  ],
+                                ),
                               ],
                             ),
                           ),
@@ -403,60 +382,5 @@ class SubmittedAssignmentsListState extends State<SubmittedAssignmentsList> {
         },
       ),
     );
-  }
-
-  Widget _buildQuestionsAndAnswers(dynamic questions, dynamic answers) {
-    if (questions is List && answers is Map) {
-      return ListView.builder(
-        shrinkWrap: true,
-        itemCount: questions.length,
-        itemBuilder: (context, index) {
-          final question = questions[index];
-          final answerKey = (index)
-              .toString(); // Convert index to string key like "0", "1", etc.
-          final answer = answers.containsKey(answerKey)
-              ? answers[answerKey]
-              : 'No answer provided';
-
-          return Card(
-            margin: const EdgeInsets.symmetric(vertical: 8.0),
-            elevation: 2.0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          question ?? 'No question text available',
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            decoration: TextDecoration.underline,
-                          ),
-                        ),
-                        const SizedBox(height: 8.0),
-                        Text(
-                          'Answer: $answer',
-                          style: const TextStyle(
-                              fontSize: 18, color: Colors.green),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
-      );
-    } else {
-      return const Center(child: Text('Invalid question or answer data'));
-    }
   }
 }

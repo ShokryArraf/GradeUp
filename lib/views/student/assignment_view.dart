@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:grade_up/models/student.dart';
 import 'package:grade_up/service/student_courses_service.dart';
+import 'package:grade_up/utilities/format_date.dart';
 import 'package:grade_up/utilities/show_error_dialog.dart';
 import 'package:grade_up/views/student/assignment_detail_view.dart';
-import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class AssignmentsView extends StatefulWidget {
@@ -39,21 +39,12 @@ class _AssignmentsViewState extends State<AssignmentsView> {
             assignments.reversed.toList(); // Save assignments to the list
         _isLoading = false; // Set loading to false
       });
-    } catch (error) {
+    } catch (_) {
       // Handle error
       showErrorDialog(context, 'Error fetching assignments');
       setState(() {
         _isLoading = false; // Stop loading even if there is an error
       });
-    }
-  }
-
-  String _formatDueDate(String dueDate) {
-    try {
-      final parsedDate = DateTime.parse(dueDate);
-      return DateFormat('yyyy-MM-dd – kk:mm').format(parsedDate);
-    } catch (e) {
-      return 'Invalid date';
     }
   }
 
@@ -79,9 +70,7 @@ class _AssignmentsViewState extends State<AssignmentsView> {
       if (doc.exists) {
         return doc.data() ?? {};
       }
-    } catch (e) {
-      // Handle error
-    }
+    } catch (_) {}
     return {};
   }
 
@@ -124,6 +113,40 @@ class _AssignmentsViewState extends State<AssignmentsView> {
                               final status =
                                   statusData['status'] ?? 'Not Submitted';
                               final score = statusData['score'] ?? 'N/A';
+                              final dueDateStr = assignment['dueDate'] ?? '';
+                              final dueDate = dueDateStr.isNotEmpty
+                                  ? DateTime.parse(dueDateStr)
+                                  : null;
+                              final isOverdue = dueDate != null &&
+                                  dueDate.isBefore(DateTime.now());
+                              final isSubmitted = status == 'submitted';
+                              final hasScore = score != 'N/A';
+
+                              // Custom indicator icon and text based on status
+                              IconData statusIcon;
+                              Color statusColor;
+                              String statusText;
+
+                              if (isSubmitted && hasScore) {
+                                statusIcon =
+                                    Icons.star; // Indicates reviewed or scored
+                                statusColor = Colors.blue;
+                                statusText = 'Reviewed';
+                              } else if (isSubmitted) {
+                                statusIcon =
+                                    Icons.check_circle; // Indicates submission
+                                statusColor = Colors.green;
+                                statusText = 'Submitted';
+                              } else if (isOverdue) {
+                                statusIcon = Icons.warning; // Indicates overdue
+                                statusColor = Colors.red;
+                                statusText = 'Overdue';
+                              } else {
+                                statusIcon =
+                                    Icons.access_time; // Indicates pending
+                                statusColor = Colors.orange;
+                                statusText = 'Pending';
+                              }
 
                               return Padding(
                                 padding:
@@ -145,9 +168,11 @@ class _AssignmentsViewState extends State<AssignmentsView> {
                                   child: ListTile(
                                     contentPadding: const EdgeInsets.symmetric(
                                         horizontal: 20.0),
+                                    leading: Icon(statusIcon,
+                                        color: statusColor,
+                                        size: 40), // Status icon
                                     title: Text(
-                                      assignment['title'] ??
-                                          'No Title', // Display assignment title
+                                      assignment['title'] ?? 'No Title',
                                       style: const TextStyle(
                                         color: Colors.white,
                                         fontSize: 18,
@@ -159,28 +184,42 @@ class _AssignmentsViewState extends State<AssignmentsView> {
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          'Due Date: ${_formatDueDate(assignment['dueDate'] ?? 'Not specified')}',
+                                          'Due Date: ${formatDueDate(assignment['dueDate'] ?? 'Not specified')}',
                                           style: const TextStyle(
                                             color: Colors.white70,
                                             fontSize: 14,
                                           ),
                                         ),
                                         const SizedBox(height: 5),
-                                        Text(
-                                          'Status: $status',
-                                          style: const TextStyle(
-                                            color: Colors.white70,
-                                            fontSize: 14,
-                                          ),
+                                        Row(
+                                          children: [
+                                            const Text(
+                                              'Status: ',
+                                              style: TextStyle(
+                                                color: Colors.white70,
+                                                fontSize: 14,
+                                              ),
+                                            ),
+                                            Text(
+                                              statusText,
+                                              style: TextStyle(
+                                                color: statusColor,
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ],
                                         ),
-                                        const SizedBox(height: 5),
-                                        Text(
-                                          'Score: $score',
-                                          style: const TextStyle(
-                                            color: Colors.white70,
-                                            fontSize: 14,
+                                        if (hasScore) ...[
+                                          const SizedBox(height: 5),
+                                          Text(
+                                            'Score: $score',
+                                            style: const TextStyle(
+                                              color: Colors.white70,
+                                              fontSize: 14,
+                                            ),
                                           ),
-                                        ),
+                                        ],
                                       ],
                                     ),
                                     onTap: () {
