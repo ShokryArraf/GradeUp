@@ -75,7 +75,7 @@ class StudentProgressViewState extends State<StudentProgressView> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Student Progress View',
+          'Student Gmae Progress View',
           style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
         ),
         centerTitle: true,

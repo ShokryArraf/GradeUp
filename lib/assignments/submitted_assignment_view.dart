@@ -65,6 +65,7 @@ class ViewSubmittedAssignmentsView extends StatelessWidget {
                           school: teacher.school,
                           grade: grade.toString(),
                           lesson: lesson,
+                          teachername: teacher.name,
                         ),
                       ),
                     );

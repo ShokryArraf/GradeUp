@@ -8,12 +8,14 @@ class SubmittedAssignmentsList extends StatefulWidget {
   final String school;
   final String grade;
   final String lesson;
+  final String teachername;
 
   const SubmittedAssignmentsList({
     super.key,
     required this.school,
     required this.grade,
     required this.lesson,
+    required this.teachername,
   });
 
   @override
@@ -255,6 +257,11 @@ class SubmittedAssignmentsListState extends State<SubmittedAssignmentsList> {
                                             style:
                                                 const TextStyle(fontSize: 16),
                                           ),
+                                          Text(
+                                            'Reviwed by : ${assignment['teacherReviewed']}',
+                                            style:
+                                                const TextStyle(fontSize: 16),
+                                          ),
                                           const SizedBox(height: 15),
                                           ElevatedButton(
                                             onPressed: () {
@@ -339,6 +346,8 @@ class SubmittedAssignmentsListState extends State<SubmittedAssignmentsList> {
                                                     .update({
                                                   'score': score,
                                                   'review': review,
+                                                  'teacherReviewed':
+                                                      widget.teachername,
                                                 });
 
                                                 ScaffoldMessenger.of(context)

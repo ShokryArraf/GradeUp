@@ -31,3 +31,5 @@ class UserIdNotFoundException extends CloudStorageException {}
 class FailedToLoadStudentDataException extends CloudStorageException {}
 
 class FailedToLoadTeacherDataException extends CloudStorageException {}
+
+class ErrorFetchingStudentProgress extends CloudStorageException {}

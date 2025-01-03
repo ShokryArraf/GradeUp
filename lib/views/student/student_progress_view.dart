@@ -3,7 +3,6 @@ import 'package:grade_up/models/student.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fl_chart/fl_chart.dart'; // For charts
 import 'package:google_fonts/google_fonts.dart'; // For custom fonts
-import 'package:pdf/widgets.dart' as pw;
 
 class StudentProgressSummaryView extends StatefulWidget {
   final Student student;
@@ -85,33 +84,11 @@ class _StudentProgressSummaryViewState
         _lessonScores = lessonScores;
         _isLoading = false;
       });
-    } catch (e) {
-      print('Error fetching student progress: $e');
+    } catch (_) {
       setState(() {
         _isLoading = false;
       });
     }
-  }
-
-  Future<void> _generatePDF() async {
-    final pdf = pw.Document();
-    pdf.addPage(
-      pw.Page(
-        build: (pw.Context context) => pw.Column(
-          crossAxisAlignment: pw.CrossAxisAlignment.start,
-          children: [
-            pw.Text('Progress Summary',
-                style: const pw.TextStyle(fontSize: 24)),
-            pw.SizedBox(height: 10),
-            pw.Text('Total Assignments: $_totalAssignments'),
-            pw.Text('Completed Assignments: $_completedAssignments'),
-            pw.Text('Pending Assignments: $_pendingAssignments'),
-            pw.Text('Average Score: ${_averageScore.toStringAsFixed(1)}'),
-          ],
-        ),
-      ),
-    );
-    // Save PDF to device or share
   }
 
   @override
@@ -303,22 +280,6 @@ class _StudentProgressSummaryViewState
                               ],
                             ),
                           ),
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment
-                              .center, // Aligns the icon and text
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.picture_as_pdf),
-                              onPressed: _generatePDF,
-                            ),
-                            const SizedBox(
-                                width: 8), // Space between the icon and text
-                            const Text(
-                              'Generate your summary PDF',
-                              style: TextStyle(fontSize: 16),
-                            ),
-                          ],
                         ),
                       ],
                     ),

@@ -31,6 +31,7 @@ class SubmissionDetailsPageState extends State<SubmissionDetailsPage> {
   String? _dueDate;
   String? _status;
   String? _review;
+  String? _teacherReview;
 
   @override
   void initState() {
@@ -66,6 +67,7 @@ class SubmissionDetailsPageState extends State<SubmissionDetailsPage> {
           _dueDate = formatDueDate(data['dueDate']);
           _status = data['status'];
           _review = data['review'];
+          _teacherReview = data['teacherReviewed'];
         });
       }
     }
@@ -144,9 +146,9 @@ class SubmissionDetailsPageState extends State<SubmissionDetailsPage> {
               const SizedBox(height: 20),
 
               // Review
-              if (_review != null)
-                buildDetailCard(
-                    'Teacher Review', _review!, Icons.reviews, Colors.grey),
+              if (_review != null && _teacherReview != null)
+                buildDetailCard('Teacher $_teacherReview Review', _review!,
+                    Icons.reviews, Colors.grey),
 
               const SizedBox(height: 20),
 

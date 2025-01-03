@@ -53,6 +53,7 @@ dependencies:
   google_fonts: ^6.2.1
   flutter_pdfview: ^1.4.0
   pdf: ^3.11.1
+  flutter_typeahead: ^5.2.0
 
 dev_dependencies:
   flutter_test:

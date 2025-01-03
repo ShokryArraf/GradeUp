@@ -112,7 +112,8 @@ class SearchDeleteAssignmentSectionState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          title: const Text('Search,Edit and Delete Assignments'),
+          toolbarHeight: 80,
+          title: const Text('Search,Edit \n& Delete Assignments'),
           centerTitle: true,
           flexibleSpace: Container(
             decoration: const BoxDecoration(

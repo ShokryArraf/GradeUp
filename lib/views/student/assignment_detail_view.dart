@@ -498,7 +498,7 @@ class _AssignmentDetailViewState extends State<AssignmentDetailView> {
                       ),
                       textStyle: const TextStyle(fontSize: 16),
                     ),
-                    child: const Text(' View Your Submission/Score & Review '),
+                    child: const Text(' View Your Submission/Score '),
                   )
                 ],
               ],

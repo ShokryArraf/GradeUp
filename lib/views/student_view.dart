@@ -24,6 +24,7 @@ class StudentMainView extends StatefulWidget {
 
 class _StudentMainViewState extends State<StudentMainView> {
   Student? _student;
+  double _progress = 0.0; // Track progress percentage
 
   @override
   void initState() {
@@ -53,9 +54,43 @@ class _StudentMainViewState extends State<StudentMainView> {
             });
           }
         }
+        _fetchStudentProgress(); // Fetch progress after loading student data
       } catch (_) {
         throw FailedToLoadStudentDataException;
       }
+    }
+  }
+
+  Future<void> _fetchStudentProgress() async {
+    if (_student == null) return;
+    final firestore = FirebaseFirestore.instance;
+    final studentId = _student!.studentId;
+    final school = _student!.school;
+    final grade = _student!.grade.toString();
+
+    try {
+      final assignmentsSnapshot = await firestore
+          .collection('schools')
+          .doc(school)
+          .collection('grades')
+          .doc(grade)
+          .collection('students')
+          .doc(studentId)
+          .collection('assignmentsToDo')
+          .get();
+
+      int totalAssignments = assignmentsSnapshot.size;
+      int completedAssignments = assignmentsSnapshot.docs
+          .where((doc) => doc.data()['status'] == 'submitted')
+          .length;
+
+      setState(() {
+        _progress = totalAssignments > 0
+            ? completedAssignments / totalAssignments
+            : 0.0;
+      });
+    } catch (e) {
+      throw ErrorFetchingStudentProgress;
     }
   }
 
@@ -199,11 +234,12 @@ class _StudentMainViewState extends State<StudentMainView> {
               'Overall Progress',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 10),
             LinearProgressIndicator(
-              value: 0.7, // This would be dynamically set
+              value: _progress, // Bind the progress value
               backgroundColor: Colors.grey[300],
-              color: Colors.teal,
+              color: const Color(0xFF0072FF),
+              minHeight: 10,
             ),
             const SizedBox(height: 30),
             Expanded(
