@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:grade_up/models/teacher.dart';
 import 'package:grade_up/utilities/build_dashboard_card.dart';
-import 'package:grade_up/views/teacher/progress_view.dart';
+import 'package:grade_up/views/lesson_grade_select.dart';
 import 'package:grade_up/views/teacher/student_progress_game_view.dart';
 
 class StudentProgressOptions extends StatefulWidget {
@@ -18,7 +18,7 @@ class _StudentProgressOptionsState extends State<StudentProgressOptions> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          title: const Text('Student progress'),
+          title: const Text('Student Progress'),
           centerTitle: true,
           flexibleSpace: Container(
             decoration: const BoxDecoration(
@@ -48,11 +48,13 @@ class _StudentProgressOptionsState extends State<StudentProgressOptions> {
                       'Student Progress',
                       Colors.tealAccent,
                       () {
+                        // Navigate to the selection of lesson and grade then go to the student progress.
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => ProgressView(
+                            builder: (context) => LessonGradeSelect(
                               teacher: widget.teacher,
+                              isViewingProgress: true,
                             ),
                           ),
                         );
@@ -70,8 +72,8 @@ class _StudentProgressOptionsState extends State<StudentProgressOptions> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) =>
-                                StudentProgressView(teacher: widget.teacher),
+                            builder: (context) => StudentProgressGameView(
+                                teacher: widget.teacher),
                           ),
                         );
                       },

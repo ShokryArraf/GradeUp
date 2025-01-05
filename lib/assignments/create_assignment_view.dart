@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -47,65 +46,6 @@ class CreateAssignmentViewState extends State<CreateAssignmentView> {
   List<int> get _grades => _selectedLesson != null
       ? (widget.teacher.lessonGradeMap[_selectedLesson!] ?? [])
       : [];
-
-  // Future<void> _createAndAssignToStudents() async {
-  //   if (_formKey.currentState!.validate() &&
-  //       _selectedLesson != null &&
-  //       _selectedGrade != null &&
-  //       _dueDate != null) {
-  //     setState(() {
-  //       _isLoading = true; // Show loading indicator
-  //     });
-
-  //     final uploadedFileUrl = await _uploadFile();
-
-  //     // Create the assignment
-  //     DocumentReference assignmentRef =
-  //         await _assignmentService.createAssignment(
-  //       _selectedLesson!,
-  //       title: _titleController.text,
-  //       description: _descriptionController.text,
-  //       dueDate: _dueDate!,
-  //       questions: _questionsController.text
-  //           .split('\n')
-  //           .map((question) => question.trim())
-  //           .where((question) => question.isNotEmpty)
-  //           .toList(),
-
-  //       grade: _selectedGrade!,
-  //       teacherName: widget.teacher.name,
-  //       teacher: widget.teacher,
-  //       subject: _selectedSubject.text,
-  //       link: _linkController.text.isNotEmpty
-  //           ? _linkController.text
-  //           : null, // Added link
-  //       additionalNotes: _additionalInputController.text.isNotEmpty
-  //           ? _additionalInputController.text
-  //           : null,
-  //       uploadedFileUrl: uploadedFileUrl,
-  //     );
-
-  //     // Assign to all enrolled students
-  //     await _assignmentService.assignToEnrolledStudents(
-  //       _selectedLesson!,
-  //       assignmentRef.id,
-  //       _selectedGrade.toString(),
-  //       widget.teacher,
-  //     );
-
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       const SnackBar(
-  //           content: Text('Assignment created and assigned to students!')),
-  //     );
-  //     Navigator.pop(context);
-  //   } else {
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       const SnackBar(
-  //         content: Text('Please fill out all fields and select a lesson.'),
-  //       ),
-  //     );
-  //   }
-  // }
 
   Future<void> _createAndAssignToStudents() async {
     if (_formKey.currentState!.validate() &&
@@ -416,7 +356,15 @@ class CreateAssignmentViewState extends State<CreateAssignmentView> {
               if (_selectedFile != null)
                 Row(
                   children: [
-                    Text('Selected File: ${_selectedFile!.name}'),
+                    Expanded(
+                      // Ensures the text takes only the available space
+                      child: Text(
+                        'Selected File: ${_selectedFile!.name}',
+                        overflow: TextOverflow
+                            .ellipsis, // Adds an ellipsis if the text overflows
+                        maxLines: 1, // Limits the text to one line
+                      ),
+                    ),
                     IconButton(
                       icon: const Icon(Icons.delete, color: Colors.red),
                       onPressed: () {

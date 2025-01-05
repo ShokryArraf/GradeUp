@@ -239,7 +239,8 @@ class SubmittedAssignmentsListState extends State<SubmittedAssignmentsList> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     if (assignment['score'] != null &&
-                                        assignment['review'] != null)
+                                        assignment['review'] != null &&
+                                        assignment['teacherReviewed'] != null)
                                       Column(
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,

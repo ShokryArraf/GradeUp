@@ -10,7 +10,7 @@ import 'package:grade_up/utilities/build_dashboard_card.dart';
 import 'package:grade_up/utilities/show_logout_dialog.dart';
 import 'package:grade_up/assignments/assignment_manage_options.dart';
 import 'package:grade_up/views/teacher/grade_selection_view.dart';
-import 'package:grade_up/views/teacher/select_student_progress.dart';
+import 'package:grade_up/views/teacher/student_progress_options.dart';
 
 class TeacherMainView extends StatefulWidget {
   final String schoolName;

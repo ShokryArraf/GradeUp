@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:grade_up/assignments/create_assignment_view.dart';
-import 'package:grade_up/assignments/submitted_assignment_view.dart';
 import 'package:grade_up/models/teacher.dart';
 import 'package:grade_up/utilities/build_dashboard_card.dart';
 import 'package:grade_up/assignments/search_delete_assignment_view.dart';
+import 'package:grade_up/views/lesson_grade_select.dart';
 
 class AssignmentManageOptions extends StatefulWidget {
   final Teacher teacher;
@@ -90,11 +90,20 @@ class _AssignmentManageOptionsState extends State<AssignmentManageOptions> {
                   'View Submitted Assignments',
                   Colors.blue,
                   () {
+                    // Navigator.push(
+                    //   context,
+                    //   MaterialPageRoute(
+                    //     builder: (context) => ViewSubmittedAssignmentsView(
+                    //       teacher: widget.teacher,
+                    //     ),
+                    //   ),
+                    // );
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => ViewSubmittedAssignmentsView(
+                        builder: (context) => LessonGradeSelect(
                           teacher: widget.teacher,
+                          isViewingProgress: false,
                         ),
                       ),
                     );

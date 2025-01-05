@@ -133,6 +133,9 @@ class _AssignmentDetailViewState extends State<AssignmentDetailView> {
         : _additionalInputController.text.trim();
 
     if (answers.values.any((answer) => answer.isEmpty)) {
+      setState(() {
+        _isLoading = false;
+      });
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('All questions must be answered!')),
       );
@@ -150,8 +153,13 @@ class _AssignmentDetailViewState extends State<AssignmentDetailView> {
 
     final dueDate = DateTime.tryParse(dueDateStr);
     if (dueDate == null) {
+      setState(() {
+        _isLoading = false;
+      });
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Invalid due date!')),
+        const SnackBar(
+            content:
+                Text('There is a problem with submitting this assignment.')),
       );
       return;
     }
@@ -160,6 +168,9 @@ class _AssignmentDetailViewState extends State<AssignmentDetailView> {
 
     try {
       if (currentTime.isAfter(dueDate)) {
+        setState(() {
+          _isLoading = false;
+        });
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
               content: Text('You cannot submit after the due date!')),
@@ -198,7 +209,10 @@ class _AssignmentDetailViewState extends State<AssignmentDetailView> {
       );
 
       Navigator.pop(context);
-    } catch (error) {
+    } catch (_) {
+      setState(() {
+        _isLoading = false;
+      });
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Failed to submit answers!')),
       );

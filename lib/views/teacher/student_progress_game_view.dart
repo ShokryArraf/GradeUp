@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:grade_up/models/teacher.dart';
 import 'package:grade_up/service/game_service.dart';
 
-class StudentProgressView extends StatefulWidget {
+class StudentProgressGameView extends StatefulWidget {
   final Teacher teacher;
 
-  const StudentProgressView({super.key, required this.teacher});
+  const StudentProgressGameView({super.key, required this.teacher});
 
   @override
-  StudentProgressViewState createState() => StudentProgressViewState();
+  StudentProgressGameViewState createState() => StudentProgressGameViewState();
 }
 
-class StudentProgressViewState extends State<StudentProgressView> {
+class StudentProgressGameViewState extends State<StudentProgressGameView> {
   final GameService _gameService = GameService();
   final int _pageSize = 3; // Number of progress items per chunk
   late Future<List<Map<String, dynamic>>> _studentsFuture;

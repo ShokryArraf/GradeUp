@@ -71,6 +71,7 @@ class AssignmentService {
         'submissionDate': null,
         'lesson': lessonId,
         'review': null,
+        'teacherReviewed': null,
       });
     }
   }
