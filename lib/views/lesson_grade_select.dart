@@ -1,8 +1,7 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:grade_up/assignments/submitted_assignment_list.dart';
 import 'package:grade_up/models/teacher.dart';
-import 'package:grade_up/service/cloud_storage_exceptions.dart';
+import 'package:grade_up/service/teacher_service.dart';
 import 'package:grade_up/views/teacher/student_progress_page.dart';
 
 // We use this class two times: one for viewing student's progress and the other for viewing the submitted assignments
@@ -21,55 +20,57 @@ class LessonGradeSelect extends StatefulWidget {
 }
 
 class LessonGradeSelectState extends State<LessonGradeSelect> {
+  final TeacherService _teacherService = TeacherService();
+
   bool _isLoading = false; // Track loading state
 
-  // Will use this function only if isViewingProgress is true
-  Future<List<Map<String, dynamic>>> _fetchStudentsProgress(
-      String school, int grade, String lesson) async {
-    final firestore = FirebaseFirestore.instance;
+  // // Will use this function only if isViewingProgress is true
+  // Future<List<Map<String, dynamic>>> _fetchStudentsProgress(
+  //     String school, int grade, String lesson) async {
+  //   final firestore = FirebaseFirestore.instance;
 
-    try {
-      final studentsSnapshot = await firestore
-          .collection('schools')
-          .doc(school)
-          .collection('grades')
-          .doc(grade.toString())
-          .collection('students')
-          .get();
+  //   try {
+  //     final studentsSnapshot = await firestore
+  //         .collection('schools')
+  //         .doc(school)
+  //         .collection('grades')
+  //         .doc(grade.toString())
+  //         .collection('students')
+  //         .get();
 
-      List<Map<String, dynamic>> studentProgress = [];
+  //     List<Map<String, dynamic>> studentProgress = [];
 
-      for (var studentDoc in studentsSnapshot.docs) {
-        final studentId = studentDoc.id;
+  //     for (var studentDoc in studentsSnapshot.docs) {
+  //       final studentId = studentDoc.id;
 
-        final assignmentsSnapshot = await firestore
-            .collection('schools')
-            .doc(school)
-            .collection('grades')
-            .doc(grade.toString())
-            .collection('students')
-            .doc(studentId)
-            .collection('assignmentsToDo')
-            .where('lesson', isEqualTo: lesson)
-            .get();
+  //       final assignmentsSnapshot = await firestore
+  //           .collection('schools')
+  //           .doc(school)
+  //           .collection('grades')
+  //           .doc(grade.toString())
+  //           .collection('students')
+  //           .doc(studentId)
+  //           .collection('assignmentsToDo')
+  //           .where('lesson', isEqualTo: lesson)
+  //           .get();
 
-        int totalAssignments = assignmentsSnapshot.size;
-        int completedAssignments = assignmentsSnapshot.docs
-            .where((doc) => doc.data()['status'] == 'submitted')
-            .length;
+  //       int totalAssignments = assignmentsSnapshot.size;
+  //       int completedAssignments = assignmentsSnapshot.docs
+  //           .where((doc) => doc.data()['status'] == 'submitted')
+  //           .length;
 
-        studentProgress.add({
-          'name': studentDoc.data()['name'] ?? 'Unnamed Student',
-          'completed': completedAssignments,
-          'total': totalAssignments,
-        });
-      }
+  //       studentProgress.add({
+  //         'name': studentDoc.data()['name'] ?? 'Unnamed Student',
+  //         'completed': completedAssignments,
+  //         'total': totalAssignments,
+  //       });
+  //     }
 
-      return studentProgress;
-    } catch (_) {
-      throw ErrorFetchingStudentProgress();
-    }
-  }
+  //     return studentProgress;
+  //   } catch (_) {
+  //     throw ErrorFetchingStudentProgress();
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -130,7 +131,8 @@ class LessonGradeSelectState extends State<LessonGradeSelect> {
                     });
 
                     if (widget.isViewingProgress) {
-                      final studentProgress = await _fetchStudentsProgress(
+                      final studentProgress =
+                          await _teacherService.fetchStudentsProgress(
                         widget.teacher.school,
                         grade,
                         lesson,

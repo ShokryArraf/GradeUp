@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:grade_up/utilities/build_image.dart';
 import 'package:grade_up/utilities/open_file.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 Widget buildContentCard(Map<String, dynamic> element) {
   switch (element['type']) {
@@ -39,6 +40,27 @@ Widget buildContentCard(Map<String, dynamic> element) {
         trailing: IconButton(
           icon: const Icon(Icons.open_in_new),
           onPressed: () => openFile(element['data']),
+        ),
+      );
+    case 'link': // Handle link type
+      final url = element['data'];
+      if (url == null || url.isEmpty) {
+        return const Text(
+          'Invalid URL',
+          style: TextStyle(color: Colors.red),
+        );
+      }
+      return GestureDetector(
+        onTap: () async {
+          final uri = Uri.parse(url);
+          if (await canLaunchUrl(uri)) {
+            await launchUrl(uri, mode: LaunchMode.externalApplication);
+          }
+        },
+        child: Text(
+          url,
+          style: const TextStyle(
+              color: Colors.blue, decoration: TextDecoration.underline),
         ),
       );
     default:

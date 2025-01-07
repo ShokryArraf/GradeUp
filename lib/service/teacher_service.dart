@@ -1,29 +1,33 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:grade_up/models/teacher.dart';
+import 'package:grade_up/service/cloud_storage_exceptions.dart';
 
-class TeacherCoursesService {
+class TeacherService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  // Future<DocumentReference> addMaterial(
-  //   String lessonName, {
-  //   required int grade,
-  //   required Teacher teacher,
-  //   required String title,
-  // }) async {
-  //   Map<String, dynamic> materialData = {
-  //     'title': title,
-  //   };
+  Future<Teacher?> fetchTeacherData(String schoolName) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      final teacherId = user.uid;
+      final teacherDoc = await _firestore
+          .collection('schools')
+          .doc(schoolName)
+          .collection('teachers')
+          .doc(teacherId)
+          .get();
 
-  //   return await _firestore
-  //       .collection('schools')
-  //       .doc(teacher.school)
-  //       .collection('grades')
-  //       .doc(grade.toString())
-  //       .collection('lessons')
-  //       .doc(lessonName)
-  //       .collection('materials')
-  //       .add(materialData);
-  // }
+      if (teacherDoc.exists) {
+        final teacher = Teacher.fromFirestore(teacherDoc.data()!, teacherId);
+        teacher.school = schoolName;
+        return teacher;
+      } else {
+        throw FailedToLoadTeacherDataException();
+      }
+    }
+    return null;
+  }
+
   Future<DocumentReference> addMaterial(
     String lessonName, {
     required int grade,
@@ -118,32 +122,6 @@ class TeacherCoursesService {
     await contentRef.add(blockData);
   }
 
-  // Future<List<Map<String, dynamic>>> fetchMaterials({
-  //   required String lessonName,
-  //   required int grade,
-  //   required Teacher teacher,
-  // }) async {
-  //   // Reference the specific lesson document by its name (ID)
-  //   final lessonRef = _firestore
-  //       .collection('schools')
-  //       .doc(teacher.school)
-  //       .collection('grades')
-  //       .doc(grade.toString())
-  //       .collection('lessons')
-  //       .doc(lessonName);
-
-  //   // Fetch the materials subcollection for this lesson
-  //   final materialsSnapshot = await lessonRef.collection('materials').get();
-
-  //   // Filter assignments based on teacherName and grade
-  //   return materialsSnapshot.docs
-  //       .map((doc) => {
-  //             'id': doc.id, // Assignment ID
-  //             ...doc.data(), // Include all fields in the assignment
-  //           })
-  //       .toList();
-  // }
-
   Future<List<Map<String, dynamic>>> fetchMaterials({
     required String lessonName,
     required int grade,
@@ -225,5 +203,50 @@ class TeacherCoursesService {
               ...doc.data(), // Include all fields in the content
             })
         .toList();
+  }
+
+  Future<List<Map<String, dynamic>>> fetchStudentsProgress(
+      String school, int grade, String lesson) async {
+    try {
+      final studentsSnapshot = await _firestore
+          .collection('schools')
+          .doc(school)
+          .collection('grades')
+          .doc(grade.toString())
+          .collection('students')
+          .get();
+
+      List<Map<String, dynamic>> studentProgress = [];
+
+      for (var studentDoc in studentsSnapshot.docs) {
+        final studentId = studentDoc.id;
+
+        final assignmentsSnapshot = await _firestore
+            .collection('schools')
+            .doc(school)
+            .collection('grades')
+            .doc(grade.toString())
+            .collection('students')
+            .doc(studentId)
+            .collection('assignmentsToDo')
+            .where('lesson', isEqualTo: lesson)
+            .get();
+
+        int totalAssignments = assignmentsSnapshot.size;
+        int completedAssignments = assignmentsSnapshot.docs
+            .where((doc) => doc.data()['status'] == 'submitted')
+            .length;
+
+        studentProgress.add({
+          'name': studentDoc.data()['name'] ?? 'Unnamed Student',
+          'completed': completedAssignments,
+          'total': totalAssignments,
+        });
+      }
+
+      return studentProgress;
+    } catch (_) {
+      throw ErrorFetchingStudentProgress();
+    }
   }
 }

@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:grade_up/models/student.dart';
-import 'package:grade_up/service/student_courses_service.dart';
+import 'package:grade_up/service/student_service.dart';
 import 'package:grade_up/utilities/format_date.dart';
 import 'package:grade_up/utilities/show_error_dialog.dart';
 import 'package:grade_up/views/student/assignment_detail_view.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 class AssignmentsView extends StatefulWidget {
   final Student student;
@@ -18,7 +17,7 @@ class AssignmentsView extends StatefulWidget {
 }
 
 class _AssignmentsViewState extends State<AssignmentsView> {
-  final _coursesService = StudentCoursesService();
+  final _coursesService = StudentService();
   List<Map<String, dynamic>> _assignments = []; // List to hold assignments
   bool _isLoading = true; // Loading state
 
@@ -48,32 +47,6 @@ class _AssignmentsViewState extends State<AssignmentsView> {
     }
   }
 
-  Future<Map<String, dynamic>> _getAssignmentStatusAndScore(
-      String assignmentId) async {
-    final firestore = FirebaseFirestore.instance;
-    final studentId = widget.student.studentId;
-    final school = widget.student.school;
-    final grade = widget.student.grade.toString();
-
-    try {
-      final doc = await firestore
-          .collection('schools')
-          .doc(school)
-          .collection('grades')
-          .doc(grade)
-          .collection('students')
-          .doc(studentId)
-          .collection('assignmentsToDo')
-          .doc(assignmentId)
-          .get();
-
-      if (doc.exists) {
-        return doc.data() ?? {};
-      }
-    } catch (_) {}
-    return {};
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -101,7 +74,10 @@ class _AssignmentsViewState extends State<AssignmentsView> {
                         ..._assignments.map((assignment) {
                           final assignmentId = assignment['id'];
                           return FutureBuilder<Map<String, dynamic>>(
-                            future: _getAssignmentStatusAndScore(assignmentId),
+                            future: _coursesService.getAssignmentStatusAndScore(
+                              assignmentId: assignmentId,
+                              student: widget.student,
+                            ),
                             builder: (context, snapshot) {
                               if (snapshot.connectionState ==
                                   ConnectionState.waiting) {

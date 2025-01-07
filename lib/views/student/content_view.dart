@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:grade_up/models/student.dart';
-import 'package:grade_up/service/student_courses_service.dart';
+import 'package:grade_up/service/student_service.dart';
 import 'package:grade_up/utilities/build_content_card.dart';
 
 class ContentView extends StatefulWidget {
@@ -19,7 +19,7 @@ class ContentView extends StatefulWidget {
 }
 
 class _ContentViewState extends State<ContentView> {
-  final _coursesService = StudentCoursesService();
+  final _coursesService = StudentService();
   bool _isLoading = true; // Loading state for fetching content
   List<Map<String, dynamic>> _contentList = []; // List to store fetched content
 

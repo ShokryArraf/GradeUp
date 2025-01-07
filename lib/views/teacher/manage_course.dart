@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:grade_up/models/teacher.dart';
 import 'package:grade_up/utilities/show_error_dialog.dart';
 import 'package:grade_up/views/teacher/manage_material.dart';
-import 'package:grade_up/service/teacher_courses_service.dart';
+import 'package:grade_up/service/teacher_service.dart';
 
 class ManageCourse extends StatefulWidget {
   final Teacher teacher;
@@ -20,7 +20,7 @@ class ManageCourse extends StatefulWidget {
 }
 
 class _ManageCourseState extends State<ManageCourse> {
-  final _coursesService = TeacherCoursesService();
+  final _coursesService = TeacherService();
   final TextEditingController _contentController = TextEditingController();
 
   List<Map<String, dynamic>> _materials = []; // List to hold fetched materials

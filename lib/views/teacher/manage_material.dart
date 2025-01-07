@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:grade_up/models/teacher.dart';
 import 'package:grade_up/utilities/show_error_dialog.dart';
 import 'package:grade_up/views/teacher/manage_content.dart';
-import 'package:grade_up/service/teacher_courses_service.dart';
+import 'package:grade_up/service/teacher_service.dart';
 
 class ManageMaterial extends StatefulWidget {
   final Teacher teacher;
@@ -22,7 +22,7 @@ class ManageMaterial extends StatefulWidget {
 }
 
 class _ManageMaterialState extends State<ManageMaterial> {
-  final _coursesService = TeacherCoursesService();
+  final _coursesService = TeacherService();
   // Example if you have other dependent dropdowns
   bool showAddContentBox = true; // Toggle flag
   final TextEditingController _titleController = TextEditingController();

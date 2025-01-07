@@ -1,5 +1,5 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:grade_up/service/submission_service.dart';
 import 'package:grade_up/utilities/build_detail_card.dart';
 import 'package:grade_up/utilities/format_date.dart';
 import 'package:grade_up/utilities/open_file.dart';
@@ -23,6 +23,8 @@ class SubmissionDetailsPage extends StatefulWidget {
 }
 
 class SubmissionDetailsPageState extends State<SubmissionDetailsPage> {
+  final SubmissionService _submissionService = SubmissionService();
+
   // Variables to store fetched data
   Map<String, String> _submittedAnswers = {};
   String? _submittedFileUrl;
@@ -36,42 +38,63 @@ class SubmissionDetailsPageState extends State<SubmissionDetailsPage> {
   @override
   void initState() {
     super.initState();
-    _fetchSubmissionDetails();
+    _loadSubmissionDetails();
   }
 
-  // Fetch the submission details from Firestore
-  Future<void> _fetchSubmissionDetails() async {
-    final submissionRef = FirebaseFirestore.instance
-        .collection('schools')
-        .doc(widget.schoolId)
-        .collection('grades')
-        .doc(widget.gradeId)
-        .collection('students')
-        .doc(widget.studentId)
-        .collection('assignmentsToDo')
-        .doc(widget.assignmentId);
+  Future<void> _loadSubmissionDetails() async {
+    final data = await _submissionService.fetchSubmissionDetails(
+      schoolId: widget.schoolId,
+      gradeId: widget.gradeId,
+      studentId: widget.studentId,
+      assignmentId: widget.assignmentId,
+    );
 
-    // Fetch the submission data from Firestore
-    final docSnapshot = await submissionRef.get();
-
-    if (docSnapshot.exists) {
-      final data = docSnapshot.data();
-
-      // Get the answers (assuming it's stored in a map-like format)
-      if (data != null && data['answers'] != null) {
-        setState(() {
-          _submittedAnswers = Map<String, String>.from(data['answers']);
-          _submittedFileUrl = data['uploadedFileUrl'];
-          _additionalInput = data['additionalInput'];
-          _score = data['score']?.toString();
-          _dueDate = formatDueDate(data['dueDate']);
-          _status = data['status'];
-          _review = data['review'];
-          _teacherReview = data['teacherReviewed'];
-        });
-      }
+    if (data != null) {
+      setState(() {
+        _submittedAnswers = Map<String, String>.from(data['answers'] ?? {});
+        _submittedFileUrl = data['uploadedFileUrl'];
+        _additionalInput = data['additionalInput'];
+        _score = data['score']?.toString();
+        _dueDate = formatDueDate(data['dueDate']);
+        _status = data['status'];
+        _review = data['review'];
+        _teacherReview = data['teacherReviewed'];
+      });
     }
   }
+  // // Fetch the submission details from Firestore
+  // Future<void> _fetchSubmissionDetails() async {
+  //   final submissionRef = FirebaseFirestore.instance
+  //       .collection('schools')
+  //       .doc(widget.schoolId)
+  //       .collection('grades')
+  //       .doc(widget.gradeId)
+  //       .collection('students')
+  //       .doc(widget.studentId)
+  //       .collection('assignmentsToDo')
+  //       .doc(widget.assignmentId);
+
+  //   // Fetch the submission data from Firestore
+  //   final docSnapshot = await submissionRef.get();
+
+  //   if (docSnapshot.exists) {
+  //     final data = docSnapshot.data();
+
+  //     // Get the answers (assuming it's stored in a map-like format)
+  //     if (data != null && data['answers'] != null) {
+  //       setState(() {
+  //         _submittedAnswers = Map<String, String>.from(data['answers']);
+  //         _submittedFileUrl = data['uploadedFileUrl'];
+  //         _additionalInput = data['additionalInput'];
+  //         _score = data['score']?.toString();
+  //         _dueDate = formatDueDate(data['dueDate']);
+  //         _status = data['status'];
+  //         _review = data['review'];
+  //         _teacherReview = data['teacherReviewed'];
+  //       });
+  //     }
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:grade_up/models/student.dart';
 import 'package:grade_up/utilities/show_error_dialog.dart';
 import 'package:grade_up/views/student/content_view.dart';
-import 'package:grade_up/service/student_courses_service.dart';
+import 'package:grade_up/service/student_service.dart';
 
 class MaterialView extends StatefulWidget {
   final Student student;
@@ -20,7 +20,7 @@ class MaterialView extends StatefulWidget {
 }
 
 class _MaterialViewState extends State<MaterialView> {
-  final _coursesService = StudentCoursesService();
+  final _coursesService = StudentService();
   bool _isLoading = true; // Loading state for fetching content
   List<Map<String, dynamic>> _contentList = []; // List to store fetched content
 

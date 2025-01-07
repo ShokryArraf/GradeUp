@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:grade_up/models/student.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fl_chart/fl_chart.dart'; // For charts
-import 'package:google_fonts/google_fonts.dart'; // For custom fonts
+import 'package:google_fonts/google_fonts.dart';
+import 'package:grade_up/service/student_service.dart'; // For custom fonts
 
 class StudentProgressSummaryView extends StatefulWidget {
   final Student student;
@@ -16,6 +16,8 @@ class StudentProgressSummaryView extends StatefulWidget {
 
 class _StudentProgressSummaryViewState
     extends State<StudentProgressSummaryView> {
+  final StudentService _progressService = StudentService();
+
   bool _isLoading = true;
   int _totalAssignments = 0;
   int _completedAssignments = 0;
@@ -30,58 +32,19 @@ class _StudentProgressSummaryViewState
   }
 
   Future<void> _fetchStudentProgress() async {
-    final firestore = FirebaseFirestore.instance;
-    final studentId = widget.student.studentId;
-    final school = widget.student.school;
-    final grade = widget.student.grade.toString();
-
     try {
-      final assignmentsSnapshot = await firestore
-          .collection('schools')
-          .doc(school)
-          .collection('grades')
-          .doc(grade)
-          .collection('students')
-          .doc(studentId)
-          .collection('assignmentsToDo')
-          .get();
-
-      int totalAssignments = 0;
-      int completedAssignments = 0;
-      double totalScore = 0.0;
-      int scoredAssignments = 0;
-      Map<String, double> lessonScores = {};
-
-      for (var doc in assignmentsSnapshot.docs) {
-        final data = doc.data();
-        totalAssignments++;
-
-        if (data['status'] == 'submitted') {
-          completedAssignments++;
-        }
-
-        if (data['score'] != null) {
-          final score = data['score'] as int;
-          totalScore += score;
-          scoredAssignments++;
-          final lesson = data['lesson'] ?? 'General';
-          lessonScores[lesson] = (lessonScores[lesson] ?? 0.0) + score;
-        }
-      }
-
-      if (scoredAssignments > 0) {
-        totalScore /= scoredAssignments;
-        lessonScores.updateAll(
-          (lesson, score) => score / scoredAssignments,
-        );
-      }
+      final progress = await _progressService.fetchStudentProgress(
+        studentId: widget.student.studentId,
+        school: widget.student.school,
+        grade: widget.student.grade.toString(),
+      );
 
       setState(() {
-        _totalAssignments = totalAssignments;
-        _completedAssignments = completedAssignments;
-        _pendingAssignments = totalAssignments - completedAssignments;
-        _averageScore = totalScore;
-        _lessonScores = lessonScores;
+        _totalAssignments = progress['totalAssignments'];
+        _completedAssignments = progress['completedAssignments'];
+        _pendingAssignments = progress['pendingAssignments'];
+        _averageScore = progress['averageScore'];
+        _lessonScores = progress['lessonScores'];
         _isLoading = false;
       });
     } catch (_) {

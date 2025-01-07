@@ -1,12 +1,12 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:grade_up/constants/routes.dart';
 import 'package:grade_up/enums/menu_action.dart';
 import 'package:grade_up/game/game_options.dart';
 import 'package:grade_up/models/student.dart'; // Import the Student model
-import 'package:grade_up/service/cloud_storage_exceptions.dart';
+import 'package:grade_up/service/student_service.dart';
 import 'package:grade_up/utilities/build_dashboard_card.dart';
+import 'package:grade_up/utilities/show_error_dialog.dart';
 import 'package:grade_up/utilities/show_logout_dialog.dart';
 import 'package:grade_up/views/student/mycourses.dart';
 import 'package:grade_up/views/student/student_progress_view.dart';
@@ -23,6 +23,8 @@ class StudentMainView extends StatefulWidget {
 }
 
 class _StudentMainViewState extends State<StudentMainView> {
+  final StudentService studentService = StudentService();
+
   Student? _student;
   double _progress = 0.0; // Track progress percentage
 
@@ -32,65 +34,100 @@ class _StudentMainViewState extends State<StudentMainView> {
     _initializeStudent();
   }
 
-  Future<void> _initializeStudent() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      try {
-        final studentDoc = await FirebaseFirestore.instance
-            .collection('schools')
-            .doc(widget.schoolName)
-            .collection('grades')
-            .doc(widget.grade)
-            .collection('students')
-            .doc(user.uid)
-            .get();
+  // Future<void> _initializeStudent() async {
+  //   final user = FirebaseAuth.instance.currentUser;
+  //   if (user != null) {
+  //     try {
+  //       final studentDoc = await FirebaseFirestore.instance
+  //           .collection('schools')
+  //           .doc(widget.schoolName)
+  //           .collection('grades')
+  //           .doc(widget.grade)
+  //           .collection('students')
+  //           .doc(user.uid)
+  //           .get();
 
-        if (studentDoc.exists) {
-          final studentData = studentDoc.data();
-          if (studentData != null) {
-            setState(() {
-              _student = Student.fromFirestore(studentData, user.uid);
-              _student?.school = widget.schoolName;
-            });
-          }
-        }
-        _fetchStudentProgress(); // Fetch progress after loading student data
-      } catch (_) {
-        throw FailedToLoadStudentDataException;
+  //       if (studentDoc.exists) {
+  //         final studentData = studentDoc.data();
+  //         if (studentData != null) {
+  //           setState(() {
+  //             _student = Student.fromFirestore(studentData, user.uid);
+  //             _student?.school = widget.schoolName;
+  //           });
+  //         }
+  //       }
+  //       _fetchStudentProgress(); // Fetch progress after loading student data
+  //     } catch (_) {
+  //       throw FailedToLoadStudentDataException;
+  //     }
+  //   }
+  // }
+
+  // Future<void> _fetchStudentProgress() async {
+  //   if (_student == null) return;
+  //   final firestore = FirebaseFirestore.instance;
+  //   final studentId = _student!.studentId;
+  //   final school = _student!.school;
+  //   final grade = _student!.grade.toString();
+
+  //   try {
+  //     final assignmentsSnapshot = await firestore
+  //         .collection('schools')
+  //         .doc(school)
+  //         .collection('grades')
+  //         .doc(grade)
+  //         .collection('students')
+  //         .doc(studentId)
+  //         .collection('assignmentsToDo')
+  //         .get();
+
+  //     int totalAssignments = assignmentsSnapshot.size;
+  //     int completedAssignments = assignmentsSnapshot.docs
+  //         .where((doc) => doc.data()['status'] == 'submitted')
+  //         .length;
+
+  //     setState(() {
+  //       _progress = totalAssignments > 0
+  //           ? completedAssignments / totalAssignments
+  //           : 0.0;
+  //     });
+  //   } catch (e) {
+  //     throw ErrorFetchingStudentProgress;
+  //   }
+  // }
+
+  Future<void> _initializeStudent() async {
+    try {
+      final student = await studentService.getStudent(
+        widget.schoolName,
+        widget.grade,
+      );
+      if (student != null) {
+        setState(() {
+          _student = student;
+        });
+        _fetchStudentProgress();
       }
+    } catch (_) {
+      await showErrorDialog(
+        context,
+        "Failed to load student data",
+      );
     }
   }
 
   Future<void> _fetchStudentProgress() async {
     if (_student == null) return;
-    final firestore = FirebaseFirestore.instance;
-    final studentId = _student!.studentId;
-    final school = _student!.school;
-    final grade = _student!.grade.toString();
-
     try {
-      final assignmentsSnapshot = await firestore
-          .collection('schools')
-          .doc(school)
-          .collection('grades')
-          .doc(grade)
-          .collection('students')
-          .doc(studentId)
-          .collection('assignmentsToDo')
-          .get();
-
-      int totalAssignments = assignmentsSnapshot.size;
-      int completedAssignments = assignmentsSnapshot.docs
-          .where((doc) => doc.data()['status'] == 'submitted')
-          .length;
-
+      final progress = await studentService.getStudentProgress(_student!);
       setState(() {
-        _progress = totalAssignments > 0
-            ? completedAssignments / totalAssignments
-            : 0.0;
+        _progress = progress;
       });
-    } catch (e) {
-      throw ErrorFetchingStudentProgress;
+    } catch (_) {
+      await showErrorDialog(
+        context,
+        "Failed to load student progress",
+      );
     }
   }
 
@@ -135,6 +172,9 @@ class _StudentMainViewState extends State<StudentMainView> {
                 // Navigate to help and support screen
                 Navigator.of(context).pushNamed(helpSupportRoute);
                 break;
+              case MenuAction.emergency:
+                Navigator.of(context).pushNamed(emergencyRoute);
+                break;
             }
           }, itemBuilder: (context) {
             return [
@@ -149,6 +189,10 @@ class _StudentMainViewState extends State<StudentMainView> {
               const PopupMenuItem<MenuAction>(
                 value: MenuAction.help,
                 child: Text('Help and Support'),
+              ),
+              const PopupMenuItem<MenuAction>(
+                value: MenuAction.emergency,
+                child: Text('Emergency'),
               ),
             ];
           })
@@ -277,15 +321,6 @@ class _StudentMainViewState extends State<StudentMainView> {
                       ),
                     ); // Route to the game page
                   }),
-                  buildDashboardCard(
-                    Icons.warning_amber_rounded, // Warning icon
-                    'Emergency', // Title of the card
-                    Colors.red, // Red color for emergency
-                    () {
-                      // Navigate to Emergency Instructions
-                      Navigator.of(context).pushNamed(emergencyRoute);
-                    },
-                  ),
                 ],
               ),
             ),

@@ -1,12 +1,12 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:grade_up/constants/routes.dart';
 import 'package:grade_up/enums/menu_action.dart';
 import 'package:grade_up/game/game_editing_view.dart';
 import 'package:grade_up/models/teacher.dart';
-import 'package:grade_up/service/cloud_storage_exceptions.dart';
+import 'package:grade_up/service/teacher_service.dart';
 import 'package:grade_up/utilities/build_dashboard_card.dart';
+import 'package:grade_up/utilities/show_error_dialog.dart';
 import 'package:grade_up/utilities/show_logout_dialog.dart';
 import 'package:grade_up/assignments/assignment_manage_options.dart';
 import 'package:grade_up/views/teacher/grade_selection_view.dart';
@@ -23,6 +23,7 @@ class TeacherMainView extends StatefulWidget {
 
 class _TeacherMainViewState extends State<TeacherMainView> {
   Teacher? _teacher;
+  final TeacherService _firestoreService = TeacherService();
 
   @override
   void initState() {
@@ -30,25 +31,40 @@ class _TeacherMainViewState extends State<TeacherMainView> {
     _initializeTeacher();
   }
 
-  Future<void> _initializeTeacher() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      final teacherId = user.uid;
-      final teacherDoc = await FirebaseFirestore.instance
-          .collection('schools')
-          .doc(widget.schoolName)
-          .collection('teachers')
-          .doc(teacherId)
-          .get();
+  // Future<void> _initializeTeacher() async {
+  //   final user = FirebaseAuth.instance.currentUser;
+  //   if (user != null) {
+  //     final teacherId = user.uid;
+  //     final teacherDoc = await FirebaseFirestore.instance
+  //         .collection('schools')
+  //         .doc(widget.schoolName)
+  //         .collection('teachers')
+  //         .doc(teacherId)
+  //         .get();
 
-      if (teacherDoc.exists) {
-        setState(() {
-          _teacher = Teacher.fromFirestore(teacherDoc.data()!, teacherId);
-          _teacher?.school = widget.schoolName;
-        });
-      } else {
-        throw FailedToLoadTeacherDataException();
-      }
+  //     if (teacherDoc.exists) {
+  //       setState(() {
+  //         _teacher = Teacher.fromFirestore(teacherDoc.data()!, teacherId);
+  //         _teacher?.school = widget.schoolName;
+  //       });
+  //     } else {
+  //       throw FailedToLoadTeacherDataException();
+  //     }
+  //   }
+  // }
+
+  Future<void> _initializeTeacher() async {
+    try {
+      final teacher =
+          await _firestoreService.fetchTeacherData(widget.schoolName);
+      setState(() {
+        _teacher = teacher;
+      });
+    } catch (_) {
+      await showErrorDialog(
+        context,
+        "Failed to load teacher data",
+      );
     }
   }
 
@@ -92,6 +108,9 @@ class _TeacherMainViewState extends State<TeacherMainView> {
                 // Navigate to help and support screen
                 Navigator.of(context).pushNamed(helpSupportRoute);
                 break;
+              case MenuAction.emergency:
+                Navigator.of(context).pushNamed(emergencyRoute);
+                break;
             }
           }, itemBuilder: (context) {
             return [
@@ -106,6 +125,10 @@ class _TeacherMainViewState extends State<TeacherMainView> {
               const PopupMenuItem<MenuAction>(
                 value: MenuAction.help,
                 child: Text('Help and Support'),
+              ),
+              const PopupMenuItem<MenuAction>(
+                value: MenuAction.emergency,
+                child: Text('Emergency'),
               ),
             ];
           })
@@ -230,15 +253,6 @@ class _TeacherMainViewState extends State<TeacherMainView> {
                       ),
                     );
                   }),
-                  buildDashboardCard(
-                    Icons.warning_amber_rounded, // Warning icon
-                    'Emergency', // Title of the card
-                    Colors.red, // Red color for emergency
-                    () {
-                      // Navigate to Emergency Instructions
-                      Navigator.of(context).pushNamed(emergencyRoute);
-                    },
-                  ),
                 ],
               ),
             ),

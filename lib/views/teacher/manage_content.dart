@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:grade_up/models/teacher.dart'; // Import image_picker package
 import 'package:grade_up/service/storage_service.dart';
 import 'dart:io'; // To handle file paths
-import 'package:grade_up/service/teacher_courses_service.dart';
+import 'package:grade_up/service/teacher_service.dart';
 import 'package:grade_up/utilities/build_content_card.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -26,7 +26,7 @@ class ManageContent extends StatefulWidget {
 
 class _ManageContentState extends State<ManageContent> {
   final StorageService _storageService = StorageService();
-  final _coursesService = TeacherCoursesService();
+  final _coursesService = TeacherService();
   String? _selectedElement;
   List<Map<String, dynamic>> _contentList = [];
   bool _isLoading = true;
@@ -86,6 +86,7 @@ class _ManageContentState extends State<ManageContent> {
               _buildElementCard(Icons.title, 'Title', 'title'),
               _buildElementCard(Icons.image, 'Media', 'media'),
               _buildElementCard(Icons.text_fields, 'Text', 'text'),
+              _buildElementCard(Icons.link, 'Link', 'link'),
             ],
           ),
         ],
@@ -118,9 +119,76 @@ class _ManageContentState extends State<ManageContent> {
         return _buildMediaInput();
       case 'text':
         return _buildTextInput();
+      case 'link':
+        return _buildLinkInput();
       default:
         return const SizedBox.shrink();
     }
+  }
+
+  final TextEditingController _linkController = TextEditingController();
+
+  Widget _buildLinkInput() {
+    return Column(
+      children: [
+        TextField(
+          controller: _linkController,
+          decoration: const InputDecoration(
+            labelText: 'Enter Link URL',
+            border: OutlineInputBorder(),
+          ),
+        ),
+        const SizedBox(height: 10),
+        ElevatedButton(
+          onPressed: () async {
+            if (_linkController.text.isNotEmpty) {
+              String newLink = _linkController.text;
+              try {
+                await _coursesService.addBlock(
+                  lessonName: widget.lesson,
+                  grade: widget.grade,
+                  teacher: widget.teacher,
+                  materialID: widget.materialID,
+                  contentID: widget.contentID,
+                  type: 'link',
+                  data: newLink,
+                  timestamp: DateTime.now().toIso8601String(),
+                );
+
+                setState(() {
+                  _contentList.add({'type': 'link', 'data': newLink});
+                  _linkController.clear();
+                  _selectedElement = null;
+                });
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Link added successfully!')),
+                );
+              } catch (_) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Error adding link')),
+                );
+              }
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Please enter a link URL.')),
+              );
+            }
+          },
+          child: const Text('Add Link'),
+        ),
+        const SizedBox(height: 10),
+        ElevatedButton(
+          onPressed: () {
+            setState(() {
+              _linkController.clear();
+              _selectedElement = null; // Reset selection
+            });
+          },
+          child: const Text('Cancel'),
+        ),
+      ],
+    );
   }
 
   Widget _buildTitleInput() {
