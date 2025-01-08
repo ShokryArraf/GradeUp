@@ -24,54 +24,6 @@ class LessonGradeSelectState extends State<LessonGradeSelect> {
 
   bool _isLoading = false; // Track loading state
 
-  // // Will use this function only if isViewingProgress is true
-  // Future<List<Map<String, dynamic>>> _fetchStudentsProgress(
-  //     String school, int grade, String lesson) async {
-  //   final firestore = FirebaseFirestore.instance;
-
-  //   try {
-  //     final studentsSnapshot = await firestore
-  //         .collection('schools')
-  //         .doc(school)
-  //         .collection('grades')
-  //         .doc(grade.toString())
-  //         .collection('students')
-  //         .get();
-
-  //     List<Map<String, dynamic>> studentProgress = [];
-
-  //     for (var studentDoc in studentsSnapshot.docs) {
-  //       final studentId = studentDoc.id;
-
-  //       final assignmentsSnapshot = await firestore
-  //           .collection('schools')
-  //           .doc(school)
-  //           .collection('grades')
-  //           .doc(grade.toString())
-  //           .collection('students')
-  //           .doc(studentId)
-  //           .collection('assignmentsToDo')
-  //           .where('lesson', isEqualTo: lesson)
-  //           .get();
-
-  //       int totalAssignments = assignmentsSnapshot.size;
-  //       int completedAssignments = assignmentsSnapshot.docs
-  //           .where((doc) => doc.data()['status'] == 'submitted')
-  //           .length;
-
-  //       studentProgress.add({
-  //         'name': studentDoc.data()['name'] ?? 'Unnamed Student',
-  //         'completed': completedAssignments,
-  //         'total': totalAssignments,
-  //       });
-  //     }
-
-  //     return studentProgress;
-  //   } catch (_) {
-  //     throw ErrorFetchingStudentProgress();
-  //   }
-  // }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(

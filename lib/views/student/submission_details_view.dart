@@ -62,39 +62,6 @@ class SubmissionDetailsPageState extends State<SubmissionDetailsPage> {
       });
     }
   }
-  // // Fetch the submission details from Firestore
-  // Future<void> _fetchSubmissionDetails() async {
-  //   final submissionRef = FirebaseFirestore.instance
-  //       .collection('schools')
-  //       .doc(widget.schoolId)
-  //       .collection('grades')
-  //       .doc(widget.gradeId)
-  //       .collection('students')
-  //       .doc(widget.studentId)
-  //       .collection('assignmentsToDo')
-  //       .doc(widget.assignmentId);
-
-  //   // Fetch the submission data from Firestore
-  //   final docSnapshot = await submissionRef.get();
-
-  //   if (docSnapshot.exists) {
-  //     final data = docSnapshot.data();
-
-  //     // Get the answers (assuming it's stored in a map-like format)
-  //     if (data != null && data['answers'] != null) {
-  //       setState(() {
-  //         _submittedAnswers = Map<String, String>.from(data['answers']);
-  //         _submittedFileUrl = data['uploadedFileUrl'];
-  //         _additionalInput = data['additionalInput'];
-  //         _score = data['score']?.toString();
-  //         _dueDate = formatDueDate(data['dueDate']);
-  //         _status = data['status'];
-  //         _review = data['review'];
-  //         _teacherReview = data['teacherReviewed'];
-  //       });
-  //     }
-  //   }
-  // }
 
   @override
   Widget build(BuildContext context) {

@@ -34,68 +34,6 @@ class _StudentMainViewState extends State<StudentMainView> {
     _initializeStudent();
   }
 
-  // Future<void> _initializeStudent() async {
-  //   final user = FirebaseAuth.instance.currentUser;
-  //   if (user != null) {
-  //     try {
-  //       final studentDoc = await FirebaseFirestore.instance
-  //           .collection('schools')
-  //           .doc(widget.schoolName)
-  //           .collection('grades')
-  //           .doc(widget.grade)
-  //           .collection('students')
-  //           .doc(user.uid)
-  //           .get();
-
-  //       if (studentDoc.exists) {
-  //         final studentData = studentDoc.data();
-  //         if (studentData != null) {
-  //           setState(() {
-  //             _student = Student.fromFirestore(studentData, user.uid);
-  //             _student?.school = widget.schoolName;
-  //           });
-  //         }
-  //       }
-  //       _fetchStudentProgress(); // Fetch progress after loading student data
-  //     } catch (_) {
-  //       throw FailedToLoadStudentDataException;
-  //     }
-  //   }
-  // }
-
-  // Future<void> _fetchStudentProgress() async {
-  //   if (_student == null) return;
-  //   final firestore = FirebaseFirestore.instance;
-  //   final studentId = _student!.studentId;
-  //   final school = _student!.school;
-  //   final grade = _student!.grade.toString();
-
-  //   try {
-  //     final assignmentsSnapshot = await firestore
-  //         .collection('schools')
-  //         .doc(school)
-  //         .collection('grades')
-  //         .doc(grade)
-  //         .collection('students')
-  //         .doc(studentId)
-  //         .collection('assignmentsToDo')
-  //         .get();
-
-  //     int totalAssignments = assignmentsSnapshot.size;
-  //     int completedAssignments = assignmentsSnapshot.docs
-  //         .where((doc) => doc.data()['status'] == 'submitted')
-  //         .length;
-
-  //     setState(() {
-  //       _progress = totalAssignments > 0
-  //           ? completedAssignments / totalAssignments
-  //           : 0.0;
-  //     });
-  //   } catch (e) {
-  //     throw ErrorFetchingStudentProgress;
-  //   }
-  // }
-
   Future<void> _initializeStudent() async {
     try {
       final student = await studentService.getStudent(

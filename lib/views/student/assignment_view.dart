@@ -96,7 +96,7 @@ class _AssignmentsViewState extends State<AssignmentsView> {
                               final isOverdue = dueDate != null &&
                                   dueDate.isBefore(DateTime.now());
                               final isSubmitted = status == 'submitted';
-                              final hasScore = score != 'N/A';
+                              final hasScore = score != 'N/A' && score != null;
 
                               // Custom indicator icon and text based on status
                               IconData statusIcon;
@@ -206,6 +206,7 @@ class _AssignmentsViewState extends State<AssignmentsView> {
                                               AssignmentDetailView(
                                             assignment: assignment,
                                             student: widget.student,
+                                            status: statusText,
                                           ),
                                         ),
                                       );

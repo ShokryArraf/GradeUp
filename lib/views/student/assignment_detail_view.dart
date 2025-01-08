@@ -1,9 +1,8 @@
 import 'dart:io';
-
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:grade_up/models/student.dart';
+import 'package:grade_up/service/assignment_service.dart';
 import 'package:grade_up/service/storage_service.dart';
 import 'package:grade_up/utilities/format_date.dart';
 import 'package:grade_up/utilities/open_file.dart';
@@ -12,11 +11,13 @@ import 'package:grade_up/views/student/submission_details_view.dart';
 class AssignmentDetailView extends StatefulWidget {
   final Map<String, dynamic> assignment;
   final Student student;
+  final String status;
 
   const AssignmentDetailView({
     super.key,
     required this.assignment,
     required this.student,
+    required this.status,
   });
 
   @override
@@ -28,6 +29,7 @@ class _AssignmentDetailViewState extends State<AssignmentDetailView> {
   final TextEditingController _additionalInputController =
       TextEditingController();
   final StorageService _storageService = StorageService();
+  final AssignmentService _assignmentService = AssignmentService();
 
   PlatformFile? _selectedFile;
   bool _isSubmitted = false;
@@ -47,60 +49,41 @@ class _AssignmentDetailViewState extends State<AssignmentDetailView> {
   }
 
   Future<void> _initializeAssignment() async {
-    final firestore = FirebaseFirestore.instance;
     final school = widget.student.school;
     final grade = widget.student.grade.toString();
     final studentId = widget.student.studentId;
     final assignmentId = widget.assignment['id'];
-
     final dueDateString = widget.assignment['dueDate'];
     _dueDate = DateTime.tryParse(dueDateString);
 
     try {
-      final doc = await firestore
-          .collection('schools')
-          .doc(school)
-          .collection('grades')
-          .doc(grade)
-          .collection('students')
-          .doc(studentId)
-          .collection('assignmentsToDo')
-          .doc(assignmentId)
-          .get();
+      final data = await _assignmentService.fetchAssignmentStatus(
+        school: school,
+        grade: grade,
+        studentId: studentId,
+        assignmentId: assignmentId,
+      );
 
-      if (doc.exists) {
-        final data = doc.data();
+      if (data != null) {
         setState(() {
-          _isSubmitted = data?['status'] == 'submitted';
+          _isSubmitted = data['status'] == 'submitted';
           _statusMessage =
               _isSubmitted ? 'You have already submitted this assignment.' : '';
         });
-      }
-
-      if (!doc.exists &&
-          _dueDate != null &&
-          DateTime.now().isAfter(_dueDate!)) {
-        await firestore
-            .collection('schools')
-            .doc(school)
-            .collection('grades')
-            .doc(grade)
-            .collection('students')
-            .doc(studentId)
-            .collection('assignmentsToDo')
-            .doc(assignmentId)
-            .set({
-          'status': 'missed',
-          'submissionDate': null,
-          'title': widget.assignment['title'],
-          'score': 0,
-          'dueDate': dueDateString,
-        });
+      } else if (_dueDate != null && DateTime.now().isAfter(_dueDate!)) {
+        await _assignmentService.markAssignmentAsMissed(
+          school: school,
+          grade: grade,
+          studentId: studentId,
+          assignmentId: assignmentId,
+          title: widget.assignment['title'],
+          dueDateString: dueDateString,
+        );
         setState(() {
           _statusMessage = 'Assignment missed. Score: 0';
         });
       }
-    } catch (error) {
+    } catch (_) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Failed to fetch assignment status!')),
       );
@@ -119,15 +102,26 @@ class _AssignmentDetailViewState extends State<AssignmentDetailView> {
   }
 
   Future<void> _submitAnswers() async {
-    if (_isLoading) return; // Prevent duplicate submissions
+    if (_isLoading) return;
 
     setState(() {
       _isLoading = true;
     });
 
+    if (widget.status == 'Reviewed') {
+      setState(() {
+        _isLoading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Cant submit a reviewed assignment.')),
+      );
+      return;
+    }
+
     final answers = _answersControllers.map(
       (key, controller) => MapEntry(key, controller.text.trim()),
     );
+
     final additionalInput = _additionalInputController.text.trim().isEmpty
         ? null
         : _additionalInputController.text.trim();
@@ -142,17 +136,31 @@ class _AssignmentDetailViewState extends State<AssignmentDetailView> {
       return;
     }
 
-    final firestore = FirebaseFirestore.instance;
     final school = widget.student.school;
     final grade = widget.student.grade.toString();
     final studentId = widget.student.studentId;
     final assignmentId = widget.assignment['id'];
     final title = widget.assignment['title'] ?? 'No Title';
-    final dueDateStr = widget.assignment['dueDate'];
+    final dueDate = widget.assignment['dueDate'];
     final questions = widget.assignment['questions'] ?? 'No Questions';
+    final uploadedFileUrl = await _uploadFile();
+    final score = widget.assignment['score'];
 
-    final dueDate = DateTime.tryParse(dueDateStr);
-    if (dueDate == null) {
+    final dueDate1 = DateTime.tryParse(dueDate);
+    if (dueDate1 == null) {
+      setState(() {
+        _isLoading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content:
+                Text('There is a problem with submitting this assignment.')),
+      );
+      return;
+    }
+
+    final dueDateTime = DateTime.tryParse(dueDate);
+    if (dueDateTime == null) {
       setState(() {
         _isLoading = false;
       });
@@ -167,7 +175,7 @@ class _AssignmentDetailViewState extends State<AssignmentDetailView> {
     final currentTime = DateTime.now();
 
     try {
-      if (currentTime.isAfter(dueDate)) {
+      if (currentTime.isAfter(dueDateTime)) {
         setState(() {
           _isLoading = false;
         });
@@ -177,33 +185,25 @@ class _AssignmentDetailViewState extends State<AssignmentDetailView> {
         );
         return; // Prevent submission after due date.
       }
-      final uploadedFileUrl = await _uploadFile();
 
-      await firestore
-          .collection('schools')
-          .doc(school)
-          .collection('grades')
-          .doc(grade)
-          .collection('students')
-          .doc(studentId)
-          .collection('assignmentsToDo')
-          .doc(assignmentId)
-          .set({
-        'status': 'submitted',
-        'submissionDate': FieldValue.serverTimestamp(),
-        'title': title,
-        'score': null,
-        'dueDate': dueDateStr,
-        'answers': answers,
-        'questions': questions,
-        'additionalInput': additionalInput,
-        'uploadedFileUrl': uploadedFileUrl,
-      }, SetOptions(merge: true));
+      await _assignmentService.submitAssignment(
+        school: school,
+        grade: grade,
+        studentId: studentId,
+        assignmentId: assignmentId,
+        title: title,
+        dueDate: dueDate,
+        answers: answers,
+        questions: questions,
+        uploadedFileUrl: uploadedFileUrl,
+        additionalInput: additionalInput,
+        score: score,
+      );
 
       setState(() {
-        _isSubmitted = true; // Disable resubmission after first submission.
+        _isSubmitted = true;
+        _statusMessage = 'Answers submitted successfully!';
       });
-
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Answers submitted successfully!')),
       );
@@ -216,10 +216,11 @@ class _AssignmentDetailViewState extends State<AssignmentDetailView> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Failed to submit answers!')),
       );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
-    setState(() {
-      _isLoading = false;
-    });
   }
 
   Future<void> _pickFile() async {
@@ -238,7 +239,7 @@ class _AssignmentDetailViewState extends State<AssignmentDetailView> {
           _selectedFile = result.files.first;
         });
       }
-    } catch (error) {
+    } catch (_) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Failed to pick file!')),
       );
@@ -456,12 +457,20 @@ class _AssignmentDetailViewState extends State<AssignmentDetailView> {
                   if (_selectedFile != null)
                     Row(
                       children: [
-                        Text('Selected File: ${_selectedFile!.name}'),
+                        Expanded(
+                          // Ensures the text takes only the available space
+                          child: Text(
+                            'Selected File: ${_selectedFile!.name}',
+                            overflow: TextOverflow
+                                .ellipsis, // Adds an ellipsis if the text overflows
+                            maxLines: 1, // Limits the text to one line
+                          ),
+                        ),
                         IconButton(
                           icon: const Icon(Icons.delete, color: Colors.red),
                           onPressed: () {
                             setState(() {
-                              _selectedFile = null; // Clear selected file
+                              _selectedFile = null; // Clear the selected file
                             });
                           },
                         ),

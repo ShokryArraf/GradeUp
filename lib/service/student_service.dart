@@ -169,28 +169,6 @@ class StudentService {
         .toList();
   }
 
-  // Future<Map<String, dynamic>> getAssignmentStatusAndScore(
-  //   required String assignmentId, {
-  //   required Student student,
-  // }) async {
-  //   try {
-  //     final doc = await _firestore
-  //         .collection('schools')
-  //         .doc(student.school)
-  //         .collection('grades')
-  //         .doc(student.grade.toString())
-  //         .collection('students')
-  //         .doc(student.studentId)
-  //         .collection('assignmentsToDo')
-  //         .doc(assignmentId)
-  //         .get();
-
-  //     return doc.exists ? doc.data() ?? {} : {};
-  //   } catch (_) {
-  //     throw FailedToFetchAssignmentStatusAndScore;
-  //   }
-  // }
-
   Future<Map<String, dynamic>> getAssignmentStatusAndScore({
     required String assignmentId,
     required Student student,

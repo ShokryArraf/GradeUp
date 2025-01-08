@@ -37,3 +37,7 @@ class ErrorFetchingStudentProgress extends CloudStorageException {}
 class ErrorFetchingSubmissionDetails extends CloudStorageException {}
 
 class FailedToFetchAssignmentStatusAndScore extends CloudStorageException {}
+
+class FailedToMarkAssignmentAsMissed extends CloudStorageException {}
+
+class FailedToSubmitAssignment extends CloudStorageException {}

@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:grade_up/models/teacher.dart';
+import 'package:grade_up/service/cloud_storage_exceptions.dart';
 
 class AssignmentService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -218,6 +219,99 @@ class AssignmentService {
       if (studentUpdateData.isNotEmpty) {
         await studentAssignmentRef.update(studentUpdateData);
       }
+    }
+  }
+
+  Future<Map<String, dynamic>?> fetchAssignmentStatus({
+    required String school,
+    required String grade,
+    required String studentId,
+    required String assignmentId,
+  }) async {
+    try {
+      final doc = await _firestore
+          .collection('schools')
+          .doc(school)
+          .collection('grades')
+          .doc(grade)
+          .collection('students')
+          .doc(studentId)
+          .collection('assignmentsToDo')
+          .doc(assignmentId)
+          .get();
+
+      return doc.exists ? doc.data() : null;
+    } catch (error) {
+      throw FailedToFetchAssignmentStatusAndScore();
+    }
+  }
+
+  Future<void> markAssignmentAsMissed({
+    required String school,
+    required String grade,
+    required String studentId,
+    required String assignmentId,
+    required String title,
+    required String dueDateString,
+  }) async {
+    try {
+      await _firestore
+          .collection('schools')
+          .doc(school)
+          .collection('grades')
+          .doc(grade)
+          .collection('students')
+          .doc(studentId)
+          .collection('assignmentsToDo')
+          .doc(assignmentId)
+          .set({
+        'status': 'missed',
+        'submissionDate': null,
+        'title': title,
+        'score': 0,
+        'dueDate': dueDateString,
+      });
+    } catch (_) {
+      throw FailedToMarkAssignmentAsMissed;
+    }
+  }
+
+  Future<void> submitAssignment({
+    required String school,
+    required String grade,
+    required String studentId,
+    required String assignmentId,
+    required String title,
+    required String dueDate,
+    required Map<String, String> answers,
+    required dynamic questions,
+    String? additionalInput,
+    String? uploadedFileUrl,
+    String? score,
+  }) async {
+    try {
+      await _firestore
+          .collection('schools')
+          .doc(school)
+          .collection('grades')
+          .doc(grade)
+          .collection('students')
+          .doc(studentId)
+          .collection('assignmentsToDo')
+          .doc(assignmentId)
+          .set({
+        'status': 'submitted',
+        'submissionDate': FieldValue.serverTimestamp(),
+        'title': title,
+        'score': score,
+        'dueDate': dueDate,
+        'answers': answers,
+        'questions': questions,
+        'additionalInput': additionalInput,
+        'uploadedFileUrl': uploadedFileUrl,
+      }, SetOptions(merge: true));
+    } catch (_) {
+      throw FailedToSubmitAssignment;
     }
   }
 }

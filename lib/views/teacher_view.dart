@@ -31,28 +31,6 @@ class _TeacherMainViewState extends State<TeacherMainView> {
     _initializeTeacher();
   }
 
-  // Future<void> _initializeTeacher() async {
-  //   final user = FirebaseAuth.instance.currentUser;
-  //   if (user != null) {
-  //     final teacherId = user.uid;
-  //     final teacherDoc = await FirebaseFirestore.instance
-  //         .collection('schools')
-  //         .doc(widget.schoolName)
-  //         .collection('teachers')
-  //         .doc(teacherId)
-  //         .get();
-
-  //     if (teacherDoc.exists) {
-  //       setState(() {
-  //         _teacher = Teacher.fromFirestore(teacherDoc.data()!, teacherId);
-  //         _teacher?.school = widget.schoolName;
-  //       });
-  //     } else {
-  //       throw FailedToLoadTeacherDataException();
-  //     }
-  //   }
-  // }
-
   Future<void> _initializeTeacher() async {
     try {
       final teacher =
