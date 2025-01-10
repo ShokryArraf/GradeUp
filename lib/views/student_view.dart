@@ -89,6 +89,10 @@ class _StudentMainViewState extends State<StudentMainView> {
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
+            borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(20.0),
+              bottomRight: Radius.circular(20.0),
+            ),
           ),
         ),
         actions: [
@@ -222,6 +226,10 @@ class _StudentMainViewState extends State<StudentMainView> {
               backgroundColor: Colors.grey[300],
               color: const Color(0xFF0072FF),
               minHeight: 10,
+              borderRadius: const BorderRadius.only(
+                bottomLeft: Radius.circular(20.0),
+                bottomRight: Radius.circular(20.0),
+              ),
             ),
             const SizedBox(height: 30),
             Expanded(
