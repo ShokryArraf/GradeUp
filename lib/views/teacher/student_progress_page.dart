@@ -27,7 +27,7 @@ class StudentProgressPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Grade $grade Progress'),
+        title: Text('התקדמות כיתה $grade'),
         centerTitle: true,
         flexibleSpace: Container(
           decoration: const BoxDecoration(
@@ -48,7 +48,7 @@ class StudentProgressPage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'Overall Class Progress',
+                  'התקדמות הכיתה הכללית',
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -113,7 +113,7 @@ class StudentProgressPage extends StatelessWidget {
               child: studentProgress.isEmpty
                   ? const Center(
                       child: Text(
-                        'No student progress available.',
+                        'אין תלמידים להצגה',
                         style: TextStyle(fontSize: 18, color: Colors.grey),
                       ),
                     )

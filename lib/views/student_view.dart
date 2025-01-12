@@ -49,7 +49,7 @@ class _StudentMainViewState extends State<StudentMainView> {
     } catch (_) {
       await showErrorDialog(
         context,
-        "Failed to load student data",
+        "טעינת נתוני תלמיד נכשלה",
       );
     }
   }
@@ -64,21 +64,21 @@ class _StudentMainViewState extends State<StudentMainView> {
     } catch (_) {
       await showErrorDialog(
         context,
-        "Failed to load student progress",
+        "טעינת התקדמות תלמיד נכשלה",
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final displayName = _student?.name ?? 'Student';
-    final grade = _student?.grade.toString() ?? 'N/A';
-    final schoolName = _student?.school ?? 'School';
+    final displayName = _student?.name ?? 'תלמיד';
+    final grade = _student?.grade.toString() ?? 'לא ידוע';
+    final schoolName = _student?.school ?? 'בית ספר';
 
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Student Dashboard',
+          'מסך התלמיד',
           style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
         ),
         centerTitle: true,
@@ -118,19 +118,19 @@ class _StudentMainViewState extends State<StudentMainView> {
             return [
               const PopupMenuItem<MenuAction>(
                 value: MenuAction.logout,
-                child: Text('Log out'),
+                child: Text('יציאה'),
               ),
               const PopupMenuItem<MenuAction>(
                 value: MenuAction.about,
-                child: Text('About App'),
+                child: Text('אודות'),
               ),
               const PopupMenuItem<MenuAction>(
                 value: MenuAction.help,
-                child: Text('Help and Support'),
+                child: Text('עזרה ותמיכה'),
               ),
               const PopupMenuItem<MenuAction>(
                 value: MenuAction.emergency,
-                child: Text('Emergency'),
+                child: Text('חירום'),
               ),
             ];
           })
@@ -187,7 +187,7 @@ class _StudentMainViewState extends State<StudentMainView> {
                           ),
                         ),
                         Text(
-                          'Grade: $grade',
+                          'כיתה: $grade',
                           style: const TextStyle(
                             fontSize: 18,
                             color: Colors.black54,
@@ -208,12 +208,12 @@ class _StudentMainViewState extends State<StudentMainView> {
             ),
             const SizedBox(height: 20),
             const Text(
-              'Welcome back! Let’s start learning.',
+              'ברוך הבא! בוא נתחיל ללמוד',
               style: TextStyle(fontSize: 16, color: Colors.grey),
             ),
             const SizedBox(height: 20),
             const Text(
-              'Overall Progress',
+              'התקדמות כללית',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
             ),
             const SizedBox(height: 10),
@@ -230,7 +230,7 @@ class _StudentMainViewState extends State<StudentMainView> {
                 mainAxisSpacing: 16,
                 crossAxisSpacing: 16,
                 children: [
-                  buildDashboardCard(Icons.book, 'My Courses', Colors.blue, () {
+                  buildDashboardCard(Icons.book, 'השיעורים שלי', Colors.blue, () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -239,7 +239,7 @@ class _StudentMainViewState extends State<StudentMainView> {
                     );
                   }),
                   buildDashboardCard(
-                      Icons.bar_chart, 'Progress & Grades', Colors.purple, () {
+                      Icons.bar_chart, 'התקדמות וציונים', Colors.purple, () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -250,7 +250,7 @@ class _StudentMainViewState extends State<StudentMainView> {
                     // View progress and grades
                   }),
                   buildDashboardCard(
-                      Icons.videogame_asset, 'Game', Colors.redAccent, () {
+                      Icons.videogame_asset, 'משחק', Colors.redAccent, () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(

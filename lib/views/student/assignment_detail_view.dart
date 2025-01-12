@@ -68,7 +68,7 @@ class _AssignmentDetailViewState extends State<AssignmentDetailView> {
         setState(() {
           _isSubmitted = data['status'] == 'submitted';
           _statusMessage =
-              _isSubmitted ? 'You have already submitted this assignment.' : '';
+              _isSubmitted ? 'כבר הגשת את המטלה הזאת' : '';
         });
       } else if (_dueDate != null && DateTime.now().isAfter(_dueDate!)) {
         await _assignmentService.markAssignmentAsMissed(
@@ -80,12 +80,12 @@ class _AssignmentDetailViewState extends State<AssignmentDetailView> {
           dueDateString: dueDateString,
         );
         setState(() {
-          _statusMessage = 'Assignment missed. Score: 0';
+          _statusMessage = 'מועד אחרון להגשה עבר. ציון: 0';
         });
       }
     } catch (_) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to fetch assignment status!')),
+        const SnackBar(content: Text('כישלון בטעינת סטטוס המטלה')),
       );
     }
   }
@@ -108,12 +108,12 @@ class _AssignmentDetailViewState extends State<AssignmentDetailView> {
       _isLoading = true;
     });
 
-    if (widget.status == 'Reviewed') {
+    if (widget.status == 'נבדק') {
       setState(() {
         _isLoading = false;
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Cant submit a reviewed assignment.')),
+        const SnackBar(content: Text('אי אפשר להגיש מטלה שנבדקה')),
       );
       return;
     }
@@ -131,7 +131,7 @@ class _AssignmentDetailViewState extends State<AssignmentDetailView> {
         _isLoading = false;
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('All questions must be answered!')),
+        const SnackBar(content: Text('חייב לענות על כל השאלות')),
       );
       return;
     }
@@ -140,9 +140,9 @@ class _AssignmentDetailViewState extends State<AssignmentDetailView> {
     final grade = widget.student.grade.toString();
     final studentId = widget.student.studentId;
     final assignmentId = widget.assignment['id'];
-    final title = widget.assignment['title'] ?? 'No Title';
+    final title = widget.assignment['title'] ?? 'אין כותרת';
     final dueDate = widget.assignment['dueDate'];
-    final questions = widget.assignment['questions'] ?? 'No Questions';
+    final questions = widget.assignment['questions'] ?? 'אין שאלות';
     final uploadedFileUrl = await _uploadFile();
     final score = widget.assignment['score'];
 
@@ -154,7 +154,7 @@ class _AssignmentDetailViewState extends State<AssignmentDetailView> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
             content:
-                Text('There is a problem with submitting this assignment.')),
+                Text('יש בעיה בהגשת המטלה הזאת')),
       );
       return;
     }
@@ -167,7 +167,7 @@ class _AssignmentDetailViewState extends State<AssignmentDetailView> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
             content:
-                Text('There is a problem with submitting this assignment.')),
+                Text('יש בעיה בהגשת המטלה הזאת')),
       );
       return;
     }
@@ -181,7 +181,7 @@ class _AssignmentDetailViewState extends State<AssignmentDetailView> {
         });
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-              content: Text('You cannot submit after the due date!')),
+              content: Text('אי אפשר להגיש אחרי מועד אחרון להגשה')),
         );
         return; // Prevent submission after due date.
       }
@@ -202,10 +202,10 @@ class _AssignmentDetailViewState extends State<AssignmentDetailView> {
 
       setState(() {
         _isSubmitted = true;
-        _statusMessage = 'Answers submitted successfully!';
+        _statusMessage = 'תשובות הוגשו בהצלחה';
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Answers submitted successfully!')),
+        const SnackBar(content: Text('תשובות הוגשו בהצלחה')),
       );
 
       Navigator.pop(context);
@@ -214,7 +214,7 @@ class _AssignmentDetailViewState extends State<AssignmentDetailView> {
         _isLoading = false;
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to submit answers!')),
+        const SnackBar(content: Text('כישלון בהגשת השאלות')),
       );
     } finally {
       setState(() {
@@ -241,7 +241,7 @@ class _AssignmentDetailViewState extends State<AssignmentDetailView> {
       }
     } catch (_) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to pick file!')),
+        const SnackBar(content: Text('כישלון בבחירת קבצים')),
       );
     }
   }
@@ -267,7 +267,7 @@ class _AssignmentDetailViewState extends State<AssignmentDetailView> {
 
     if (!allowedExtensions.contains(fileExtension)) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Unsupported file type: $fileExtension')),
+        SnackBar(content: Text(':סוג קובץ לא נתמך $fileExtension')),
       );
       return null; // Return null if the file type is unsupported
     }
@@ -278,7 +278,7 @@ class _AssignmentDetailViewState extends State<AssignmentDetailView> {
       return uploadedUrl; // Return the file URL or null if upload fails
     } catch (_) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('File upload failed')),
+        const SnackBar(content: Text('העלאת קובץ נכשלה')),
       );
       return null;
     }
@@ -289,7 +289,7 @@ class _AssignmentDetailViewState extends State<AssignmentDetailView> {
     final assignment = widget.assignment;
     return Scaffold(
       appBar: AppBar(
-          title: const Text('Assignment'),
+          title: const Text('מטלה'),
           centerTitle: true,
           flexibleSpace: Container(
             decoration: const BoxDecoration(
@@ -319,7 +319,7 @@ class _AssignmentDetailViewState extends State<AssignmentDetailView> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          assignment['title'] ?? 'No Title',
+                          assignment['title'] ?? 'אין כותרת',
                           style: const TextStyle(
                             fontSize: 28,
                             fontWeight: FontWeight.bold,
@@ -340,7 +340,7 @@ class _AssignmentDetailViewState extends State<AssignmentDetailView> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              'Due: ${formatDueDate(_dueDate)}',
+                              'מועד אחרון להגשה: ${formatDueDate(_dueDate)}',
                               style: const TextStyle(fontSize: 18),
                             ),
                           ],
@@ -352,7 +352,7 @@ class _AssignmentDetailViewState extends State<AssignmentDetailView> {
                 const Divider(height: 20, color: Colors.grey),
                 const SizedBox(height: 20),
                 Text(
-                  'Subject: ${assignment['subject'] ?? 'Unknown'}',
+                  'נושא: ${assignment['subject'] ?? 'לא ידוע'}',
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -364,7 +364,7 @@ class _AssignmentDetailViewState extends State<AssignmentDetailView> {
                 const SizedBox(height: 20),
                 const Divider(height: 20, color: Colors.grey),
                 Text(
-                  assignment['description'] ?? 'No description provided.',
+                  assignment['description'] ?? 'אין פירוט',
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -375,7 +375,7 @@ class _AssignmentDetailViewState extends State<AssignmentDetailView> {
                   const SizedBox(height: 20),
                   const Divider(height: 20, color: Colors.grey),
                   const Text(
-                    'Additional Notes:',
+                    ':הערות נוספות',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -396,7 +396,7 @@ class _AssignmentDetailViewState extends State<AssignmentDetailView> {
                       openFile(widget.assignment['uploadedFileUrl']!);
                     },
                     icon: const Icon(Icons.file_download),
-                    label: const Text('Download Attached File',
+                    label: const Text('הורדת קבצים מצורפים',
                         style: TextStyle(fontSize: 16)),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.teal.shade50,
@@ -414,7 +414,7 @@ class _AssignmentDetailViewState extends State<AssignmentDetailView> {
                       .map((entry) {
                     final index = entry.key;
                     final question =
-                        entry.value as String? ?? 'No question provided';
+                        entry.value as String? ?? 'אין שאלות';
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -426,7 +426,7 @@ class _AssignmentDetailViewState extends State<AssignmentDetailView> {
                         TextField(
                           controller: _answersControllers[index.toString()],
                           decoration: InputDecoration(
-                            labelText: 'Your Answer',
+                            labelText: 'התשובה שלך',
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
@@ -442,7 +442,7 @@ class _AssignmentDetailViewState extends State<AssignmentDetailView> {
                     controller: _additionalInputController,
                     maxLines: 10,
                     decoration: InputDecoration(
-                      labelText: 'Additional Notes',
+                      labelText: 'הערות נוספות',
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -452,7 +452,7 @@ class _AssignmentDetailViewState extends State<AssignmentDetailView> {
                   ElevatedButton.icon(
                     onPressed: _pickFile, // Pick file function
                     icon: const Icon(Icons.attach_file),
-                    label: const Text('Attach Word/PDF File'),
+                    label: const Text('Word/PDF הוספת קובץ'),
                   ),
                   if (_selectedFile != null)
                     Row(
@@ -460,7 +460,7 @@ class _AssignmentDetailViewState extends State<AssignmentDetailView> {
                         Expanded(
                           // Ensures the text takes only the available space
                           child: Text(
-                            'Selected File: ${_selectedFile!.name}',
+                            ':קובץ נבחר ${_selectedFile!.name}',
                             overflow: TextOverflow
                                 .ellipsis, // Adds an ellipsis if the text overflows
                             maxLines: 1, // Limits the text to one line
@@ -493,7 +493,7 @@ class _AssignmentDetailViewState extends State<AssignmentDetailView> {
                         ),
                         textStyle: const TextStyle(fontSize: 18),
                       ),
-                      child: const Text('Submit Answers'),
+                      child: const Text('הגשת תשובות'),
                     ),
                   ),
                 ],
@@ -521,7 +521,7 @@ class _AssignmentDetailViewState extends State<AssignmentDetailView> {
                       ),
                       textStyle: const TextStyle(fontSize: 16),
                     ),
-                    child: const Text(' View Your Submission/Score '),
+                    child: const Text(' הצגת הגשה/ציון '),
                   )
                 ],
               ],

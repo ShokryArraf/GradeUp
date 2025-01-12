@@ -91,13 +91,13 @@ class CreateAssignmentViewState extends State<CreateAssignmentView> {
 
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-              content: Text('Assignment created and assigned to students!')),
+              content: Text('מטלה נוצרה והועברה לתלמידים')),
         );
         Navigator.pop(context);
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Error occurred while creating assignment.'),
+            content: Text('שגיאה ביצירת המטלה'),
           ),
         );
       } finally {
@@ -108,7 +108,7 @@ class CreateAssignmentViewState extends State<CreateAssignmentView> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Please fill out all fields and select a lesson.'),
+          content: Text('בבקשה למלא את כל הנתונים ולבחור שיעור'),
         ),
       );
     }
@@ -135,7 +135,7 @@ class CreateAssignmentViewState extends State<CreateAssignmentView> {
 
     if (!allowedExtensions.contains(fileExtension)) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Unsupported file type: $fileExtension')),
+        SnackBar(content: Text(':סוג קובץ לא נתמך $fileExtension')),
       );
       return null; // Return null if the file type is unsupported
     }
@@ -146,7 +146,7 @@ class CreateAssignmentViewState extends State<CreateAssignmentView> {
       return uploadedUrl; // Return the file URL or null if upload fails
     } catch (_) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('File upload failed')),
+        const SnackBar(content: Text('העלאת קובץ נכלשה')),
       );
       return null;
     }
@@ -170,7 +170,7 @@ class CreateAssignmentViewState extends State<CreateAssignmentView> {
       }
     } catch (error) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to pick file!')),
+        const SnackBar(content: Text('בחירת קובץ נכלשה')),
       );
     }
   }
@@ -179,7 +179,7 @@ class CreateAssignmentViewState extends State<CreateAssignmentView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          title: const Text('Manage Assignments'),
+          title: const Text('יצירת מטלות'),
           centerTitle: true,
           flexibleSpace: Container(
             decoration: const BoxDecoration(
@@ -198,7 +198,7 @@ class CreateAssignmentViewState extends State<CreateAssignmentView> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
-                'Assignment Details',
+                'נתוני מטלה',
                 style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
@@ -209,7 +209,7 @@ class CreateAssignmentViewState extends State<CreateAssignmentView> {
               if (_lessons.isNotEmpty)
                 DropdownButtonFormField<String>(
                   decoration: InputDecoration(
-                    labelText: 'Select Lesson',
+                    labelText: 'בחר שיעור',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
@@ -227,12 +227,12 @@ class CreateAssignmentViewState extends State<CreateAssignmentView> {
                     });
                   },
                   validator: (value) =>
-                      value == null ? 'Please select a lesson' : null,
+                      value == null ? 'בחר שיעור בבקשה' : null,
                 )
               else
                 const Center(
                   child: Text(
-                    'No lessons assigned. Please assign lessons to create assignments.',
+                    'אין שיעורים. אי אפשר לצור מטלות',
                     style: TextStyle(color: Colors.red, fontSize: 16),
                     textAlign: TextAlign.center,
                   ),
@@ -241,7 +241,7 @@ class CreateAssignmentViewState extends State<CreateAssignmentView> {
               if (_grades.isNotEmpty)
                 DropdownButtonFormField<int>(
                   decoration: InputDecoration(
-                    labelText: 'Select Grade',
+                    labelText: 'בחר כיתה',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
@@ -249,7 +249,7 @@ class CreateAssignmentViewState extends State<CreateAssignmentView> {
                   items: _grades.map((grade) {
                     return DropdownMenuItem<int>(
                       value: grade,
-                      child: Text('Grade $grade'),
+                      child: Text('כיתה $grade'),
                     );
                   }).toList(),
                   onChanged: (value) {
@@ -258,12 +258,12 @@ class CreateAssignmentViewState extends State<CreateAssignmentView> {
                     });
                   },
                   validator: (value) =>
-                      value == null ? 'Please select a grade' : null,
+                      value == null ? 'בחר כיתה בבקשה' : null,
                 )
               else
                 const Center(
                   child: Text(
-                    'No grades available for the selected lesson.',
+                    'אין כיתות זמינות עבור הנושא הזה',
                     style: TextStyle(color: Colors.red, fontSize: 16),
                     textAlign: TextAlign.center,
                   ),
@@ -272,28 +272,28 @@ class CreateAssignmentViewState extends State<CreateAssignmentView> {
               TextFormField(
                 controller: _titleController,
                 decoration: InputDecoration(
-                  labelText: 'Assignment Title',
-                  hintText: 'Homework 1',
+                  labelText: 'כותרת מטלה',
+                  hintText: 'מטלה 1',
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
                 validator: (value) => value == null || value.isEmpty
-                    ? 'Please enter a title'
+                    ? 'להזין כותרת בבקשה'
                     : null,
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _selectedSubject,
                 decoration: InputDecoration(
-                  labelText: 'Assignment Subject',
-                  hintText: 'Geometry',
+                  labelText: 'נושא המטלה',
+                  hintText: 'גיומטריה',
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
                 validator: (value) => value == null || value.isEmpty
-                    ? 'Please enter a subject'
+                    ? 'להזין נושא בבקשה'
                     : null,
               ),
               const SizedBox(height: 16),
@@ -315,22 +315,22 @@ class CreateAssignmentViewState extends State<CreateAssignmentView> {
                 controller: _questionsController,
                 maxLines: 4,
                 decoration: InputDecoration(
-                  labelText: 'Questions (one per line)',
+                  labelText: 'שאלה (אחת עבור כל שורה)',
                   hintText:
-                      '1. The lines........\n2. if the........\n3. What is........',
+                      '1. השורות........\n2. אם כך, אז........\n3. מה ה........',
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
                 validator: (value) => value == null || value.isEmpty
-                    ? 'Please enter questions'
+                    ? 'להזין שאלות בבקשה'
                     : null,
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _linkController,
                 decoration: InputDecoration(
-                  labelText: 'Optional Link',
+                  labelText: 'קישור (לא חובה)',
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
@@ -341,7 +341,7 @@ class CreateAssignmentViewState extends State<CreateAssignmentView> {
                 controller: _additionalInputController,
                 maxLines: 10,
                 decoration: InputDecoration(
-                  labelText: 'Additional Notes',
+                  labelText: 'הערות נוספות',
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -351,7 +351,7 @@ class CreateAssignmentViewState extends State<CreateAssignmentView> {
               ElevatedButton.icon(
                 onPressed: _pickFile, // Added: Pick file function
                 icon: const Icon(Icons.attach_file),
-                label: const Text('Attach Word/PDF File'),
+                label: const Text('Word/PDF הוספת קבצי'),
               ),
               if (_selectedFile != null)
                 Row(
@@ -359,7 +359,7 @@ class CreateAssignmentViewState extends State<CreateAssignmentView> {
                     Expanded(
                       // Ensures the text takes only the available space
                       child: Text(
-                        'Selected File: ${_selectedFile!.name}',
+                        'קובץ מצורף: ${_selectedFile!.name}',
                         overflow: TextOverflow
                             .ellipsis, // Adds an ellipsis if the text overflows
                         maxLines: 1, // Limits the text to one line
@@ -381,8 +381,8 @@ class CreateAssignmentViewState extends State<CreateAssignmentView> {
                 children: [
                   Text(
                     _dueDate == null
-                        ? 'Select Due Date'
-                        : 'Due Date: ${_dueDate!.toLocal().toString().split(' ')[0]}',
+                        ? 'בחר מועד אחרון להגשה'
+                        : 'מועד אחרון להגשה: ${_dueDate!.toLocal().toString().split(' ')[0]}',
                     style: const TextStyle(fontSize: 16),
                   ),
                   OutlinedButton(
@@ -399,7 +399,7 @@ class CreateAssignmentViewState extends State<CreateAssignmentView> {
                         });
                       }
                     },
-                    child: const Text('Pick Date'),
+                    child: const Text('בחר תאריך'),
                   ),
                 ],
               ),
@@ -418,7 +418,7 @@ class CreateAssignmentViewState extends State<CreateAssignmentView> {
                             color: Colors.white,
                           ),
                         )
-                      : const Text('Create Assignment'),
+                      : const Text('יצירת מטלה'),
                 ),
               ),
             ],

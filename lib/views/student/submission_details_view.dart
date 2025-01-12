@@ -67,7 +67,7 @@ class SubmissionDetailsPageState extends State<SubmissionDetailsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          title: const Text('Your Submission'),
+          title: const Text('הגשה שלך'),
           centerTitle: true,
           flexibleSpace: Container(
             decoration: const BoxDecoration(
@@ -82,24 +82,24 @@ class SubmissionDetailsPageState extends State<SubmissionDetailsPage> {
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               const Text(
-                'Assignment Details:',
+                ':פרטי המטלה',
                 style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 20),
               // Status & Submission Date
-              buildDetailCard('Status', _status ?? 'Not Submitted',
+              buildDetailCard('סטטוס', _status ?? 'לא הוגש',
                   Icons.assignment, Colors.blue),
-              buildDetailCard('Due Date', _dueDate ?? 'N/A',
+              buildDetailCard('מועד אחרון להגשה', _dueDate ?? 'לא ידוע',
                   Icons.calendar_today, Colors.orange),
 
               const SizedBox(height: 20),
 
               // Display answers
               const Text(
-                'Submitted Answers:',
+                ':תשובות מוגשות',
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 10),
@@ -109,7 +109,7 @@ class SubmissionDetailsPageState extends State<SubmissionDetailsPage> {
                     // Add 1 to make the index start from 1 (Answer 1, Answer 2, etc.)
                     int index = entry.key + 1;
                     String answerTitle =
-                        'Answer $index'; // Create dynamic answer titles
+                        'תשובה $index'; // Create dynamic answer titles
 
                     // Extract the answer value correctly
                     String answerValue =
@@ -124,20 +124,20 @@ class SubmissionDetailsPageState extends State<SubmissionDetailsPage> {
 
               // Additional Input
               if (_additionalInput != null && _additionalInput!.isNotEmpty)
-                buildDetailCard('Additional Input', _additionalInput!,
+                buildDetailCard('הערות נוספות', _additionalInput!,
                     Icons.notes, Colors.purple),
 
               const SizedBox(height: 20),
 
               // Score
               if (_score != null)
-                buildDetailCard('Score', _score!, Icons.grade, Colors.red),
+                buildDetailCard('ציון', _score!, Icons.grade, Colors.red),
 
               const SizedBox(height: 20),
 
               // Review
               if (_review != null && _teacherReview != null)
-                buildDetailCard('Teacher $_teacherReview Review', _review!,
+                buildDetailCard('מורה $_teacherReview Review', _review!,
                     Icons.reviews, Colors.grey),
 
               const SizedBox(height: 20),
@@ -149,7 +149,7 @@ class SubmissionDetailsPageState extends State<SubmissionDetailsPage> {
                     openFile(_submittedFileUrl!);
                   },
                   icon: const Icon(Icons.attach_file),
-                  label: const Text('View Submitted File '),
+                  label: const Text('הצגת קובץ שהוגש'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blueAccent,
                     padding: const EdgeInsets.symmetric(vertical: 15),
@@ -160,7 +160,7 @@ class SubmissionDetailsPageState extends State<SubmissionDetailsPage> {
                   ),
                 ),
               if (_submittedFileUrl == null)
-                const Text('No file submitted',
+                const Text('אין קובץ שהוגש',
                     style: TextStyle(fontStyle: FontStyle.italic)),
             ],
           ),

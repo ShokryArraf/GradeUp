@@ -36,7 +36,7 @@ class _LoginViewState extends State<LoginView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Login'),
+        title: const Text('כניסה'),
         centerTitle: true,
         flexibleSpace: Container(
           decoration: const BoxDecoration(
@@ -54,7 +54,7 @@ class _LoginViewState extends State<LoginView> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Text(
-              'Welcome Back!',
+              '!ברוך הבא',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 20),
@@ -64,7 +64,7 @@ class _LoginViewState extends State<LoginView> {
               autocorrect: false,
               keyboardType: TextInputType.emailAddress,
               decoration: InputDecoration(
-                hintText: 'Enter your email',
+                hintText: 'הכנס דוא"ל',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
@@ -79,7 +79,7 @@ class _LoginViewState extends State<LoginView> {
               enableSuggestions: false,
               autocorrect: false,
               decoration: InputDecoration(
-                hintText: 'Enter your password',
+                hintText: 'הכנס סיסמא',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
@@ -105,7 +105,7 @@ class _LoginViewState extends State<LoginView> {
 
                     if (schoolName == null) {
                       await showErrorDialog(
-                          context, "School information is missing.");
+                          context, "מידע הבית ספר חסרה");
                       return;
                     }
 
@@ -137,23 +137,23 @@ class _LoginViewState extends State<LoginView> {
                   if (e.code == 'user-not-found') {
                     await showErrorDialog(
                       context,
-                      "User not found.",
+                      "משתמש לא נמצא",
                     );
                   } else if (e.code == 'wrong-password') {
                     await showErrorDialog(
                       context,
-                      "Wrong password.",
+                      "סיסמא שגויה",
                     );
                   } else {
                     await showErrorDialog(
                       context,
-                      'Error: ${e.code}',
+                      ':שגיאה ${e.code}',
                     );
                   }
                 } catch (e) {
                   await showErrorDialog(
                     context,
-                    "Please contact the support team.",
+                    "בבקשה צור קשר עם צוות העזרה",
                   );
                 }
               },
@@ -163,7 +163,7 @@ class _LoginViewState extends State<LoginView> {
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
-              child: const Text('Login'),
+              child: const Text('כניסה'),
             ),
             const SizedBox(height: 20),
             TextButton(
@@ -171,7 +171,7 @@ class _LoginViewState extends State<LoginView> {
                 Navigator.of(context)
                     .pushNamedAndRemoveUntil(registerRoute, (route) => false);
               },
-              child: const Text('Not registered yet? Register here!'),
+              child: const Text('לא רשום עדיין? תירשם כאן'),
             ),
           ],
         ),

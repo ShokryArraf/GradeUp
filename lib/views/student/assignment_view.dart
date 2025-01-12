@@ -40,7 +40,7 @@ class _AssignmentsViewState extends State<AssignmentsView> {
       });
     } catch (_) {
       // Handle error
-      showErrorDialog(context, 'Error fetching assignments');
+      showErrorDialog(context, 'שגיאה בטעינת מטלות');
       setState(() {
         _isLoading = false; // Stop loading even if there is an error
       });
@@ -60,7 +60,7 @@ class _AssignmentsViewState extends State<AssignmentsView> {
               child: _assignments.isEmpty
                   ? Center(
                       child: Text(
-                        'No assignments available yet!',
+                        'אין מטלות זמינות כרגע',
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -107,21 +107,21 @@ class _AssignmentsViewState extends State<AssignmentsView> {
                                 statusIcon =
                                     Icons.star; // Indicates reviewed or scored
                                 statusColor = Colors.blue;
-                                statusText = 'Reviewed';
+                                statusText = 'נבדק';
                               } else if (isSubmitted) {
                                 statusIcon =
                                     Icons.check_circle; // Indicates submission
                                 statusColor = Colors.green;
-                                statusText = 'Submitted';
+                                statusText = 'הוגש';
                               } else if (isOverdue) {
                                 statusIcon = Icons.warning; // Indicates overdue
                                 statusColor = Colors.red;
-                                statusText = 'Overdue';
+                                statusText = 'באיחור';
                               } else {
                                 statusIcon =
                                     Icons.access_time; // Indicates pending
                                 statusColor = Colors.orange;
-                                statusText = 'Pending';
+                                statusText = 'ממתין';
                               }
 
                               return Padding(
@@ -148,7 +148,7 @@ class _AssignmentsViewState extends State<AssignmentsView> {
                                         color: statusColor,
                                         size: 40), // Status icon
                                     title: Text(
-                                      assignment['title'] ?? 'No Title',
+                                      assignment['title'] ?? 'אין כותרת',
                                       style: const TextStyle(
                                         color: Colors.white,
                                         fontSize: 18,
@@ -160,7 +160,7 @@ class _AssignmentsViewState extends State<AssignmentsView> {
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          'Due Date: ${formatDueDate(assignment['dueDate'] ?? 'Not specified')}',
+                                          'מועד אחרון להגשה: ${formatDueDate(assignment['dueDate'] ?? 'לא צוין')}',
                                           style: const TextStyle(
                                             color: Colors.white70,
                                             fontSize: 14,
@@ -170,7 +170,7 @@ class _AssignmentsViewState extends State<AssignmentsView> {
                                         Row(
                                           children: [
                                             const Text(
-                                              'Status: ',
+                                              'סטטוס: ',
                                               style: TextStyle(
                                                 color: Colors.white70,
                                                 fontSize: 14,
@@ -189,7 +189,7 @@ class _AssignmentsViewState extends State<AssignmentsView> {
                                         if (hasScore) ...[
                                           const SizedBox(height: 5),
                                           Text(
-                                            'Score: $score',
+                                            'ציון: $score',
                                             style: const TextStyle(
                                               color: Colors.white70,
                                               fontSize: 14,

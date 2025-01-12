@@ -52,7 +52,7 @@ class _ManageMaterialState extends State<ManageMaterial> {
       setState(() {
         _isLoading = false; // Stop loading even if there is an error
       });
-      showErrorDialog(context, 'Error fetching content.');
+      showErrorDialog(context, 'שגיאה בטעינת נתונים');
     }
   }
 
@@ -61,7 +61,7 @@ class _ManageMaterialState extends State<ManageMaterial> {
     String titleS = widget.materialTitle;
     return Scaffold(
       appBar: AppBar(
-          title: Text('Manage \'$titleS\''),
+          title: Text('ניהול \'$titleS\''),
           centerTitle: true,
           flexibleSpace: Container(
             decoration: const BoxDecoration(
@@ -114,7 +114,7 @@ class _ManageMaterialState extends State<ManageMaterial> {
                                   Icon(Icons.add, color: Colors.black54),
                                   SizedBox(width: 10),
                                   Text(
-                                    'Add Content',
+                                    'הוספת תוכן',
                                     style: TextStyle(
                                       color: Colors.black87,
                                       fontSize: 20,
@@ -131,7 +131,7 @@ class _ManageMaterialState extends State<ManageMaterial> {
                                 child: TextField(
                                   controller: _titleController,
                                   decoration: InputDecoration(
-                                    hintText: 'Enter Subject',
+                                    hintText: 'הזן נושא',
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(10),
                                     ),
@@ -176,25 +176,25 @@ class _ManageMaterialState extends State<ManageMaterial> {
                                           .showSnackBar(
                                         const SnackBar(
                                             content: Text(
-                                                'Content added successfully!')),
+                                                'תוכן הוסף בהצלחה')),
                                       );
                                     } catch (_) {
                                       ScaffoldMessenger.of(context)
                                           .showSnackBar(
                                         const SnackBar(
                                             content:
-                                                Text('Error adding content:')),
+                                                Text(':שגיאה בהוספת תוכן')),
                                       );
                                     }
                                   } else {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       const SnackBar(
                                           content: Text(
-                                              'Please enter the content title to add.')),
+                                              'להזין כותרת בבקשה')),
                                     );
                                   }
                                 },
-                                child: const Text('Add'),
+                                child: const Text('הוספה'),
                               ),
                               const SizedBox(width: 10),
                               ElevatedButton(
@@ -206,7 +206,7 @@ class _ManageMaterialState extends State<ManageMaterial> {
                                         .clear(); // Clear the text field if canceling
                                   });
                                 },
-                                child: const Text('Cancel'),
+                                child: const Text('ביטול'),
                               ),
                             ],
                           ),
@@ -252,7 +252,7 @@ class _ManageMaterialState extends State<ManageMaterial> {
                         child: Center(
                           child: Text(
                             content['title'] ??
-                                'No Title', // Display content title from Firestore
+                                'אין כותרת', // Display content title from Firestore
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 20,

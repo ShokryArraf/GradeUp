@@ -46,7 +46,7 @@ class _ManageCourseState extends State<ManageCourse> {
       });
     } catch (error) {
       // Handle error
-      showErrorDialog(context, 'Error fetching materials.');
+      showErrorDialog(context, 'שגיאה בטעינת נתונים');
       setState(() {
         _isLoading = false; // Stop loading even if there is an error
       });
@@ -67,7 +67,7 @@ class _ManageCourseState extends State<ManageCourse> {
           title: newTitle,
         );
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('New content added.')),
+          const SnackBar(content: Text('תוכן חדש הוסף בהצלחה')),
         );
         setState(() {
           _isAddingContent = false;
@@ -75,11 +75,11 @@ class _ManageCourseState extends State<ManageCourse> {
         });
         await _fetchAndSetMaterials(); // Fetch updated materials
       } catch (_) {
-        showErrorDialog(context, "Could not update the new content.");
+        showErrorDialog(context, "הוספת תוכן לא הצליחה");
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter the content title to add.')),
+        const SnackBar(content: Text('בבקשה להזין כותרת לתוכן')),
       );
     }
   }
@@ -88,7 +88,7 @@ class _ManageCourseState extends State<ManageCourse> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-            title: const Text('Materials Overview'),
+            title: const Text('חומר השיעור'),
             centerTitle: true,
             flexibleSpace: Container(
               decoration: const BoxDecoration(
@@ -116,7 +116,7 @@ class _ManageCourseState extends State<ManageCourse> {
                                 child: TextField(
                                   controller: _contentController,
                                   decoration: InputDecoration(
-                                    hintText: 'Week 1',
+                                    hintText: 'שבוע 1',
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(10),
                                     ),
@@ -126,7 +126,7 @@ class _ManageCourseState extends State<ManageCourse> {
                               const SizedBox(width: 10),
                               ElevatedButton(
                                 onPressed: _addContent,
-                                child: const Text('Add'),
+                                child: const Text('הוספה'),
                               ),
                               const SizedBox(width: 10),
                               ElevatedButton(
@@ -136,7 +136,7 @@ class _ManageCourseState extends State<ManageCourse> {
                                         false; // Switch back to the default view
                                   });
                                 },
-                                child: const Text('Cancel'),
+                                child: const Text('ביטול'),
                               ),
                             ],
                           )
@@ -168,7 +168,7 @@ class _ManageCourseState extends State<ManageCourse> {
                                   Icon(Icons.add, color: Colors.black54),
                                   SizedBox(width: 10),
                                   Text(
-                                    'Add Content',
+                                    'הוספת תוכן',
                                     style: TextStyle(
                                       color: Colors.black87,
                                       fontSize: 20,
@@ -218,7 +218,7 @@ class _ManageCourseState extends State<ManageCourse> {
                           child: Center(
                             child: Text(
                               material['title'] ??
-                                  'No Title', // Display material title
+                                  'אין כותרת', // Display material title
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 20,

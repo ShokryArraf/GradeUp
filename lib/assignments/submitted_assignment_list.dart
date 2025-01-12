@@ -43,7 +43,7 @@ class SubmittedAssignmentsListState extends State<SubmittedAssignmentsList> {
       appBar: AppBar(
         toolbarHeight: 80, // Set this height
         title: Text(
-            'Submitted Assignments \n ${widget.lesson} - Grade ${widget.grade}'),
+            'מטלות מוגשות \n ${widget.lesson} - כיתה ${widget.grade}'),
         centerTitle: true,
         flexibleSpace: Container(
           decoration: const BoxDecoration(
@@ -74,7 +74,7 @@ class SubmittedAssignmentsListState extends State<SubmittedAssignmentsList> {
           if (students.isEmpty) {
             return const Center(
               child: Text(
-                'No students found for this grade and lesson.',
+                'אין תלמידים עבור הכיתה והשיעור הזה',
                 style: TextStyle(fontSize: 18, color: Colors.grey),
               ),
             );
@@ -115,12 +115,12 @@ class SubmittedAssignmentsListState extends State<SubmittedAssignmentsList> {
                         contentPadding: const EdgeInsets.symmetric(
                             vertical: 16.0, horizontal: 20.0),
                         title: Text(
-                          'Student: ${student['name']}',
+                          'תלמיד: ${student['name']}',
                           style: const TextStyle(
                               fontSize: 18, fontWeight: FontWeight.bold),
                         ),
                         subtitle: const Text(
-                          'No submissions yet.',
+                          'עדיין אין הגשות',
                           style: TextStyle(color: Colors.grey),
                         ),
                       ),
@@ -138,7 +138,7 @@ class SubmittedAssignmentsListState extends State<SubmittedAssignmentsList> {
                       tilePadding: const EdgeInsets.symmetric(
                           vertical: 10.0, horizontal: 16.0),
                       title: Text(
-                        'Student: ${student['name']}',
+                        'תלמיד: ${student['name']}',
                         style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -157,7 +157,7 @@ class SubmittedAssignmentsListState extends State<SubmittedAssignmentsList> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Assignment: ${assignment['title']}',
+                                  'מטלה: ${assignment['title']}',
                                   style: const TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
@@ -166,17 +166,17 @@ class SubmittedAssignmentsListState extends State<SubmittedAssignmentsList> {
                                 ),
                                 const SizedBox(height: 8.0),
                                 Text(
-                                  'Submitted on: ${assignment['submissionDate'] != null ? (assignment['submissionDate'] as Timestamp).toDate().toString() : 'N/A'}',
+                                  'מועד הנשה: ${assignment['submissionDate'] != null ? (assignment['submissionDate'] as Timestamp).toDate().toString() : 'לא ידוע'}',
                                   style: const TextStyle(color: Colors.grey),
                                 ),
                                 const SizedBox(height: 8.0),
                                 if (assignment['dueDate'] != null) ...[
                                   Text(
-                                    'Due Date: ${formatDueDate(assignment['dueDate'])}',
+                                    'מועד אחרון להגשה: ${formatDueDate(assignment['dueDate'])}',
                                     style: const TextStyle(color: Colors.grey),
                                   ),
                                 ] else ...[
-                                  const Text('Due Date: N/A',
+                                  const Text('מועד אחרון להגשה: N/A',
                                       style: TextStyle(color: Colors.grey)),
                                 ],
                                 const SizedBox(height: 8.0),
@@ -186,7 +186,7 @@ class SubmittedAssignmentsListState extends State<SubmittedAssignmentsList> {
                                     child: ElevatedButton(
                                       onPressed: () => openFile(
                                           assignment['uploadedFileUrl']),
-                                      child: const Text('Open Uploaded File'),
+                                      child: const Text('פתח קובץ מצורף'),
                                     ),
                                   ),
                                 ] else ...[
@@ -199,7 +199,7 @@ class SubmittedAssignmentsListState extends State<SubmittedAssignmentsList> {
                                           color: Colors.red,
                                         ),
                                         SizedBox(width: 8.0),
-                                        Text('No file uploaded.'),
+                                        Text('אין קובץ מצורף'),
                                       ],
                                     ),
                                   ),
@@ -227,7 +227,7 @@ class SubmittedAssignmentsListState extends State<SubmittedAssignmentsList> {
                                       ),
                                     ),
                                     child: Text(
-                                      'Notes: ${assignment['additionalInput']}',
+                                      'הערות: ${assignment['additionalInput']}',
                                       style: const TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.bold,
@@ -249,17 +249,17 @@ class SubmittedAssignmentsListState extends State<SubmittedAssignmentsList> {
                                             height: 10,
                                           ),
                                           Text(
-                                            'Current Score: ${assignment['score']}',
+                                            'ניקוד נוכחי: ${assignment['score']}',
                                             style:
                                                 const TextStyle(fontSize: 16),
                                           ),
                                           Text(
-                                            'Current Review: ${assignment['review']}',
+                                            'בדיקה נוכחית: ${assignment['review']}',
                                             style:
                                                 const TextStyle(fontSize: 16),
                                           ),
                                           Text(
-                                            'Reviwed by : ${assignment['teacherReviewed']}',
+                                            'נבדק ע"י : ${assignment['teacherReviewed']}',
                                             style:
                                                 const TextStyle(fontSize: 16),
                                           ),
@@ -274,7 +274,7 @@ class SubmittedAssignmentsListState extends State<SubmittedAssignmentsList> {
                                               });
                                             },
                                             child: const Text(
-                                              'Edit Score and Review',
+                                              'עריכת ניקוד ובדיקה',
                                             ),
                                           ),
                                         ],
@@ -286,7 +286,7 @@ class SubmittedAssignmentsListState extends State<SubmittedAssignmentsList> {
                                         children: [
                                           const SizedBox(height: 8.0),
                                           const Text(
-                                            'Provide Score and Review:',
+                                            'ניקוד ובדיקה:',
                                             style: TextStyle(
                                                 fontWeight: FontWeight.bold),
                                           ),
@@ -294,7 +294,7 @@ class SubmittedAssignmentsListState extends State<SubmittedAssignmentsList> {
                                           TextField(
                                             controller: scoreController,
                                             decoration: const InputDecoration(
-                                              labelText: 'Enter score',
+                                              labelText: 'הכנס ניקוד',
                                               border: OutlineInputBorder(),
                                               contentPadding:
                                                   EdgeInsets.symmetric(
@@ -308,7 +308,7 @@ class SubmittedAssignmentsListState extends State<SubmittedAssignmentsList> {
                                             controller: reviewController,
                                             maxLines: 5,
                                             decoration: const InputDecoration(
-                                              labelText: 'Write your review...',
+                                              labelText: 'כתוב הערות בדיקה',
                                               border: OutlineInputBorder(),
                                             ),
                                           ),
@@ -325,7 +325,7 @@ class SubmittedAssignmentsListState extends State<SubmittedAssignmentsList> {
                                                     .showSnackBar(
                                                   const SnackBar(
                                                       content: Text(
-                                                          'Invalid score. Please enter a value between 0 and 100.')),
+                                                          'ניקוד לא תקין. יש לכתוב ערך בין 0 ל-100')),
                                                 );
                                                 return;
                                               }
@@ -355,7 +355,7 @@ class SubmittedAssignmentsListState extends State<SubmittedAssignmentsList> {
                                                     .showSnackBar(
                                                   const SnackBar(
                                                       content: Text(
-                                                          'Score and review submitted successfully!')),
+                                                          'ניקוד ובדיקה הוגשו בהצלחה')),
                                                 );
                                                 scoreController.clear();
                                                 reviewController.clear();
@@ -367,12 +367,12 @@ class SubmittedAssignmentsListState extends State<SubmittedAssignmentsList> {
                                                 ScaffoldMessenger.of(context)
                                                     .showSnackBar(
                                                   const SnackBar(
-                                                      content: Text('Error')),
+                                                      content: Text('שגיאה')),
                                                 );
                                               }
                                             },
                                             child: const Text(
-                                                'Submit Score and Review'),
+                                                'ניקוד ובידקה הוגשו בהצלחה'),
                                           ),
                                         ],
                                       ),

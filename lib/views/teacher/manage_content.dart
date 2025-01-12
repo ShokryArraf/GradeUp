@@ -61,7 +61,7 @@ class _ManageContentState extends State<ManageContent> {
         _isLoading = false;
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Error fetching blocks")),
+        const SnackBar(content: Text("שגיאה בטעינת תוכן")),
       );
     }
   }
@@ -76,17 +76,17 @@ class _ManageContentState extends State<ManageContent> {
       child: Column(
         children: [
           const Text(
-            'Add New Content Element',
+            'הוספת פריט תוכן',
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 10),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildElementCard(Icons.title, 'Title', 'title'),
-              _buildElementCard(Icons.image, 'Media', 'media'),
-              _buildElementCard(Icons.text_fields, 'Text', 'text'),
-              _buildElementCard(Icons.link, 'Link', 'link'),
+              _buildElementCard(Icons.title, 'כותרת', 'title'),
+              _buildElementCard(Icons.image, 'מדיה', 'media'),
+              _buildElementCard(Icons.text_fields, 'טקסט', 'text'),
+              _buildElementCard(Icons.link, 'קישור', 'link'),
             ],
           ),
         ],
@@ -134,7 +134,7 @@ class _ManageContentState extends State<ManageContent> {
         TextField(
           controller: _linkController,
           decoration: const InputDecoration(
-            labelText: 'Enter Link URL',
+            labelText: 'הכנס קישור',
             border: OutlineInputBorder(),
           ),
         ),
@@ -162,20 +162,20 @@ class _ManageContentState extends State<ManageContent> {
                 });
 
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Link added successfully!')),
+                  const SnackBar(content: Text('קישור הוסף בהצלחה')),
                 );
               } catch (_) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Error adding link')),
+                  const SnackBar(content: Text('שגיאה בהוספת קישור')),
                 );
               }
             } else {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Please enter a link URL.')),
+                const SnackBar(content: Text('להזין קישור בבקשה')),
               );
             }
           },
-          child: const Text('Add Link'),
+          child: const Text('הוספת קישור'),
         ),
         const SizedBox(height: 10),
         ElevatedButton(
@@ -185,7 +185,7 @@ class _ManageContentState extends State<ManageContent> {
               _selectedElement = null; // Reset selection
             });
           },
-          child: const Text('Cancel'),
+          child: const Text('ביטול'),
         ),
       ],
     );
@@ -197,7 +197,7 @@ class _ManageContentState extends State<ManageContent> {
         TextField(
           controller: _titleController,
           decoration: const InputDecoration(
-            labelText: 'Enter Title',
+            labelText: 'הוספת כותרת',
             border: OutlineInputBorder(),
           ),
         ),
@@ -226,21 +226,21 @@ class _ManageContentState extends State<ManageContent> {
                 });
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
-                      content: Text('Title block added successfully!')),
+                      content: Text('כותרת הוספה בהצלחה')),
                 );
               } catch (_) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Error adding content')),
+                  const SnackBar(content: Text('שגיאה בהוספת תוכן')),
                 );
               }
             } else {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
-                    content: Text('Please enter the content title to add.')),
+                    content: Text('להזין כותרת בבקשה')),
               );
             }
           },
-          child: const Text('Add Title'),
+          child: const Text('הוספת כותרת'),
         ),
         const SizedBox(height: 10),
         ElevatedButton(
@@ -250,7 +250,7 @@ class _ManageContentState extends State<ManageContent> {
               _selectedElement = null; // Reset selection
             });
           },
-          child: const Text('Cancel'),
+          child: const Text('ביטול'),
         ),
       ],
     );
@@ -295,7 +295,7 @@ class _ManageContentState extends State<ManageContent> {
               });
             }
           },
-          child: const Text('Pick Image'),
+          child: const Text('בחר תמונה'),
         ),
         const SizedBox(height: 10),
         _isUploading
@@ -333,7 +333,7 @@ class _ManageContentState extends State<ManageContent> {
 
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                            content: Text('Image uploaded successfully!')),
+                            content: Text('תמונה הוספה בהצלחה')),
                       );
                     } catch (error) {
                       setState(() {
@@ -341,16 +341,16 @@ class _ManageContentState extends State<ManageContent> {
                       });
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                            content: Text('Error uploading image: $error')),
+                            content: Text(':שגיאה בהוספת תוכן $error')),
                       );
                     }
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('No image selected')),
+                      const SnackBar(content: Text('לא נבחרה תמונה')),
                     );
                   }
                 },
-                child: const Text('Upload Image'),
+                child: const Text('הוספת תמונה'),
               ),
         const SizedBox(height: 10),
         ElevatedButton(
@@ -360,7 +360,7 @@ class _ManageContentState extends State<ManageContent> {
               _selectedElement = null; // Reset selection
             });
           },
-          child: const Text('Cancel'),
+          child: const Text('ביטול'),
         ),
       ],
     );
@@ -373,7 +373,7 @@ class _ManageContentState extends State<ManageContent> {
           controller: _textController,
           maxLines: 4,
           decoration: const InputDecoration(
-            labelText: 'Enter Text',
+            labelText: 'הזין טקסט',
             border: OutlineInputBorder(),
           ),
         ),
@@ -402,20 +402,20 @@ class _ManageContentState extends State<ManageContent> {
                 });
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
-                      content: Text('Text block added successfully!')),
+                      content: Text('טקסט הוסף בהצלחה')),
                 );
               } catch (_) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Error adding content')),
+                  const SnackBar(content: Text('שגיאה בהוספת תוכן')),
                 );
               }
             } else {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Please enter the text to add.')),
+                const SnackBar(content: Text('הזין טקסט בבקשה')),
               );
             }
           },
-          child: const Text('Add Text'),
+          child: const Text('הוספת טקסט'),
         ),
         const SizedBox(height: 10),
         ElevatedButton(
@@ -425,7 +425,7 @@ class _ManageContentState extends State<ManageContent> {
               _selectedElement = null; // Reset selection
             });
           },
-          child: const Text('Cancel'),
+          child: const Text('ביטול'),
         ),
       ],
     );
@@ -483,7 +483,7 @@ class _ManageContentState extends State<ManageContent> {
         });
 
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('File uploaded successfully')),
+          const SnackBar(content: Text('קובץ הוסף בהצלחה')),
         );
       }
     } catch (_) {
@@ -491,7 +491,7 @@ class _ManageContentState extends State<ManageContent> {
         _isLoading = false;
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('File upload failed')),
+        const SnackBar(content: Text('הוספת קובץ נכשלה')),
       );
     }
   }
@@ -500,7 +500,7 @@ class _ManageContentState extends State<ManageContent> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          title: const Text('Add Content'),
+          title: const Text('הוספת תוכן'),
           centerTitle: true,
           flexibleSpace: Container(
             decoration: const BoxDecoration(
@@ -526,7 +526,7 @@ class _ManageContentState extends State<ManageContent> {
                   ElevatedButton.icon(
                     onPressed: _uploadFile,
                     icon: const Icon(Icons.upload_file),
-                    label: const Text('Upload PDF/Word File'),
+                    label: const Text('PDF/Word העלאת קובץ'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF00C6FF),
                     ),

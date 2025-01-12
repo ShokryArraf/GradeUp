@@ -41,7 +41,7 @@ class _CourseViewState extends State<CourseView> with TickerProviderStateMixin {
       });
     } catch (error) {
       // Handle error
-      showErrorDialog(context, 'Error fetching materials');
+      showErrorDialog(context, 'שגיאה בטעינת חומר');
       setState(() {
         _isLoading = false; // Stop loading even if there is an error
       });
@@ -52,7 +52,7 @@ class _CourseViewState extends State<CourseView> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Course Overview'),
+        title: const Text('מסך השיעור'),
         centerTitle: true,
         flexibleSpace: Container(
           decoration: const BoxDecoration(
@@ -66,8 +66,8 @@ class _CourseViewState extends State<CourseView> with TickerProviderStateMixin {
         bottom: TabBar(
           controller: _tabController,
           tabs: const [
-            Tab(text: 'Materials'),
-            Tab(text: 'Assignments'),
+            Tab(text: 'חומר'),
+            Tab(text: 'מטלות'),
           ],
         ),
       ),
@@ -81,7 +81,7 @@ class _CourseViewState extends State<CourseView> with TickerProviderStateMixin {
                 _materials.isEmpty
                     ? Center(
                         child: Text(
-                          'No materials available yet',
+                          'אין חומר זמין עדיין',
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -127,7 +127,7 @@ class _CourseViewState extends State<CourseView> with TickerProviderStateMixin {
                                   ),
                                   child: Center(
                                     child: Text(
-                                      material['title'] ?? 'No Title',
+                                      material['title'] ?? 'אין כותרת',
                                       style: const TextStyle(
                                         color: Colors.white,
                                         fontSize: 20,

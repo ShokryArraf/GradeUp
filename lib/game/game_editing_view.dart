@@ -45,7 +45,7 @@ class GameEditingViewState extends State<GameEditingView> {
     try {
       return widget.teacher.lessonGradeMap[lessonName] ?? [];
     } catch (e) {
-      throw Exception("Error fetching grades: $e");
+      throw Exception("שגיאה בטעינת כיתות: $e");
     }
   }
 
@@ -80,13 +80,13 @@ class GameEditingViewState extends State<GameEditingView> {
       await gameService.deleteQuestion(
           _selectedLesson!, questionId, widget.teacher.school, _selectedGrade!);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Question deleted successfully!')),
+        const SnackBar(content: Text('שאלה נמחקה בהצלחה')),
       );
       _fetchQuestions();
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('At least one question must remain at this level.'),
+          content: Text('חובה להשאיר לפחות שאלה אחת ברמה הזאת'),
         ),
       );
     }
@@ -113,7 +113,7 @@ class GameEditingViewState extends State<GameEditingView> {
     if (questionText != null && questionText.length > 55) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Question text cannot be that long.'),
+          content: Text('שאלה ארוכה מדי'),
         ),
       );
       return false;
@@ -124,14 +124,14 @@ class GameEditingViewState extends State<GameEditingView> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
             content: Text(
-                'You must provide the correct answer in one of the options.')),
+                'חובה להזין תשובה נכונה לפי אחד האופציות')),
       );
       return false;
     }
 
     if (answerOptions.length != 4) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('You must provide 4 answer options.')),
+        const SnackBar(content: Text('חובה להזין 4 אפוציות בתשובות')),
       );
       return false;
     }
@@ -139,7 +139,7 @@ class GameEditingViewState extends State<GameEditingView> {
     // Check if all options are unique
     if (!areOptionsUnique(answerOptions)) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("All answer options must be unique.")),
+        const SnackBar(content: Text("כל תשובה חייבת להיות שונה מהתשובות האחרות")),
       );
       return false;
     }
@@ -153,7 +153,7 @@ class GameEditingViewState extends State<GameEditingView> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
             content: Text(
-                'You must provide the correct answer in one of the options.')),
+                'חובה להזין תשובה נכונה לפי אחד האופציות')),
       );
       return false;
     }
@@ -182,7 +182,7 @@ class GameEditingViewState extends State<GameEditingView> {
         );
 
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Question added successfully!')),
+          const SnackBar(content: Text('שאלה הוספה בהצלחה')),
         );
 
         _formKey.currentState?.reset();
@@ -193,7 +193,7 @@ class GameEditingViewState extends State<GameEditingView> {
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-              content: Text('Each level must have a maximum of 6 questions.')),
+              content: Text('מקסימום 6 שאלות לכל רמה')),
         );
       }
     }
@@ -224,7 +224,7 @@ class GameEditingViewState extends State<GameEditingView> {
           final row = fields[i];
           if (row.length < 7) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text("Invalid CSV format!")),
+              const SnackBar(content: Text("סוג קובץ לא תקין (CSV)")),
             );
             return;
           }
@@ -247,16 +247,16 @@ class GameEditingViewState extends State<GameEditingView> {
           if (!areLessonGradeValid(lesson, grade)) {
             CustomDialog.show(
                 context,
-                "You are not assigned to the lesson/grade you entered. ",
-                "Validation failed at row ${i + 1}. Only rows up to $lastValidRow were processed.");
+                "אתה לא מלמד את השיעור/כיתה שהכנסת",
+                "ולידציה נכשלה עד השורה ${i + 1}. רק שורות עד שורה $lastValidRow בוצעו.");
             return;
           }
           // Add question to the database
           if (!_validateInputs(questionText, answerOptions, correctAnswer)) {
             CustomDialog.show(
               context,
-              "Validation Failed",
-              "Validation failed at row ${i + 1}. Only rows up to $lastValidRow were processed.",
+              "ולידציה נכשלה",
+              "ולידציה נכשלה עד השורה ${i + 1}. רק שורות עד שורה $lastValidRow בוצעו.",
             );
             return; // Exit if validation fails
           }
@@ -274,12 +274,12 @@ class GameEditingViewState extends State<GameEditingView> {
           lastValidRow = i + 1; // Update the last valid row
         }
         // Notify success
-        CustomDialog.show(context, "Success",
-            "Questions uploaded successfully! Last processed row: $lastValidRow.");
+        CustomDialog.show(context, "הצלחה",
+            ":השאלת עודכנו בהצלחה! שורה אחרונה שבוצעה $lastValidRow.");
         _fetchQuestions(); // Refresh the question list
       }
     } catch (e) {
-      CustomDialog.show(context, "Error", "Error uploading questions: $e");
+      CustomDialog.show(context, "שגיאה", "שגיאה בעדכון שאלות: $e");
     }
   }
 
@@ -288,7 +288,7 @@ class GameEditingViewState extends State<GameEditingView> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Edit Game Questions',
+          'עריכת שאלות משחק',
           style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
         ),
         centerTitle: true,
@@ -320,7 +320,7 @@ class GameEditingViewState extends State<GameEditingView> {
                     // Lesson Dropdown
                     DropdownButtonFormField<String>(
                       decoration: InputDecoration(
-                        labelText: 'Select Lesson',
+                        labelText: 'בחר שיעור',
                         filled: true,
                         fillColor: Colors.grey.shade200,
                         border: OutlineInputBorder(
@@ -343,14 +343,14 @@ class GameEditingViewState extends State<GameEditingView> {
                         });
                       },
                       validator: (value) =>
-                          value == null ? 'Please select a lesson' : null,
+                          value == null ? 'בחר שיעור בבקשה' : null,
                     ),
                     const SizedBox(height: 10),
                     // Grade Dropdown
                     if (_selectedLesson != null)
                       DropdownButtonFormField<String>(
                         decoration: InputDecoration(
-                          labelText: 'Select Grade',
+                          labelText: 'בחר כיתה',
                           filled: true,
                           fillColor: Colors.grey.shade200,
                           border: OutlineInputBorder(
@@ -361,7 +361,7 @@ class GameEditingViewState extends State<GameEditingView> {
                             .map((grade) {
                           return DropdownMenuItem(
                             value: grade.toString(),
-                            child: Text('Grade $grade'),
+                            child: Text('כיתה $grade'),
                           );
                         }).toList(),
                         value:
@@ -374,7 +374,7 @@ class GameEditingViewState extends State<GameEditingView> {
                           });
                         },
                         validator: (value) =>
-                            value == null ? 'Please select a grade' : null,
+                            value == null ? 'בחר כיתה בבקשה' : null,
                       ),
                     const SizedBox(height: 10),
                     // Level Selection
@@ -412,7 +412,7 @@ class GameEditingViewState extends State<GameEditingView> {
                                   }
                                 },
                                 decoration: InputDecoration(
-                                  labelText: 'Select or Add a Level',
+                                  labelText: 'בחר או הוסיף רמה',
                                   filled: true,
                                   fillColor: Colors.grey.shade200,
                                   border: OutlineInputBorder(
@@ -423,8 +423,8 @@ class GameEditingViewState extends State<GameEditingView> {
                               const SizedBox(height: 8),
                               Text(
                                 levels.isNotEmpty
-                                    ? 'Existing Levels: ${levels.join(', ')}'
-                                    : 'No levels exist yet. Create a new level.',
+                                    ? 'רמות קיימות: ${levels.join(', ')}'
+                                    : 'איו רמות קיימות. צור רמה חדשה',
                                 style: TextStyle(
                                   color: Colors.grey[600],
                                   fontSize: 14,
@@ -432,7 +432,7 @@ class GameEditingViewState extends State<GameEditingView> {
                               ),
                               const SizedBox(height: 8),
                               const Text(
-                                'Note: If adding a new level, ensure it eventually has at least 5 questions.In addition Question text can have a maximum of 9 words.',
+                                'הערה: בהוספת רמה חדשה, יש לוודא שבסופו של דבר יש לה 5 שאלות לפחות. בנוסף, כל שאלה היא עד 9 מילים',
                                 style: TextStyle(
                                   color: Colors.orange,
                                   fontSize: 12,
@@ -452,9 +452,9 @@ class GameEditingViewState extends State<GameEditingView> {
                           final question = _questions[index];
                           return ListTile(
                             title: Text(
-                                question['questionText'] ?? 'No Question Text'),
+                                question['questionText'] ?? 'אין תוכן שאלה'),
                             subtitle:
-                                Text('Level: ${question['questionLevel']}'),
+                                Text('רמה: ${question['questionLevel']}'),
                             trailing: IconButton(
                               icon: const Icon(Icons.delete, color: Colors.red),
                               onPressed: () => _deleteQuestion(question['id']),
@@ -464,15 +464,15 @@ class GameEditingViewState extends State<GameEditingView> {
                       ),
                     const SizedBox(height: 10),
                     // Add Question Fields
-                    buildTextField('Question Text',
+                    buildTextField('שאלה',
                         onSaved: (value) => _questionText = value),
 
                     const SizedBox(height: 10),
-                    buildTextField('Correct Answer',
+                    buildTextField('תשובה נכונה',
                         onSaved: (value) => _correctAnswer = value),
                     const SizedBox(height: 24.0),
                     Text(
-                      'Answer Options:',
+                      'תשובות:',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.bold,
                           ),
@@ -484,7 +484,7 @@ class GameEditingViewState extends State<GameEditingView> {
                         padding: const EdgeInsets.only(bottom: 8.0),
                         child: TextFormField(
                           decoration: InputDecoration(
-                            labelText: 'Option ${i + 1}',
+                            labelText: 'תשובה ${i + 1}',
                             filled: true,
                             fillColor: Colors.grey.shade200,
                             border: OutlineInputBorder(
@@ -495,14 +495,14 @@ class GameEditingViewState extends State<GameEditingView> {
                             _answerOptions[i] = value ?? '';
                           },
                           validator: (value) => value == null || value.isEmpty
-                              ? 'Please enter Option ${i + 1}'
+                              ? 'בבקשה הכנס תשובה ${i + 1}'
                               : null,
                         ),
                       ),
                     const SizedBox(height: 10),
                     ElevatedButton(
                       onPressed: _addQuestion,
-                      child: const Text('Add Question'),
+                      child: const Text('הוספת שאלה'),
                     ),
                     const SizedBox(
                       height: 10,
@@ -512,8 +512,8 @@ class GameEditingViewState extends State<GameEditingView> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Text(
-                            "Use this option to upload multiple questions from a CSV file. "
-                            "Ensure the file follows the required format. Click the info icon for details or download a template.",
+                            "בחר באופציה הזאת להוספת מספר שאלות ביחד בעזרת קובץ CSV\n"
+                            "תוודא שהקובץ לפי הפורמט המתאים. לחץ על סימן אינפורמציה לקבל מידע או להוריד הטימפלט.",
                             style: TextStyle(fontSize: 14, color: Colors.grey),
                           ),
                           const SizedBox(height: 10),
@@ -522,7 +522,7 @@ class GameEditingViewState extends State<GameEditingView> {
                               ElevatedButton.icon(
                                 onPressed: _bulkUploadQuestions,
                                 icon: const Icon(Icons.upload_file),
-                                label: const Text("Bulk Upload Questions"),
+                                label: const Text("הוספת שאלות בעזרת קובץ"),
                               ),
                               const SizedBox(width: 8),
                               IconButton(
@@ -532,25 +532,25 @@ class GameEditingViewState extends State<GameEditingView> {
                                     context: context,
                                     builder: (context) => AlertDialog(
                                       title:
-                                          const Text("CSV Format Instructions"),
+                                          const Text("הוראות פורמט קובץ CSV"),
                                       content: const Text(
-                                        "The CSV file should contain the following columns:\n"
-                                        "1. Lesson (e.g., 'math')\n"
-                                        "2. Grade (e.g., '6')\n"
-                                        "3. Level (e.g., '1')\n"
-                                        "4. Question Text (e.g., 'What is 2+2?')\n"
-                                        "5. Correct Answer (e.g., '4')\n"
-                                        "6. Option 1 (e.g., '4')\n"
-                                        "7. Option 2 (e.g., '3')\n"
-                                        "8. Option 3 (e.g., '5')\n"
-                                        "9. Option 4 (e.g., '2')\n\n"
-                                        "Ensure all rows are properly filled.",
+                                        ":הקובץ עלול להגיל את העמודות הבאות\n"
+                                        "1. שיעור (למשל: מתמטיקה)\n"
+                                        "2. כיתה (למשל: 6)\n"
+                                        "3. רמה (למשל: 1)\n"
+                                        "4. שאלה (למשל: 'מה זה 2+2')\n"
+                                        "5. תשובה נכונה (למשל: '4')\n"
+                                        "6. תשובה 1 (למשל: '4')\n"
+                                        "7. תשובה 2 (למשל: '3')\n"
+                                        "8. תשובה 3 (למשל: '2')\n"
+                                        "9. תשובה 4 (למשל: '5')\n\n"
+                                        "תוודא שכל השורות מלאות בהתאם",
                                       ),
                                       actions: [
                                         TextButton(
                                           onPressed: () =>
                                               Navigator.of(context).pop(),
-                                          child: const Text("Close"),
+                                          child: const Text("סגור"),
                                         ),
                                       ],
                                     ),
@@ -568,12 +568,12 @@ class GameEditingViewState extends State<GameEditingView> {
                               await downloadTemplate.downloadTemplate();
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
-                                  content: Text("Downloading template..."),
+                                  content: Text("...מוריד טפליט"),
                                 ),
                               );
                             },
                             icon: const Icon(Icons.download),
-                            label: const Text("Download CSV Template"),
+                            label: const Text("CSV הורדת קובץ"),
                           ),
                         ],
                       ),

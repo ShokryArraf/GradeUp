@@ -29,8 +29,8 @@ class LessonGradeSelectState extends State<LessonGradeSelect> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.isViewingProgress
-            ? 'Student Progress'
-            : 'Submitted Assignments'),
+            ? 'התקדמות תלמידים'
+            : 'מטלות מוגשות'),
         centerTitle: true,
         flexibleSpace: Container(
           decoration: const BoxDecoration(
@@ -66,13 +66,13 @@ class LessonGradeSelectState extends State<LessonGradeSelect> {
                 ),
               ),
               subtitle: Text(
-                'Grades: ${grades.join(', ')}',
+                'כיתות: ${grades.join(', ')}',
                 style: const TextStyle(color: Colors.grey),
               ),
               children: grades.map((grade) {
                 return ListTile(
                   contentPadding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  title: Text('Grade $grade'),
+                  title: Text('כיתה $grade'),
                   trailing: const Icon(
                     Icons.chevron_right,
                     color: Colors.blueAccent,

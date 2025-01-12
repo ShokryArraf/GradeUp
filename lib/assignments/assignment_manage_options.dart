@@ -20,7 +20,7 @@ class _AssignmentManageOptionsState extends State<AssignmentManageOptions> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          title: const Text('Manage Assignments'),
+          title: const Text('ניהול מטלות'),
           centerTitle: true,
           flexibleSpace: Container(
             decoration: const BoxDecoration(
@@ -47,7 +47,7 @@ class _AssignmentManageOptionsState extends State<AssignmentManageOptions> {
                     height: 200,
                     child: buildDashboardCard(
                       Icons.create,
-                      'Create Assignments',
+                      'יצירת מטלות',
                       Colors.green,
                       () {
                         Navigator.push(
@@ -65,7 +65,7 @@ class _AssignmentManageOptionsState extends State<AssignmentManageOptions> {
                     height: 200,
                     child: buildDashboardCard(
                       Icons.search,
-                      'Search,Edit & Delete Assignments',
+                      'חיפוש, עריכה ומחיקת מטלות',
                       Colors.red,
                       () {
                         Navigator.push(
@@ -87,7 +87,7 @@ class _AssignmentManageOptionsState extends State<AssignmentManageOptions> {
                 height: 200,
                 child: buildDashboardCard(
                   Icons.assignment_turned_in,
-                  'View Submitted Assignments',
+                  'הצגת מטלות מוגשות',
                   Colors.blue,
                   () {
                     // Navigator.push(
