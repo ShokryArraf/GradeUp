@@ -115,16 +115,16 @@ class _RegisterViewState extends State<RegisterView> {
           .pushNamedAndRemoveUntil(loginRoute, (route) => false);
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
-        await showErrorDialog(context, 'Weak password.');
+        await showErrorDialog(context, '.סיסמא חלשה');
       } else if (e.code == 'email-already-in-use') {
-        await showErrorDialog(context, 'Email already in use.');
+        await showErrorDialog(context, '.דוא"ל כבר בשימוש');
       } else if (e.code == 'invalid-email') {
-        await showErrorDialog(context, 'Invalid email address.');
+        await showErrorDialog(context, '.דוא"ל לא תקין');
       } else {
-        await showErrorDialog(context, 'Error: ${e.message}');
+        await showErrorDialog(context, 'שגיאה: ${e.message}');
       }
     } catch (e) {
-      await showErrorDialog(context, 'Error: $e');
+      await showErrorDialog(context, 'שגיאה: $e');
     }
   }
 
@@ -132,7 +132,7 @@ class _RegisterViewState extends State<RegisterView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          title: const Text('Register'),
+          title: const Text('הרשמה'),
           centerTitle: true,
           flexibleSpace: Container(
             decoration: const BoxDecoration(
@@ -151,19 +151,19 @@ class _RegisterViewState extends State<RegisterView> {
               padding: const EdgeInsets.all(16.0),
               child: SingleChildScrollView(
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     // Full Name Input
                     TextField(
                       controller: _fullName,
-                      decoration: const InputDecoration(hintText: 'Full Name'),
+                      decoration: const InputDecoration(hintText: 'שם מלא'),
                     ),
                     const SizedBox(height: 8),
                     // Email Input
                     TextField(
                       controller: _email,
                       decoration:
-                          const InputDecoration(hintText: 'Enter your email'),
+                          const InputDecoration(hintText: 'הכנס דוא"ל'),
                     ),
                     const SizedBox(height: 8),
                     // Password Input
@@ -171,7 +171,7 @@ class _RegisterViewState extends State<RegisterView> {
                       controller: _password,
                       obscureText: true,
                       decoration: const InputDecoration(
-                          hintText: 'Enter your password'),
+                          hintText: 'הכנס סיסמא'),
                     ),
                     const SizedBox(height: 16),
                     // Role Selection Dropdown
@@ -210,14 +210,14 @@ class _RegisterViewState extends State<RegisterView> {
                     const SizedBox(height: 16),
                     // Student-Specific Input
                     if (_role == 'Student') ...[
-                      const Text('Select Your Grade:'),
+                      const Text('בחר הכיתה שלך'),
                       DropdownButton<int>(
                         value: _selectedGrade,
                         items:
                             List.generate(8, (index) => index + 1).map((grade) {
                           return DropdownMenuItem(
                             value: grade,
-                            child: Text('Grade $grade'),
+                            child: Text('כיתה $grade'),
                           );
                         }).toList(),
                         onChanged: (value) {
@@ -227,7 +227,7 @@ class _RegisterViewState extends State<RegisterView> {
                         },
                       ),
                       const SizedBox(height: 16),
-                      const Text('Select Your Enrolled Lessons:'),
+                      const Text('בחר את השיעורים הרשומים שלך'),
                       Column(
                         children: _availableLessons.map((lesson) {
                           return CheckboxListTile(
@@ -248,11 +248,11 @@ class _RegisterViewState extends State<RegisterView> {
                     ],
                     // Teacher-Specific Input
                     if (_role == 'Teacher') ...[
-                      const Text('Select Lessons and Assign Grades:'),
+                      const Text('בחר שיעורים וכיתות'),
                       Column(
                         children: _availableLessons.map((lesson) {
                           return Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
                               CheckboxListTile(
                                 title: Text(lesson),
@@ -274,7 +274,7 @@ class _RegisterViewState extends State<RegisterView> {
                                       List.generate(8, (index) => index + 1)
                                           .map((grade) {
                                     return FilterChip(
-                                      label: Text('Grade $grade'),
+                                      label: Text('כיתה $grade'),
                                       selected: _lessonGradeMap[lesson]!
                                           .contains(grade),
                                       onSelected: (isSelected) {
@@ -299,7 +299,7 @@ class _RegisterViewState extends State<RegisterView> {
                     // Register Button
                     TextButton(
                       onPressed: _registerUser,
-                      child: const Text('Register'),
+                      child: const Text('הרשמה'),
                     ),
                     // Login Button
                     TextButton(
@@ -307,7 +307,7 @@ class _RegisterViewState extends State<RegisterView> {
                         Navigator.of(context).pushNamedAndRemoveUntil(
                             loginRoute, (route) => false);
                       },
-                      child: const Text('Already registered? Login here!'),
+                      child: const Text('!כבר רשום? כנס כאן'),
                     ),
                   ],
                 ),

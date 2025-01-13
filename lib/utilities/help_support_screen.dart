@@ -7,7 +7,7 @@ class HelpSupportScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          title: const Text('Help & Support'),
+          title: const Text('עזרה ותמיכה'),
           centerTitle: true,
           flexibleSpace: Container(
             decoration: const BoxDecoration(

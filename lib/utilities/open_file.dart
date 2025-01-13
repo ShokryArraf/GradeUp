@@ -9,6 +9,6 @@ Future<void> openFile(String url) async {
         mode: LaunchMode
             .externalApplication); // Launch using the external application
   } else {
-    throw 'Could not launch $url';
+    throw 'לא הצלחנו לפתוח $url';
   }
 }

@@ -580,7 +580,7 @@ class GameEditingViewState extends State<GameEditingView> {
                     ] else ...[
                       const Center(
                         child: Text(
-                          "You can upload multiple questions from a CSV file on mobile only.",
+                          "אפשר להעלות מספר שאלות מקובץ CSV רק דרך טלפון",
                           style: TextStyle(fontSize: 16, color: Colors.blue),
                         ),
                       ),

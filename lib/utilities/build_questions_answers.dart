@@ -11,7 +11,7 @@ Widget buildQuestionsAndAnswers(dynamic questions, dynamic answers) {
             .toString(); // Convert index to string key like "0", "1", etc.
         final answer = answers.containsKey(answerKey)
             ? answers[answerKey]
-            : 'No answer provided';
+            : 'לא הוזן תשובות';
 
         return Card(
           margin: const EdgeInsets.symmetric(vertical: 8.0),
@@ -28,7 +28,7 @@ Widget buildQuestionsAndAnswers(dynamic questions, dynamic answers) {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        question ?? 'No question text available',
+                        question ?? 'תוכן שאלה לא זמין',
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -37,7 +37,7 @@ Widget buildQuestionsAndAnswers(dynamic questions, dynamic answers) {
                       ),
                       const SizedBox(height: 8.0),
                       Text(
-                        'Answer: $answer',
+                        'שאלה: $answer',
                         style:
                             const TextStyle(fontSize: 18, color: Colors.green),
                       ),
@@ -51,6 +51,6 @@ Widget buildQuestionsAndAnswers(dynamic questions, dynamic answers) {
       },
     );
   } else {
-    return const Center(child: Text('Invalid question or answer data'));
+    return const Center(child: Text('שאלה אינה תקינה'));
   }
 }

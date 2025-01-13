@@ -27,7 +27,7 @@ chimestry,3,3,What is H2O?,Water,Water,Air,Fire,Earth
       // Open the file to prompt download or open with a compatible app
       await OpenFile.open(filePath);
     } catch (e) {
-      debugPrint('Error downloading template: $e');
+      debugPrint(':שגיאה בהורדת טמפלט $e');
     }
   }
 
@@ -36,7 +36,7 @@ chimestry,3,3,What is H2O?,Water,Water,Air,Fire,Earth
     return ElevatedButton.icon(
       onPressed: downloadTemplate,
       icon: const Icon(Icons.download),
-      label: const Text("Download CSV Template"),
+      label: const Text("CSV הורדת טמפלט"),
     );
   }
 }

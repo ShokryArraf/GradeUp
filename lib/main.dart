@@ -14,7 +14,7 @@ void main() {
   runApp(
     MaterialApp(
         debugShowCheckedModeBanner: false,
-        title: 'Grade_Up',
+        title: 'Grade Up',
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
           useMaterial3: true,
