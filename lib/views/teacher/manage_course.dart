@@ -21,11 +21,10 @@ class ManageCourse extends StatefulWidget {
 
 class _ManageCourseState extends State<ManageCourse> {
   final _coursesService = TeacherService();
-  final TextEditingController _contentController = TextEditingController();
-
-  List<Map<String, dynamic>> _materials = []; // List to hold fetched materials
-  bool _isLoading = true; // Loading state
-  bool _isAddingContent = false; // Tracks if the "Add Content" box is open
+  bool showAddContentBox = true;
+  final TextEditingController _titleController = TextEditingController();
+  bool _isLoading = true;
+  List<Map<String, dynamic>> _materials = [];
 
   @override
   void initState() {
@@ -41,196 +40,256 @@ class _ManageCourseState extends State<ManageCourse> {
         teacher: widget.teacher,
       );
       setState(() {
-        _materials = materials.reversed.toList(); // Save materials to the list
-        _isLoading = false; // Set loading to false
+        _materials = materials.reversed.toList();
+        _isLoading = false;
       });
     } catch (error) {
-      // Handle error
       showErrorDialog(context, 'Error fetching materials.');
       setState(() {
-        _isLoading = false; // Stop loading even if there is an error
+        _isLoading = false;
       });
     }
   }
 
-  Future<void> _addContent() async {
-    if (_contentController.text.isNotEmpty) {
-      String newTitle = _contentController.text;
-
-      // Call the addMaterial function to save the content in Firestore
-      try {
-        await _coursesService.addMaterial(
-          widget.lesson, // lessonName passed from the ManageCourse widget
-          grade: widget.grade, // grade passed from the ManageCourse widget
-          teacher:
-              widget.teacher, // teacher passed from the ManageCourse widget
-          title: newTitle,
-        );
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('New content added.')),
-        );
-        setState(() {
-          _isAddingContent = false;
-          _contentController.clear(); // Clear the input
-        });
-        await _fetchAndSetMaterials(); // Fetch updated materials
-      } catch (_) {
-        showErrorDialog(context, "Could not update the new content.");
-      }
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter the content title to add.')),
+  Future<void> _editContent(String id, String updatedTitle) async {
+    try {
+      await _coursesService.updateMaterial(
+        lessonName: widget.lesson,
+        grade: widget.grade,
+        teacher: widget.teacher,
+        materialID: id,
+        updatedFields: updatedTitle,
       );
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Content updated successfully.')),
+      );
+      await _fetchAndSetMaterials();
+    } catch (_) {
+      showErrorDialog(context, 'Failed to update the content.');
+    }
+  }
+
+  Future<void> _deleteContent(String id) async {
+    try {
+      await _coursesService.deleteMaterial(
+        lessonName: widget.lesson,
+        grade: widget.grade,
+        teacher: widget.teacher,
+        materialID: id,
+      );
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Content deleted successfully.')),
+      );
+      await _fetchAndSetMaterials();
+    } catch (_) {
+      showErrorDialog(context, 'Failed to delete the content.');
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-            title: const Text('Materials Overview'),
-            centerTitle: true,
-            flexibleSpace: Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Color(0xFF00C6FF), Color(0xFF0072FF)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
+      appBar: AppBar(
+        title: const Text('Materials Overview'),
+        centerTitle: true,
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFF00C6FF), Color(0xFF0072FF)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
+      ),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : ListView.builder(
+              itemCount: _materials.length + 1,
+              itemBuilder: (context, index) {
+                if (index == 0) {
+                  return _buildAddContentBox();
+                } else {
+                  final content = _materials[index - 1];
+                  return _buildContentCard(content);
+                }
+              },
+            ),
+    );
+  }
+
+  Widget _buildAddContentBox() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+      child: showAddContentBox
+          ? GestureDetector(
+              onTap: () {
+                setState(() {
+                  showAddContentBox = false;
+                });
+              },
+              child: _buildCard('Add Content', Icons.add),
+            )
+          : Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _titleController,
+                    decoration: InputDecoration(
+                      hintText: 'Enter Subject',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                ElevatedButton(
+                  onPressed: _handleAddContent,
+                  child: const Text('Add'),
+                ),
+                const SizedBox(width: 10),
+                ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      showAddContentBox = true;
+                      _titleController.clear();
+                    });
+                  },
+                  child: const Text('Cancel'),
+                ),
+              ],
+            ),
+    );
+  }
+
+  Widget _buildContentCard(Map<String, dynamic> content) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+      child: Card(
+        color: Colors.teal.shade200,
+        child: ListTile(
+          title: Text(content['title'] ?? 'No Title'),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.edit),
+                onPressed: () async {
+                  final newTitle = await _showEditDialog(content['title']);
+                  if (newTitle != null) {
+                    await _editContent(content['id'], newTitle);
+                  }
+                },
+              ),
+              IconButton(
+                icon: const Icon(Icons.delete),
+                onPressed: () => _deleteContent(content['id']),
+              ),
+            ],
+          ),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ManageMaterial(
+                  teacher: widget.teacher,
+                  grade: widget.grade,
+                  lesson: widget.lesson,
+                  materialID: content['id'],
+                  materialTitle: content['title'],
                 ),
               ),
-            )),
-        body: _isLoading
-            ? const Center(
-                child:
-                    CircularProgressIndicator()) // Show spinner while loading
-            : ListView(
-                children: [
-                  // "Add Content" section
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 8.0, horizontal: 16.0),
-                    child: _isAddingContent
-                        ? Row(
-                            children: [
-                              Expanded(
-                                child: TextField(
-                                  controller: _contentController,
-                                  decoration: InputDecoration(
-                                    hintText: 'Week 1',
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 10),
-                              ElevatedButton(
-                                onPressed: _addContent,
-                                child: const Text('Add'),
-                              ),
-                              const SizedBox(width: 10),
-                              ElevatedButton(
-                                onPressed: () {
-                                  setState(() {
-                                    _isAddingContent =
-                                        false; // Switch back to the default view
-                                  });
-                                },
-                                child: const Text('Cancel'),
-                              ),
-                            ],
-                          )
-                        : GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                _isAddingContent =
-                                    true; // Switch to text box view
-                              });
-                            },
-                            child: Container(
-                              width: double.infinity,
-                              height: 60,
-                              decoration: BoxDecoration(
-                                color: Colors.grey[300],
-                                borderRadius: BorderRadius.circular(10),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.grey.withOpacity(0.3),
-                                    spreadRadius: 2,
-                                    blurRadius: 5,
-                                    offset: const Offset(0, 3),
-                                  ),
-                                ],
-                              ),
-                              child: const Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(Icons.add, color: Colors.black54),
-                                  SizedBox(width: 10),
-                                  Text(
-                                    'Add Content',
-                                    style: TextStyle(
-                                      color: Colors.black87,
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                  ),
-                  // Dynamic list of materials
-                  ..._materials.map((material) {
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 8.0, horizontal: 16.0),
-                      child: GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ManageMaterial(
-                                teacher: widget.teacher,
-                                grade: widget.grade,
-                                lesson: widget.lesson,
-                                materialID: material['id'],
-                                materialTitle: material['title'],
-                              ),
-                            ),
-                          );
-                        },
-                        child: Container(
-                          width: double.infinity,
-                          height: 60,
-                          decoration: BoxDecoration(
-                            color: Colors.teal.shade200,
-                            borderRadius: BorderRadius.circular(10),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.grey.withOpacity(0.3),
-                                spreadRadius: 2,
-                                blurRadius: 5,
-                                offset: const Offset(0, 3),
-                              ),
-                            ],
-                          ),
-                          child: Center(
-                            child: Text(
-                              material['title'] ??
-                                  'No Title', // Display material title
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    );
-                  }),
-                ],
-              ));
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Future<String?> _showEditDialog(String initialTitle) {
+    final controller = TextEditingController(text: initialTitle);
+    return showDialog<String>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Edit Content'),
+          content: TextField(
+            controller: controller,
+            decoration: const InputDecoration(labelText: 'New Title'),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, controller.text),
+              child: const Text('Save'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _handleAddContent() async {
+    final title = _titleController.text.trim();
+    if (title.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter a title.')),
+      );
+      return;
+    }
+    try {
+      await _coursesService.addMaterial(
+        widget.lesson,
+        grade: widget.grade,
+        teacher: widget.teacher,
+        title: title, // Removed materialID
+      );
+      _titleController.clear();
+      setState(() {
+        showAddContentBox = true;
+      });
+      await _fetchAndSetMaterials(); // Fixed call to _fetchAndSetMaterials
+    } catch (error) {
+      showErrorDialog(context, 'Error adding content.');
+    }
+  }
+
+  Widget _buildCard(String title, IconData icon) {
+    return Container(
+      height: 60,
+      decoration: BoxDecoration(
+        color: Colors.grey[300],
+        borderRadius: BorderRadius.circular(10),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withValues(alpha: 0.3),
+            spreadRadius: 2,
+            blurRadius: 5,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Center(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, color: Colors.black54),
+            const SizedBox(width: 10),
+            Text(
+              title,
+              style: const TextStyle(
+                color: Colors.black87,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

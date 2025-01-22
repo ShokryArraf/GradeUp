@@ -64,7 +64,7 @@ class _AssignmentsViewState extends State<AssignmentsView> {
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: Colors.black.withOpacity(0.6),
+                          color: Colors.black.withValues(alpha: 0.6),
                         ),
                       ),
                     )
@@ -134,7 +134,8 @@ class _AssignmentsViewState extends State<AssignmentsView> {
                                     borderRadius: BorderRadius.circular(15),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Colors.grey.withOpacity(0.2),
+                                        color:
+                                            Colors.grey.withValues(alpha: 0.2),
                                         spreadRadius: 1,
                                         blurRadius: 4,
                                         offset: const Offset(0, 3),

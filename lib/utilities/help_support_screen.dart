@@ -27,17 +27,13 @@ class HelpSupportScreen extends StatelessWidget {
               'Frequently Asked Questions',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 8),
+            SizedBox(height: 16),
             Text(
-              '1. How do I reset my password?\nGo to Settings > Privacy and Security > Reset Password.',
+              '1. How can I contact support?\nSend an email to support@gradeup.com.',
             ),
             SizedBox(height: 16),
             Text(
-              '2. How can I contact support?\nSend an email to support@gradeup.com.',
-            ),
-            SizedBox(height: 16),
-            Text(
-              '3. Where can I find tutorials?\nVisit the Tutorials section in the app menu.',
+              '2. Where can I find tutorials?\nVisit the Tutorials section in the app menu.',
             ),
           ],
         ),

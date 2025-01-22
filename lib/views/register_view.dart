@@ -121,10 +121,10 @@ class _RegisterViewState extends State<RegisterView> {
       } else if (e.code == 'invalid-email') {
         await showErrorDialog(context, 'Invalid email address.');
       } else {
-        await showErrorDialog(context, 'Error: ${e.message}');
+        await showErrorDialog(context, 'Please try again.');
       }
     } catch (e) {
-      await showErrorDialog(context, 'Error: $e');
+      await showErrorDialog(context, 'Please try again.');
     }
   }
 

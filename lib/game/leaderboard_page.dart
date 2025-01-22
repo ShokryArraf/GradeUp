@@ -89,7 +89,7 @@ class LeaderboardPageState extends State<LeaderboardPage> {
 
                     return Container(
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.9),
+                        color: Colors.white.withValues(alpha: 0.9),
                         borderRadius: BorderRadius.circular(10),
                         boxShadow: const [
                           BoxShadow(

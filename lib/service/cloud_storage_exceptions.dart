@@ -41,3 +41,11 @@ class FailedToFetchAssignmentStatusAndScore extends CloudStorageException {}
 class FailedToMarkAssignmentAsMissed extends CloudStorageException {}
 
 class FailedToSubmitAssignment extends CloudStorageException {}
+
+class FailedToDeleteMaterialException extends CloudStorageException {}
+
+class FailedToUpdateMaterialException extends CloudStorageException {}
+
+class FailedToEditContentException extends CloudStorageException {}
+
+class FailedToDeleteContentException extends CloudStorageException {}

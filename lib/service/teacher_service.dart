@@ -249,4 +249,105 @@ class TeacherService {
       throw ErrorFetchingStudentProgress();
     }
   }
+
+  Future<void> updateMaterial({
+    required String lessonName,
+    required int grade,
+    required Teacher teacher,
+    required String materialID,
+    required String updatedFields,
+  }) async {
+    try {
+      final materialRef = _firestore
+          .collection('schools')
+          .doc(teacher.school)
+          .collection('grades')
+          .doc(grade.toString())
+          .collection('lessons')
+          .doc(lessonName)
+          .collection('materials')
+          .doc(materialID);
+
+      // Pass a Map<String, dynamic> to the update method
+      await materialRef.update({'title': updatedFields});
+    } catch (e) {
+      throw FailedToUpdateMaterialException();
+    }
+  }
+
+  Future<void> deleteMaterial({
+    required String lessonName,
+    required int grade,
+    required Teacher teacher,
+    required String materialID,
+  }) async {
+    try {
+      final materialRef = _firestore
+          .collection('schools')
+          .doc(teacher.school)
+          .collection('grades')
+          .doc(grade.toString())
+          .collection('lessons')
+          .doc(lessonName)
+          .collection('materials')
+          .doc(materialID);
+
+      await materialRef.delete();
+    } catch (e) {
+      throw FailedToDeleteMaterialException();
+    }
+  }
+
+  Future<void> editContent({
+    required String lessonName,
+    required int grade,
+    required Teacher teacher,
+    required String materialID,
+    required String contentID,
+    required String newTitle,
+  }) async {
+    final contentRef = _firestore
+        .collection('schools')
+        .doc(teacher.school)
+        .collection('grades')
+        .doc(grade.toString())
+        .collection('lessons')
+        .doc(lessonName)
+        .collection('materials')
+        .doc(materialID)
+        .collection('content')
+        .doc(contentID);
+    try {
+      await contentRef.update({'title': newTitle});
+    } catch (e) {
+      throw FailedToEditContentException();
+    }
+  }
+
+  Future<void> deleteContent({
+    required String lessonName,
+    required int grade,
+    required Teacher teacher,
+    required String materialID,
+    required String contentID,
+  }) async {
+    final contentRef = _firestore
+        .collection('schools')
+        .doc(teacher.school)
+        .collection('grades')
+        .doc(grade.toString())
+        .collection('lessons')
+        .doc(lessonName)
+        .collection('materials')
+        .doc(materialID)
+        .collection('content')
+        .doc(contentID);
+
+    try {
+      // Delete the document with the given contentID
+      await contentRef.delete();
+    } catch (e) {
+      throw FailedToDeleteContentException();
+    }
+  }
 }

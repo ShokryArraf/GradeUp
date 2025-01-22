@@ -138,7 +138,7 @@ class RewardsPageState extends State<RewardsPage> {
                   String badge = lessonBadges[lesson] ?? "images/no_badge.png";
 
                   return Card(
-                    color: Colors.white.withOpacity(0.9),
+                    color: Colors.white.withValues(alpha: 0.9),
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Column(
@@ -185,7 +185,7 @@ class RewardsPageState extends State<RewardsPage> {
                 itemBuilder: (context, index) {
                   final badge = getFilteredUpcomingBadges()[index];
                   return Card(
-                    color: Colors.white.withOpacity(0.9),
+                    color: Colors.white.withValues(alpha: 0.9),
                     child: ListTile(
                       leading: Image.asset(
                         badge["badge"],

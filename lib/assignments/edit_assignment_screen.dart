@@ -140,7 +140,7 @@ class _EditAssignmentScreenState extends State<EditAssignmentScreen> {
               Container(
                 padding: const EdgeInsets.all(12),
                 margin: const EdgeInsets.only(bottom: 16),
-                color: Colors.redAccent.withOpacity(0.2),
+                color: Colors.redAccent.withValues(alpha: 0.2),
                 child: const Text(
                   'This assignment cannot be edited because the due date has already passed.',
                   style:
