@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:grade_up/models/teacher.dart';
+import 'package:grade_up/utilities/build_manage_card.dart';
 import 'package:grade_up/utilities/show_error_dialog.dart';
 import 'package:grade_up/views/teacher/manage_content.dart';
 import 'package:grade_up/service/teacher_service.dart';
@@ -134,7 +135,7 @@ class _ManageMaterialState extends State<ManageMaterial> {
                   showAddContentBox = false;
                 });
               },
-              child: _buildCard('Add Content', Icons.add),
+              child: buildCard('Add Content', Icons.add),
             )
           : Row(
               children: [
@@ -261,40 +262,5 @@ class _ManageMaterialState extends State<ManageMaterial> {
     } catch (error) {
       showErrorDialog(context, 'Error adding content.');
     }
-  }
-
-  Widget _buildCard(String title, IconData icon) {
-    return Container(
-      height: 60,
-      decoration: BoxDecoration(
-        color: Colors.grey[300],
-        borderRadius: BorderRadius.circular(10),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withValues(alpha: 0.3),
-            spreadRadius: 2,
-            blurRadius: 5,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Center(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, color: Colors.black54),
-            const SizedBox(width: 10),
-            Text(
-              title,
-              style: const TextStyle(
-                color: Colors.black87,
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 }

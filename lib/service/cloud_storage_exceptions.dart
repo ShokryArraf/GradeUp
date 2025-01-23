@@ -49,3 +49,13 @@ class FailedToUpdateMaterialException extends CloudStorageException {}
 class FailedToEditContentException extends CloudStorageException {}
 
 class FailedToDeleteContentException extends CloudStorageException {}
+
+class FailedToEditBlockException extends CloudStorageException {}
+
+class FailedToDeleteBlockException extends CloudStorageException {}
+
+class ErrorUploadingImageException extends CloudStorageException {}
+
+class ErrorUploadingFileException extends CloudStorageException {}
+
+class ErrorDeletingFileException extends CloudStorageException {}

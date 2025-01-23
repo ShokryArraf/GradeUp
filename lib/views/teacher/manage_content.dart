@@ -1,11 +1,14 @@
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:grade_up/models/teacher.dart'; // Import image_picker package
 import 'package:grade_up/service/storage_service.dart';
 import 'dart:io'; // To handle file paths
 import 'package:grade_up/service/teacher_service.dart';
-import 'package:grade_up/utilities/build_content_card.dart';
+import 'package:grade_up/utilities/open_file.dart';
+import 'package:grade_up/utilities/show_error_dialog.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ManageContent extends StatefulWidget {
   final Teacher teacher;
@@ -164,6 +167,7 @@ class _ManageContentState extends State<ManageContent> {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Link added successfully!')),
                 );
+                await _fetchBlocks();
               } catch (_) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Error adding link')),
@@ -228,6 +232,7 @@ class _ManageContentState extends State<ManageContent> {
                   const SnackBar(
                       content: Text('Title block added successfully!')),
                 );
+                await _fetchBlocks();
               } catch (_) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Error adding content')),
@@ -335,6 +340,7 @@ class _ManageContentState extends State<ManageContent> {
                         const SnackBar(
                             content: Text('Image uploaded successfully!')),
                       );
+                      await _fetchBlocks();
                     } catch (error) {
                       setState(() {
                         _isUploading = false; // Reset on error
@@ -404,6 +410,7 @@ class _ManageContentState extends State<ManageContent> {
                   const SnackBar(
                       content: Text('Text block added successfully!')),
                 );
+                await _fetchBlocks();
               } catch (_) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Error adding content')),
@@ -485,6 +492,7 @@ class _ManageContentState extends State<ManageContent> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('File uploaded successfully')),
         );
+        await _fetchBlocks();
       }
     } catch (_) {
       setState(() {
@@ -537,5 +545,303 @@ class _ManageContentState extends State<ManageContent> {
               ),
             ),
     );
+  }
+
+  Widget buildContentCard(Map<String, dynamic> element) {
+    switch (element['type']) {
+      case 'title':
+        return ListTile(
+          title: Text(
+            element['data'],
+            style: const TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                decoration: TextDecoration.underline),
+          ),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.edit),
+                onPressed: () async {
+                  final newTitle = await _showEditDialog(element['data']);
+                  if (newTitle != null) {
+                    await _editBlock(element['id'], newTitle);
+                  }
+                },
+              ),
+              IconButton(
+                icon: const Icon(
+                  Icons.delete,
+                  color: Colors.red,
+                ),
+                onPressed: () async {
+                  final shouldDelete = await _showDeleteConfirmationDialog();
+                  if (shouldDelete == true) {
+                    _deleteBlock(element['id']);
+                  }
+                },
+              ),
+            ],
+          ),
+        );
+      case 'image': // Handle image type
+        return buildImage(element);
+      case 'text':
+        return ListTile(
+          title: Text(element['data']),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.edit),
+                onPressed: () async {
+                  final newTitle =
+                      await _showEditDialog(element['data'], isText: true);
+                  if (newTitle != null) {
+                    await _editBlock(element['id'], newTitle);
+                  }
+                },
+              ),
+              IconButton(
+                icon: const Icon(
+                  Icons.delete,
+                  color: Colors.red,
+                ),
+                onPressed: () async {
+                  final shouldDelete = await _showDeleteConfirmationDialog();
+                  if (shouldDelete == true) {
+                    _deleteBlock(element['id']);
+                  }
+                },
+              ),
+            ],
+          ),
+        );
+
+      case 'pdf': // Handle PDF type
+        return ListTile(
+          leading: const Icon(Icons.picture_as_pdf, color: Colors.red),
+          title: Text(element['filename'] ?? 'No filename available'),
+          trailing: Row(
+            mainAxisSize: MainAxisSize
+                .min, // Ensure the trailing icons don't take up excessive space
+            children: [
+              IconButton(
+                icon: const Icon(Icons.open_in_new),
+                onPressed: () => openFile(element['data']),
+              ),
+              IconButton(
+                icon: const Icon(Icons.delete, color: Colors.red),
+                onPressed: () async {
+                  final shouldDelete = await _showDeleteConfirmationDialog();
+                  if (shouldDelete == true) {
+                    _deleteBlock(element['id']);
+                  }
+                },
+              ),
+            ],
+          ),
+        );
+
+      //Handle Word file type
+      case 'doc':
+      case 'docx':
+        return ListTile(
+          leading: const Icon(Icons.description, color: Colors.blue),
+          title: Text(element['filename'] ?? 'No filename available'),
+          trailing: Row(
+            mainAxisSize: MainAxisSize
+                .min, // Ensure the trailing icons don't take up excessive space
+            children: [
+              IconButton(
+                icon: const Icon(Icons.open_in_new),
+                onPressed: () => openFile(element['data']),
+              ),
+              IconButton(
+                icon: const Icon(Icons.delete, color: Colors.red),
+                onPressed: () async {
+                  final shouldDelete = await _showDeleteConfirmationDialog();
+                  if (shouldDelete == true) {
+                    _deleteBlock(element['id']);
+                  }
+                },
+              ),
+            ],
+          ),
+        );
+      case 'link': // Handle link type
+        final url = element['data'];
+        if (url == null || url.isEmpty) {
+          return const Text(
+            'Invalid URL',
+            style: TextStyle(color: Colors.red),
+          );
+        }
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: GestureDetector(
+                onTap: () async {
+                  final uri = Uri.parse(url);
+                  if (await canLaunchUrl(uri)) {
+                    await launchUrl(uri, mode: LaunchMode.externalApplication);
+                  }
+                },
+                child: Text(
+                  url,
+                  style: const TextStyle(
+                      color: Colors.blue, decoration: TextDecoration.underline),
+                  overflow: TextOverflow.ellipsis, // Prevent overflow
+                ),
+              ),
+            ),
+            IconButton(
+              icon: const Icon(Icons.delete),
+              onPressed: () async {
+                final shouldDelete = await _showDeleteConfirmationDialog();
+                if (shouldDelete == true) {
+                  _deleteBlock(element['id']);
+                }
+              },
+            ),
+          ],
+        );
+      default:
+        return const SizedBox.shrink();
+    }
+  }
+
+  Future<bool?> _showDeleteConfirmationDialog() {
+    return showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Delete Confirmation'),
+          content: const Text('Are you sure you want to delete this?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _editBlock(String id, String updatedBlock) async {
+    try {
+      await _coursesService.editBlock(
+          lessonName: widget.lesson,
+          grade: widget.grade,
+          teacher: widget.teacher,
+          materialID: widget.materialID,
+          contentID: widget.contentID,
+          newData: updatedBlock,
+          blockID: id);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Content updated successfully.')),
+      );
+      await _fetchBlocks();
+    } catch (_) {
+      showErrorDialog(context, 'Failed to update the content.');
+    }
+  }
+
+  Future<void> _deleteBlock(String id) async {
+    try {
+      await _coursesService.deleteBlock(
+          lessonName: widget.lesson,
+          grade: widget.grade,
+          teacher: widget.teacher,
+          materialID: widget.materialID,
+          contentID: widget.contentID,
+          blockID: id);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Content deleted successfully.')),
+      );
+      await _fetchBlocks();
+    } catch (_) {
+      showErrorDialog(context, 'Failed to delete the content.');
+    }
+  }
+
+  Future<String?> _showEditDialog(String initialTitle, {bool isText = false}) {
+    final controller = TextEditingController(text: initialTitle);
+    return showDialog<String>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Edit Content'),
+          content: TextField(
+            controller: controller,
+            maxLines: isText ? 5 : 1, // Larger box for text type
+            decoration: const InputDecoration(labelText: 'New Title'),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, controller.text),
+              child: const Text('Save'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget buildImage(Map<String, dynamic> element) {
+    String url = element['data'];
+    if (kIsWeb) {
+      // For web: Use Image.network with loading and error handling
+      return Image.network(
+        url,
+        loadingBuilder: (context, child, progress) {
+          if (progress == null) return child;
+          return const Center(child: CircularProgressIndicator());
+        },
+        errorBuilder: (context, error, stackTrace) {
+          return const Icon(Icons.error, color: Colors.red, size: 100);
+        },
+        fit: BoxFit.cover,
+      );
+    } else {
+// For mobile: Use the same approach
+      return Stack(
+        alignment: Alignment.topRight,
+        children: [
+          Image.network(
+            url,
+            loadingBuilder: (context, child, progress) {
+              if (progress == null) return child;
+              return const Center(child: CircularProgressIndicator());
+            },
+            errorBuilder: (context, error, stackTrace) {
+              return const Icon(Icons.error, color: Colors.red, size: 100);
+            },
+            fit: BoxFit.cover,
+          ),
+          IconButton(
+            icon: const Icon(Icons.delete, color: Colors.red),
+            onPressed: () async {
+              final shouldDelete = await _showDeleteConfirmationDialog();
+              if (shouldDelete == true) {
+                _deleteBlock(element['id']);
+              }
+            },
+          ),
+        ],
+      );
+    }
   }
 }

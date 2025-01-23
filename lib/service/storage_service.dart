@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:grade_up/service/cloud_storage_exceptions.dart';
 
 class StorageService {
   // Uploads an image to Firebase Storage and returns the download URL
@@ -18,7 +19,7 @@ class StorageService {
       final downloadURL = await storageRef.getDownloadURL();
       return downloadURL;
     } catch (_) {
-      throw Exception('Error uploading image.');
+      throw ErrorUploadingImageException;
     }
   }
 
@@ -36,7 +37,22 @@ class StorageService {
       final downloadURL = await storageRef.getDownloadURL();
       return downloadURL;
     } catch (_) {
-      throw Exception('Error uploading file.');
+      throw ErrorUploadingFileException;
+    }
+  }
+
+  // Deletes a file (PDF, Image, etc.) from Firebase Storage
+  Future<void> deleteFile(String filePath) async {
+    try {
+      FirebaseStorage storage = FirebaseStorage.instanceFor(
+        app: Firebase.app(),
+        bucket: 'gs://grade-up-project1.firebasestorage.app',
+      );
+      final storageRef = storage.ref().child(filePath);
+
+      await storageRef.delete();
+    } catch (_) {
+      throw ErrorDeletingFileException;
     }
   }
 }

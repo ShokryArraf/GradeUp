@@ -350,4 +350,63 @@ class TeacherService {
       throw FailedToDeleteContentException();
     }
   }
+
+  Future<void> editBlock({
+    required String lessonName,
+    required int grade,
+    required Teacher teacher,
+    required String materialID,
+    required String contentID,
+    required String newData,
+    required String blockID,
+  }) async {
+    final contentRef = _firestore
+        .collection('schools')
+        .doc(teacher.school)
+        .collection('grades')
+        .doc(grade.toString())
+        .collection('lessons')
+        .doc(lessonName)
+        .collection('materials')
+        .doc(materialID)
+        .collection('content')
+        .doc(contentID)
+        .collection('blocks')
+        .doc(blockID);
+    try {
+      await contentRef.update({'data': newData});
+    } catch (e) {
+      throw FailedToEditBlockException();
+    }
+  }
+
+  Future<void> deleteBlock({
+    required String lessonName,
+    required int grade,
+    required Teacher teacher,
+    required String materialID,
+    required String contentID,
+    required String blockID,
+  }) async {
+    final contentRef = _firestore
+        .collection('schools')
+        .doc(teacher.school)
+        .collection('grades')
+        .doc(grade.toString())
+        .collection('lessons')
+        .doc(lessonName)
+        .collection('materials')
+        .doc(materialID)
+        .collection('content')
+        .doc(contentID)
+        .collection('blocks')
+        .doc(blockID);
+
+    try {
+      // Delete the document with the given contentID
+      await contentRef.delete();
+    } catch (e) {
+      throw FailedToDeleteBlockException();
+    }
+  }
 }
