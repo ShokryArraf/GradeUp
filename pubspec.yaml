@@ -54,6 +54,7 @@ dependencies:
   flutter_pdfview: ^1.4.0
   pdf: ^3.11.1
   flutter_typeahead: ^5.2.0
+  flutter_launcher_icons: ^0.14.3
 
 dev_dependencies:
   flutter_test:
@@ -109,3 +110,11 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+  
+flutter_icons:
+  android: true
+  image_path: "images/logo.png"
+  adaptive_icon_background: "#ffffff"
+  adaptive_icon_foreground: "images/logo_gu.png"
+

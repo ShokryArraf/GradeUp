@@ -164,7 +164,7 @@ class _StudentProgressSummaryViewState
                               titleStyle: GoogleFonts.roboto(
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.white,
+                                color: Colors.black87,
                               ),
                             ),
                             PieChartSectionData(
@@ -175,7 +175,7 @@ class _StudentProgressSummaryViewState
                               titleStyle: GoogleFonts.roboto(
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.white,
+                                color: Colors.black87,
                               ),
                             ),
                           ],
