@@ -60,7 +60,7 @@ class GamePageState extends State<GamePage> {
       }
       loadQuestions();
     } catch (e) {
-      showError("Error loading user progress");
+      showError("שגיאה בטעינת התקדמות משתמש");
     }
   }
 
@@ -169,11 +169,11 @@ class GamePageState extends State<GamePage> {
           children: [
             Icon(Icons.card_giftcard, color: Colors.purple, size: 32),
             SizedBox(width: 10),
-            Text("You've Earned a Reward!"),
+            Text("!השגת פרס חדש"),
           ],
         ),
         content: const Text(
-            "Congratulations! You've earned a reward for reaching a new milestone in points!"),
+            "!כל הכבוד! השגת פרס על הגעה לאבן דרך לדשה בנקודות"),
         actions: [
           TextButton(
             onPressed: () {
@@ -194,7 +194,7 @@ class GamePageState extends State<GamePage> {
       builder: (_) => AlertDialog(
         title: Row(
           children: [
-            const Text("Level Up!"),
+            const Text("!עלית רמה"),
             const SizedBox(width: 10),
             Image.asset(
               badgeImagePath,
@@ -203,7 +203,7 @@ class GamePageState extends State<GamePage> {
             ), // Badge Icon from getBadge
           ],
         ),
-        content: Text("Congratulations! You've reached level $level."),
+        content: Text("כל הכבוד! הגעת לרמה $level."),
         actions: [
           TextButton(
             onPressed: () {
@@ -212,7 +212,7 @@ class GamePageState extends State<GamePage> {
                 studentCarPosition = 0.0;
               });
             },
-            child: const Text('Start Next Level'),
+            child: const Text('התחל רמה הבאה'),
           ),
         ],
       ),
@@ -223,16 +223,16 @@ class GamePageState extends State<GamePage> {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text("You Lose!"),
+        title: const Text("!הפסדת"),
         content: const Text(
-            "The opponent reached the finish line first. Try again!"),
+            "!הרכב השני הגיע לקו הסיום לפניך. נסה שוב"),
         actions: [
           TextButton(
             onPressed: () {
               Navigator.of(context).pop();
               resetLevel();
             },
-            child: const Text('Retry'),
+            child: const Text('נסה שוב'),
           ),
         ],
       ),
@@ -284,9 +284,9 @@ class GamePageState extends State<GamePage> {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text("Game Complete!"),
+        title: const Text("!משחק הסתיים"),
         content:
-            const Text("You've successfully completed all levels! Great job!"),
+            const Text("!עברת את כל הרמות בהצלחה! כל הכבוד"),
         actions: [
           TextButton(
             onPressed: () async {
@@ -312,7 +312,7 @@ class GamePageState extends State<GamePage> {
                 ),
               );
             },
-            child: const Text('Restart Game'),
+            child: const Text('התחל משחק חדש'),
           ),
           TextButton(
             onPressed: () {
@@ -327,7 +327,7 @@ class GamePageState extends State<GamePage> {
                 (route) => false, // Remove all previous routes from the stack
               );
             },
-            child: const Text('Close'),
+            child: const Text('סגור'),
           ),
         ],
       ),
@@ -342,7 +342,7 @@ class GamePageState extends State<GamePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Car Racing Quiz Game"),
+        title: const Text("משחק מירוץ"),
         flexibleSpace: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
@@ -390,7 +390,7 @@ class GamePageState extends State<GamePage> {
                         color: Colors.amber, size: 40),
                     const SizedBox(width: 8),
                     Text(
-                      "Level $level Badge!",
+                      "רמה $level!",
                       style: const TextStyle(
                           fontSize: 18, fontWeight: FontWeight.bold),
                     ),

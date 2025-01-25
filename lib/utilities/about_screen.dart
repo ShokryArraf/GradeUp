@@ -7,7 +7,7 @@ class AboutScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          title: const Text('About App'),
+          title: const Text('אודות האפליקציה'),
           centerTitle: true,
           flexibleSpace: Container(
             decoration: const BoxDecoration(

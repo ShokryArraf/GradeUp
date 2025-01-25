@@ -38,7 +38,7 @@ class LeaderboardPageState extends State<LeaderboardPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          "Leaderboard",
+          "לוח מתחרים",
           style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
@@ -69,7 +69,7 @@ class LeaderboardPageState extends State<LeaderboardPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
-                "Top Players",
+                "מתחרים מובילים",
                 style: TextStyle(
                   fontSize: 26,
                   fontWeight: FontWeight.bold,
@@ -124,7 +124,7 @@ class LeaderboardPageState extends State<LeaderboardPage> {
                           ),
                         ),
                         subtitle: Text(
-                          "Total Points: $points",
+                          ':סה"כ נקודות $points',
                           style: const TextStyle(
                             fontSize: 16,
                             color: Color(0xFF777777),

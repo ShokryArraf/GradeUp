@@ -18,7 +18,7 @@ class _MyCoursesState extends State<MyCourses> {
     final courses = widget.student.enrolledLessons;
     return Scaffold(
         appBar: AppBar(
-            title: const Text('My Courses'),
+            title: const Text('השיעורים שלי'),
             centerTitle: true,
             flexibleSpace: Container(
               decoration: const BoxDecoration(

@@ -25,7 +25,7 @@ Widget buildContentCard(Map<String, dynamic> element) {
 
       return ListTile(
         leading: const Icon(Icons.picture_as_pdf, color: Colors.red),
-        title: Text(element['filename'] ?? 'No filename available'),
+        title: Text(element['filename'] ?? 'שם קובץ לא זמין'),
         trailing: IconButton(
           icon: const Icon(Icons.open_in_new),
           onPressed: () => openFile(element['data']),
@@ -46,7 +46,7 @@ Widget buildContentCard(Map<String, dynamic> element) {
       final url = element['data'];
       if (url == null || url.isEmpty) {
         return const Text(
-          'Invalid URL',
+          'קישור לא תקין',
           style: TextStyle(color: Colors.red),
         );
       }

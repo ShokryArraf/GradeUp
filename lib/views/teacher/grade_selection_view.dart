@@ -21,7 +21,7 @@ class GradeSelection extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-          title: const Text('Select Grade'),
+          title: const Text('בחר כיתה'),
           centerTitle: true,
           flexibleSpace: Container(
             decoration: const BoxDecoration(
@@ -92,7 +92,7 @@ class GradeSelection extends StatelessWidget {
                           ),
                           const SizedBox(height: 12),
                           Text(
-                            'Grade $grade',
+                            'כיתה $grade',
                             style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w600,
@@ -114,7 +114,7 @@ class GradeSelection extends StatelessWidget {
             )
           : const Center(
               child: Text(
-                "You don't teach any grades yet.",
+                ".אין לך כיתות עדיין",
                 style: TextStyle(color: Colors.red, fontSize: 16),
                 textAlign: TextAlign.center,
               ),

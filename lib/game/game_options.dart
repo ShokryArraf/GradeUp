@@ -65,7 +65,7 @@ class GameOptionsPageState extends State<GameOptionsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Choose Your Game"),
+        title: const Text("משחק"),
         flexibleSpace: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
@@ -92,7 +92,7 @@ class GameOptionsPageState extends State<GameOptionsPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Text(
-                    "Select a Game",
+                    "בחר משחק",
                     style: TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
@@ -104,7 +104,7 @@ class GameOptionsPageState extends State<GameOptionsPage> {
                   for (String lesson in widget.student.enrolledLessons) ...[
                     buildGameButton(
                       context,
-                      "Play $lesson Game",
+                      "משחק $lesson",
                       getLessonIcon(lesson), // Adjust icon as needed per lesson
                       Colors.greenAccent,
                       () => navigateToGamePage(context, lesson.toLowerCase()),
@@ -114,7 +114,7 @@ class GameOptionsPageState extends State<GameOptionsPage> {
                   const SizedBox(height: 40),
                   buildGameButton(
                     context,
-                    "View Rewards",
+                    "הצג פרסים",
                     Icons.emoji_events,
                     Colors.purpleAccent,
                     () => navigateToRewardsPage(context),
@@ -122,7 +122,7 @@ class GameOptionsPageState extends State<GameOptionsPage> {
                   const SizedBox(height: 40),
                   buildGameButton(
                     context,
-                    "View Leaderboard",
+                    "הצג לוח מתחרים",
                     Icons.leaderboard,
                     Colors.purpleAccent,
                     () {

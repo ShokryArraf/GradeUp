@@ -87,7 +87,7 @@ class SearchDeleteAssignmentSectionState
       await _assignmentService.deleteAssignment(
           lessonName, assignmentId, widget.teacher.school, grade);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Assignment deleted successfully.')),
+        const SnackBar(content: Text('מטלה נמחקה בהצלחה')),
       );
 
       // Remove the deleted assignment from the list
@@ -97,7 +97,7 @@ class SearchDeleteAssignmentSectionState
       });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error deleting assignment: $e')),
+        SnackBar(content: Text(':שגיאה במחיקת מטלה $e')),
       );
     }
   }
@@ -113,7 +113,7 @@ class SearchDeleteAssignmentSectionState
     return Scaffold(
       appBar: AppBar(
           toolbarHeight: 80,
-          title: const Text('Search,Edit \n& Delete Assignments'),
+          title: const Text('חיפוש, עריכה ומחיקת מטלות'),
           centerTitle: true,
           flexibleSpace: Container(
             decoration: const BoxDecoration(
@@ -132,7 +132,7 @@ class SearchDeleteAssignmentSectionState
             children: [
               const SizedBox(height: 32),
               const Text(
-                'Search,Edit and Delete Assignments',
+                'חיפוש, עריכה ומחיקת מטלות',
                 style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
@@ -144,7 +144,7 @@ class SearchDeleteAssignmentSectionState
               DropdownButtonFormField<String>(
                 value: _selectedLesson,
                 decoration: const InputDecoration(
-                  labelText: 'Select Lesson',
+                  labelText: 'בחירת נושא',
                   border: OutlineInputBorder(),
                 ),
                 items: widget.teacher.lessonGradeMap.keys.map((lesson) {
@@ -167,7 +167,7 @@ class SearchDeleteAssignmentSectionState
                 TextField(
                   controller: _gradeSearchController,
                   decoration: const InputDecoration(
-                    labelText: 'Search Grade',
+                    labelText: 'בחירת כיתה',
                     border: OutlineInputBorder(),
                   ),
                   keyboardType: TextInputType.number,
@@ -184,7 +184,7 @@ class SearchDeleteAssignmentSectionState
                   itemBuilder: (context, index) {
                     final grade = _filteredGrades[index];
                     return ListTile(
-                      title: Text('Grade: $grade'),
+                      title: Text('כיתה: $grade'),
                       trailing: IconButton(
                         icon: const Icon(Icons.search, color: Colors.blue),
                         onPressed: () => _searchAssignmentsByGrade(grade),
@@ -196,7 +196,7 @@ class SearchDeleteAssignmentSectionState
               // Message if no grades match
               if (_selectedLesson != null && _filteredGrades.isEmpty)
                 const Text(
-                  'No grades match your search.',
+                  'אין כיתות עבור החיפוש הזה',
                   style: TextStyle(color: Colors.red),
                 ),
 
@@ -231,28 +231,28 @@ class SearchDeleteAssignmentSectionState
                           children: [
                             const SizedBox(height: 4),
                             Text(
-                              'Grade: ${assignment['grade']}',
+                              'כיתה: ${assignment['grade']}',
                               style: const TextStyle(
                                   fontSize: 16, color: Colors.grey),
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              'Title: ${assignment['title']}',
+                              'כותרת: ${assignment['title']}',
                               style: const TextStyle(fontSize: 16),
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              'Subject: ${assignment['subject']}',
+                              'נושא: ${assignment['subject']}',
                               style: const TextStyle(fontSize: 16),
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              'Description: ${assignment['description']}',
+                              'פירוט: ${assignment['description']}',
                               style: const TextStyle(fontSize: 16),
                             ),
                             const SizedBox(height: 4),
                             const Text(
-                              'Questions:',
+                              'שאלות:',
                               style: TextStyle(
                                   fontSize: 16, fontWeight: FontWeight.bold),
                             ),
@@ -281,11 +281,11 @@ class SearchDeleteAssignmentSectionState
                                   if (await canLaunchUrl(url)) {
                                     await launchUrl(url);
                                   } else {
-                                    throw 'Could not launch $url';
+                                    throw 'לא היה אפשר לפתוח $url';
                                   }
                                 },
                                 child: Text(
-                                  'Link: ${assignment['link']}',
+                                  'קישור: ${assignment['link']}',
                                   style: const TextStyle(
                                     fontSize: 16,
                                     color: Colors.blue,
@@ -332,7 +332,7 @@ class SearchDeleteAssignmentSectionState
                   _assignments.isEmpty &&
                   _selectedLesson != null)
                 const Text(
-                  'No assignments found for the selected grade.',
+                  'לא נמצא מטלות עבור הכיתה הזאת',
                   style: TextStyle(color: Colors.red),
                 ),
             ],

@@ -52,7 +52,7 @@ class _ManageMaterialState extends State<ManageMaterial> {
       setState(() {
         _isLoading = false;
       });
-      showErrorDialog(context, 'Error fetching content.');
+      showErrorDialog(context, 'שגיאה בטעינת נתונים');
     }
   }
 

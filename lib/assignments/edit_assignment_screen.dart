@@ -84,7 +84,7 @@ class _EditAssignmentScreenState extends State<EditAssignmentScreen> {
 
     if (title.isEmpty || description.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Title and description are required.')),
+        const SnackBar(content: Text('חובה להזין כותרת ופירוט')),
       );
       return;
     }
@@ -106,12 +106,12 @@ class _EditAssignmentScreenState extends State<EditAssignmentScreen> {
       );
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Assignment updated successfully.')),
+        const SnackBar(content: Text('מטלה עודכנה בהצלחה')),
       );
       Navigator.pop(context);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to update assignment: $e')),
+        SnackBar(content: Text(':עדכון מטלה נכשל $e')),
       );
     }
   }
@@ -120,7 +120,7 @@ class _EditAssignmentScreenState extends State<EditAssignmentScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          title: const Text('Edit Assignment'),
+          title: const Text('עריכת מטלה'),
           centerTitle: true,
           flexibleSpace: Container(
             decoration: const BoxDecoration(
@@ -142,7 +142,7 @@ class _EditAssignmentScreenState extends State<EditAssignmentScreen> {
                 margin: const EdgeInsets.only(bottom: 16),
                 color: Colors.redAccent.withValues(alpha: 0.2),
                 child: const Text(
-                  'This assignment cannot be edited because the due date has already passed.',
+                  'אי אפשר לערוך את המטלה הזאת כי עבר מועד הגשה האחרון',
                   style:
                       TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
                 ),
@@ -152,32 +152,32 @@ class _EditAssignmentScreenState extends State<EditAssignmentScreen> {
                 children: [
                   TextField(
                     controller: _titleController,
-                    decoration: const InputDecoration(labelText: 'Title'),
+                    decoration: const InputDecoration(labelText: 'כותרת'),
                     enabled: isEditable,
                   ),
                   const SizedBox(height: 16),
                   TextField(
                     controller: _descriptionController,
-                    decoration: const InputDecoration(labelText: 'Description'),
+                    decoration: const InputDecoration(labelText: 'פירוט'),
                     enabled: isEditable,
                   ),
                   const SizedBox(height: 16),
                   TextField(
                     controller: _subjectController,
-                    decoration: const InputDecoration(labelText: 'Subject'),
+                    decoration: const InputDecoration(labelText: 'נושא'),
                     enabled: isEditable,
                   ),
                   const SizedBox(height: 16),
                   TextField(
                     controller: _linkController,
-                    decoration: const InputDecoration(labelText: 'Link'),
+                    decoration: const InputDecoration(labelText: 'קישור'),
                     enabled: isEditable,
                   ),
                   const SizedBox(height: 16),
                   TextField(
                     controller: _questionsController,
                     decoration: const InputDecoration(
-                        labelText: 'Questions (comma-separated)'),
+                        labelText: 'שאלות (מופרד בפסיק)'),
                     enabled: isEditable,
                   ),
                   const Divider(height: 20, color: Colors.grey),
@@ -185,7 +185,7 @@ class _EditAssignmentScreenState extends State<EditAssignmentScreen> {
                     child: TextField(
                       controller: _notesController,
                       decoration: InputDecoration(
-                        labelText: 'Additional Notes',
+                        labelText: 'הערות נוספות',
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -198,11 +198,11 @@ class _EditAssignmentScreenState extends State<EditAssignmentScreen> {
                   ),
                   const SizedBox(height: 16),
                   ListTile(
-                    title: const Text('Due Date'),
+                    title: const Text('מועד אחרון להגשה'),
                     subtitle: Text(
                       _dueDate != null
                           ? _dueDate!.toLocal().toString().split(' ')[0]
-                          : 'Not set',
+                          : 'לא קבוע',
                     ),
                     trailing: isEditable
                         ? IconButton(
@@ -229,7 +229,7 @@ class _EditAssignmentScreenState extends State<EditAssignmentScreen> {
             ),
             ElevatedButton(
               onPressed: isEditable ? _saveChanges : null,
-              child: const Text('Save Changes'),
+              child: const Text('שמירת שינויים'),
             ),
           ],
         ),

@@ -47,7 +47,7 @@ class _ContentViewState extends State<ContentView> {
         _isLoading = false; // Stop loading even if there is an error
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error fetching blocks: $error')),
+        SnackBar(content: Text(':שגיאה בטעינת נתונים $error')),
       );
     }
   }
@@ -56,7 +56,7 @@ class _ContentViewState extends State<ContentView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          title: const Text('Content'),
+          title: const Text('תוכן'),
           centerTitle: true,
           flexibleSpace: Container(
             decoration: const BoxDecoration(

@@ -58,7 +58,7 @@ class _StudentProgressSummaryViewState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Progress Summary'),
+        title: const Text('סיכום התקדמות'),
         backgroundColor: const Color(0xFF0072FF), // Blue tone
       ),
       body: _isLoading
@@ -79,10 +79,10 @@ class _StudentProgressSummaryViewState
                         child: Padding(
                           padding: const EdgeInsets.all(16.0),
                           child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
                               Text(
-                                'Overall Progress',
+                                'התקדמות כללית',
                                 style: GoogleFonts.roboto(
                                   fontSize: 20,
                                   fontWeight: FontWeight.bold,
@@ -91,19 +91,19 @@ class _StudentProgressSummaryViewState
                               ),
                               const SizedBox(height: 10),
                               Text(
-                                'Total Assignments: $_totalAssignments',
+                                'מספר מטלות: $_totalAssignments',
                                 style: GoogleFonts.roboto(fontSize: 16),
                               ),
                               Text(
-                                'Completed Assignments: $_completedAssignments',
+                                'מטלות שהוגשו: $_completedAssignments',
                                 style: GoogleFonts.roboto(fontSize: 16),
                               ),
                               Text(
-                                'Pending Assignments: $_pendingAssignments',
+                                'מטלות ממתינות: $_pendingAssignments',
                                 style: GoogleFonts.roboto(fontSize: 16),
                               ),
                               Text(
-                                'Average Score: ${_averageScore.toStringAsFixed(1)}',
+                                'ממוצע ציון: ${_averageScore.toStringAsFixed(1)}',
                                 style: GoogleFonts.roboto(fontSize: 16),
                               ),
                             ],
@@ -121,7 +121,7 @@ class _StudentProgressSummaryViewState
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Average Scores by Lesson',
+                              'ממוצע ציונים לפי שיעור',
                               style: GoogleFonts.roboto(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
@@ -142,7 +142,7 @@ class _StudentProgressSummaryViewState
                     const SizedBox(height: 20),
                     // Assignment Completion Chart
                     Text(
-                      'Assignment Completion',
+                      'השלמת מטלות',
                       style: GoogleFonts.roboto(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -158,7 +158,7 @@ class _StudentProgressSummaryViewState
                           sections: [
                             PieChartSectionData(
                               value: _completedAssignments.toDouble(),
-                              title: 'Completed',
+                              title: 'הושלם',
                               color: Colors.blue, // Blue tone
                               radius: 50,
                               titleStyle: GoogleFonts.roboto(
@@ -169,7 +169,7 @@ class _StudentProgressSummaryViewState
                             ),
                             PieChartSectionData(
                               value: _pendingAssignments.toDouble(),
-                              title: 'Pending',
+                              title: 'ממתין',
                               color: Colors.lightBlue, // Light blue
                               radius: 50,
                               titleStyle: GoogleFonts.roboto(
@@ -189,7 +189,7 @@ class _StudentProgressSummaryViewState
                     Column(
                       children: [
                         Text(
-                          'Score Trends Over Time',
+                          'התקדמות ציונים לפי זמן',
                           style: GoogleFonts.roboto(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,

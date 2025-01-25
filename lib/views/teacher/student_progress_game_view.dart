@@ -75,7 +75,7 @@ class StudentProgressGameViewState extends State<StudentProgressGameView> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Student Gmae Progress View',
+          'התקדמות משחק לתלמיד',
           style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
         ),
         centerTitle: true,
@@ -96,7 +96,7 @@ class StudentProgressGameViewState extends State<StudentProgressGameView> {
               controller: _searchController,
               onChanged: _filterStudents,
               decoration: InputDecoration(
-                hintText: 'Search by student name...',
+                hintText: 'חיפוש לפי שם תלמיד',
                 prefixIcon: const Icon(Icons.search),
                 filled: true,
                 fillColor: Colors.white,
@@ -120,7 +120,7 @@ class StudentProgressGameViewState extends State<StudentProgressGameView> {
           if (students.isEmpty) {
             return const Center(
               child: Text(
-                'No students found.',
+                'לא נמצא תלמידים',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.w400),
               ),
             );
@@ -193,32 +193,41 @@ class PaginatedProgressCardState extends State<PaginatedProgressCard> {
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             ListTile(
-              leading: CircleAvatar(
-                backgroundColor: Colors.blueAccent,
-                child: Text(
-                  widget.studentData['name'][0],
-                  style: const TextStyle(color: Colors.white),
-                ),
-              ),
-              title: Text(
-                '${widget.studentData['name']} - Grade ${widget.studentData['grade']}',
-                style: const TextStyle(fontWeight: FontWeight.bold),
+              contentPadding: const EdgeInsets.all(0),
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.end, // Aligns the entire row to the right
+                children: [
+                  Text(
+                    '${widget.studentData['name']} - כיתה ${widget.studentData['grade']}',
+                    textAlign: TextAlign.right,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(width: 8.0), // Add spacing between the text and avatar
+                  CircleAvatar(
+                    backgroundColor: Colors.blueAccent,
+                    child: Text(
+                      widget.studentData['name'][0],
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ],
               ),
             ),
+
             ...currentPageData.map((progress) {
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical: 4.0),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Text('Lesson: ${progress['lesson']}'),
-                    Text('Level: ${progress['level']}'),
-                    Text('Points: ${progress['points']}'),
-                    Text('Right Answers: ${progress['rightAnswers']}'),
-                    Text('Wrong Answers: ${progress['wrongAnswers']}'),
+                    Text('שיעור: ${progress['lesson']}'),
+                    Text('רמה: ${progress['level']}'),
+                    Text('נקודות: ${progress['points']}'),
+                    Text('תשובות נכונות: ${progress['rightAnswers']}'),
+                    Text('תשובות שגויות: ${progress['wrongAnswers']}'),
                   ],
                 ),
               );
@@ -230,7 +239,7 @@ class PaginatedProgressCardState extends State<PaginatedProgressCard> {
                     _currentPage++;
                   });
                 },
-                child: const Text('Show More'),
+                child: const Text('הצג עוד'),
               ),
           ],
         ),

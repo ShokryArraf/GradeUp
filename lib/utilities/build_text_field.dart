@@ -12,6 +12,6 @@ Widget buildTextField(String label, {void Function(String?)? onSaved}) {
     ),
     onSaved: onSaved,
     validator: (value) =>
-        value == null || value.isEmpty ? 'Please enter $label' : null,
+        value == null || value.isEmpty ? 'בבקשה הכנס $label' : null,
   );
 }

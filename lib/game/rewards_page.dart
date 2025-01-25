@@ -88,7 +88,7 @@ class RewardsPageState extends State<RewardsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Student's Rewards"),
+        title: const Text("פרסי התלמיד"),
         flexibleSpace: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
@@ -110,10 +110,10 @@ class RewardsPageState extends State<RewardsPage> {
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               const Text(
-                "Current Rewards",
+                "פרסים נוכחיים",
                 style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
@@ -157,7 +157,7 @@ class RewardsPageState extends State<RewardsPage> {
                             textAlign: TextAlign.center,
                           ),
                           Text(
-                            "Points: $points",
+                            "נקודות: $points",
                             style: const TextStyle(color: Colors.grey),
                             textAlign: TextAlign.center,
                           ),
@@ -169,7 +169,7 @@ class RewardsPageState extends State<RewardsPage> {
               ),
               const SizedBox(height: 20),
               const Text(
-                "Upcoming Rewards",
+                "פרסים עתידיים",
                 style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
@@ -200,7 +200,7 @@ class RewardsPageState extends State<RewardsPage> {
                           fontSize: 18,
                         ),
                       ),
-                      subtitle: Text("Points: ${badge["points"]}"),
+                      subtitle: Text("נקודות: ${badge["points"]}"),
                     ),
                   );
                 },

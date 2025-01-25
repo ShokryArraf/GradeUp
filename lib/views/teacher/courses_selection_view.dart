@@ -29,7 +29,7 @@ class CoursesSelection extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-          title: Text('Courses for Grade $selectedGrade'),
+          title: Text('שיעורים עבור כיתה $selectedGrade'),
           centerTitle: true,
           flexibleSpace: Container(
             decoration: const BoxDecoration(
@@ -108,7 +108,7 @@ class CoursesSelection extends StatelessWidget {
             )
           : const Center(
               child: Text(
-                "No courses available for this grade.",
+                "אין שיעורים עבור הכיתה הזאת",
                 style: TextStyle(color: Colors.red, fontSize: 16),
                 textAlign: TextAlign.center,
               ),

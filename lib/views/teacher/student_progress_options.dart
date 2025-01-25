@@ -18,7 +18,7 @@ class _StudentProgressOptionsState extends State<StudentProgressOptions> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          title: const Text('Student Progress'),
+          title: const Text('התקדמות תלמידים'),
           centerTitle: true,
           flexibleSpace: Container(
             decoration: const BoxDecoration(
@@ -45,7 +45,7 @@ class _StudentProgressOptionsState extends State<StudentProgressOptions> {
                     height: 200,
                     child: buildDashboardCard(
                       Icons.bar_chart,
-                      'Student Progress',
+                      'התקדמות תלמידים',
                       Colors.tealAccent,
                       () {
                         // Navigate to the selection of lesson and grade then go to the student progress.
@@ -66,7 +66,7 @@ class _StudentProgressOptionsState extends State<StudentProgressOptions> {
                     height: 200,
                     child: buildDashboardCard(
                       Icons.star,
-                      'Student Game Progress',
+                      'התקדמות משחק לתלמיד',
                       Colors.deepPurple,
                       () {
                         Navigator.push(

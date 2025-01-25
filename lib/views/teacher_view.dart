@@ -41,20 +41,20 @@ class _TeacherMainViewState extends State<TeacherMainView> {
     } catch (_) {
       await showErrorDialog(
         context,
-        "Failed to load teacher data",
+        "כישלון בטעינת נתוני המורה",
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final displayName = _teacher?.name ?? 'Teacher';
-    final schoolName = _teacher?.school ?? 'School';
+    final displayName = _teacher?.name ?? 'מורה';
+    final schoolName = _teacher?.school ?? 'בית ספר';
 
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Teacher Dashboard',
+          'מסך המורה',
           style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
         ),
         centerTitle: true,
@@ -98,19 +98,19 @@ class _TeacherMainViewState extends State<TeacherMainView> {
             return [
               const PopupMenuItem<MenuAction>(
                 value: MenuAction.logout,
-                child: Text('Log out'),
+                child: Text('יציאה'),
               ),
               const PopupMenuItem<MenuAction>(
                 value: MenuAction.about,
-                child: Text('About App'),
+                child: Text('אודות'),
               ),
               const PopupMenuItem<MenuAction>(
                 value: MenuAction.help,
-                child: Text('Help and Support'),
+                child: Text('עזרה ותמיכה'),
               ),
               const PopupMenuItem<MenuAction>(
                 value: MenuAction.emergency,
-                child: Text('Emergency'),
+                child: Text('חירום'),
               ),
             ];
           })
@@ -170,7 +170,7 @@ class _TeacherMainViewState extends State<TeacherMainView> {
                           ),
                         ),
                         const Text(
-                          'Welcome back!',
+                          'ברוך הבא',
                           style: TextStyle(
                             fontSize: 18,
                             color: Colors.black54,
@@ -184,7 +184,7 @@ class _TeacherMainViewState extends State<TeacherMainView> {
             ),
             const SizedBox(height: 20),
             const Text(
-              'Ready to teach?',
+              '?מוכן ללמד',
               style: TextStyle(fontSize: 16, color: Colors.grey),
             ),
             const SizedBox(height: 30),
@@ -195,7 +195,7 @@ class _TeacherMainViewState extends State<TeacherMainView> {
                 crossAxisSpacing: 16,
                 children: [
                   buildDashboardCard(
-                      Icons.manage_accounts, 'Manage Courses', Colors.blue, () {
+                      Icons.manage_accounts, 'ניהול שיעורים', Colors.blue, () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -205,7 +205,7 @@ class _TeacherMainViewState extends State<TeacherMainView> {
                     );
                   }),
                   buildDashboardCard(
-                      Icons.assignment, 'Assignments', Colors.orange, () {
+                      Icons.assignment, 'מטלות', Colors.orange, () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -215,7 +215,7 @@ class _TeacherMainViewState extends State<TeacherMainView> {
                     );
                   }),
                   buildDashboardCard(
-                      Icons.insights, 'Review Student Progress', Colors.purple,
+                      Icons.insights, 'מעקב התקדמות תלמידים', Colors.purple,
                       () {
                     Navigator.push(
                       context,
@@ -225,7 +225,7 @@ class _TeacherMainViewState extends State<TeacherMainView> {
                       ),
                     );
                   }),
-                  buildDashboardCard(Icons.add, 'Game Editing', Colors.teal,
+                  buildDashboardCard(Icons.add, 'עריכת משחק', Colors.teal,
                       () {
                     Navigator.push(
                       context,

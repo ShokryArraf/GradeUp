@@ -8,9 +8,9 @@ String formatDueDate(dynamic dueDate) {
     } else if (dueDate is DateTime) {
       return DateFormat('yyyy-MM-dd').format(dueDate);
     } else {
-      return 'Invalid date';
+      return 'תאריך לא תקין';
     }
   } catch (_) {
-    return 'Invalid date';
+    return 'תאריך לא תקין';
   }
 }

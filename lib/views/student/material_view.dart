@@ -46,7 +46,7 @@ class _MaterialViewState extends State<MaterialView> {
       setState(() {
         _isLoading = false; // Stop loading even if there is an error
       });
-      showErrorDialog(context, 'Error fetching content.');
+      showErrorDialog(context, 'שגיאת בטעינת תוכן');
     }
   }
 
@@ -73,7 +73,7 @@ class _MaterialViewState extends State<MaterialView> {
           : _contentList.isEmpty // Check if content list is empty
               ? const Center(
                   child: Text(
-                    'No content available.',
+                    'אין תוכן זמין',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -122,7 +122,7 @@ class _MaterialViewState extends State<MaterialView> {
                           child: Center(
                             child: Text(
                               content['title'] ??
-                                  'No Title', // Display content title from Firestore
+                                  'אין כותרת', // Display content title from Firestore
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 20,
