@@ -229,8 +229,7 @@ class _ManageContentState extends State<ManageContent> {
                   _selectedElement = null;
                 });
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                      content: Text('כותרת הוספה בהצלחה')),
+                  const SnackBar(content: Text('כותרת הוספה בהצלחה')),
                 );
                 await _fetchBlocks();
               } catch (_) {
@@ -240,8 +239,7 @@ class _ManageContentState extends State<ManageContent> {
               }
             } else {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                    content: Text('להזין כותרת בבקשה')),
+                const SnackBar(content: Text('להזין כותרת בבקשה')),
               );
             }
           },
@@ -337,8 +335,7 @@ class _ManageContentState extends State<ManageContent> {
                       });
 
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                            content: Text('תמונה הוספה בהצלחה')),
+                        const SnackBar(content: Text('תמונה הוספה בהצלחה')),
                       );
                       await _fetchBlocks();
                     } catch (error) {
@@ -346,8 +343,7 @@ class _ManageContentState extends State<ManageContent> {
                         _isUploading = false; // Reset on error
                       });
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                            content: Text(':שגיאה בהוספת תוכן $error')),
+                        SnackBar(content: Text(':שגיאה בהוספת תוכן $error')),
                       );
                     }
                   } else {
@@ -407,8 +403,7 @@ class _ManageContentState extends State<ManageContent> {
                   _selectedElement = null;
                 });
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                      content: Text('טקסט הוסף בהצלחה')),
+                  const SnackBar(content: Text('טקסט הוסף בהצלחה')),
                 );
                 await _fetchBlocks();
               } catch (_) {
@@ -718,16 +713,16 @@ class _ManageContentState extends State<ManageContent> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Delete Confirmation'),
-          content: const Text('Are you sure you want to delete this?'),
+          title: const Text('אישור למחיקה'),
+          content: const Text('האם אתה בטוח שברצונך למחוק את זה?'),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancel'),
+              child: const Text('ביטול'),
             ),
             TextButton(
               onPressed: () => Navigator.pop(context, true),
-              child: const Text('Delete'),
+              child: const Text('מחוק'),
             ),
           ],
         );
@@ -746,11 +741,11 @@ class _ManageContentState extends State<ManageContent> {
           newData: updatedBlock,
           blockID: id);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Content updated successfully.')),
+        const SnackBar(content: Text('התוכן עודכן בהצלחה.')),
       );
       await _fetchBlocks();
     } catch (_) {
-      showErrorDialog(context, 'Failed to update the content.');
+      showErrorDialog(context, 'עדכון התוכן נכשל.');
     }
   }
 
@@ -765,11 +760,11 @@ class _ManageContentState extends State<ManageContent> {
           blockID: id);
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Content deleted successfully.')),
+        const SnackBar(content: Text('התוכן נמחק בהצלחה.')),
       );
       await _fetchBlocks();
     } catch (_) {
-      showErrorDialog(context, 'Failed to delete the content.');
+      showErrorDialog(context, 'מחיקת התוכן נכשלה.');
     }
   }
 
@@ -779,20 +774,20 @@ class _ManageContentState extends State<ManageContent> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Edit Content'),
+          title: const Text('ערוך תוכן'),
           content: TextField(
             controller: controller,
             maxLines: isText ? 5 : 1, // Larger box for text type
-            decoration: const InputDecoration(labelText: 'New Title'),
+            decoration: const InputDecoration(labelText: 'כותרת חדשה'),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
+              child: const Text('ביטול'),
             ),
             TextButton(
               onPressed: () => Navigator.pop(context, controller.text),
-              child: const Text('Save'),
+              child: const Text('שמירה'),
             ),
           ],
         );

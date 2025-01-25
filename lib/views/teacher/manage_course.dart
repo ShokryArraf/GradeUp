@@ -45,7 +45,7 @@ class _ManageCourseState extends State<ManageCourse> {
         _isLoading = false;
       });
     } catch (error) {
-      showErrorDialog(context, 'Error fetching materials.');
+      showErrorDialog(context, 'שגיאה בהבאת חומרים');
       setState(() {
         _isLoading = false;
       });
@@ -62,11 +62,11 @@ class _ManageCourseState extends State<ManageCourse> {
         updatedFields: updatedTitle,
       );
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Content updated successfully.')),
+        const SnackBar(content: Text('התוכן עודכן בהצלחה')),
       );
       await _fetchAndSetMaterials();
     } catch (_) {
-      showErrorDialog(context, 'Failed to update the content.');
+      showErrorDialog(context, 'עדכון התוכן נכשל');
     }
   }
 
@@ -79,11 +79,11 @@ class _ManageCourseState extends State<ManageCourse> {
         materialID: id,
       );
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Content deleted successfully.')),
+        const SnackBar(content: Text('התוכן נמחק בהצלחה')),
       );
       await _fetchAndSetMaterials();
     } catch (_) {
-      showErrorDialog(context, 'Failed to delete the content.');
+      showErrorDialog(context, 'מחיקת התוכן נכשלה');
     }
   }
 
@@ -91,7 +91,7 @@ class _ManageCourseState extends State<ManageCourse> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Materials Overview'),
+        title: const Text('סקירת חומרים'),
         centerTitle: true,
         flexibleSpace: Container(
           decoration: const BoxDecoration(
@@ -129,7 +129,7 @@ class _ManageCourseState extends State<ManageCourse> {
                   showAddContentBox = false;
                 });
               },
-              child: buildCard('Add Content', Icons.add),
+              child: buildCard('הוסף תוכן', Icons.add),
             )
           : Row(
               children: [
@@ -137,7 +137,7 @@ class _ManageCourseState extends State<ManageCourse> {
                   child: TextField(
                     controller: _titleController,
                     decoration: InputDecoration(
-                      hintText: 'Week 1',
+                      hintText: 'שבוע 1',
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
@@ -147,7 +147,7 @@ class _ManageCourseState extends State<ManageCourse> {
                 const SizedBox(width: 10),
                 ElevatedButton(
                   onPressed: _handleAddContent,
-                  child: const Text('Add'),
+                  child: const Text('הוספה'),
                 ),
                 const SizedBox(width: 10),
                 ElevatedButton(
@@ -157,7 +157,7 @@ class _ManageCourseState extends State<ManageCourse> {
                       _titleController.clear();
                     });
                   },
-                  child: const Text('Cancel'),
+                  child: const Text('ביטול'),
                 ),
               ],
             ),
@@ -170,7 +170,7 @@ class _ManageCourseState extends State<ManageCourse> {
       child: Card(
         color: Colors.teal.shade200,
         child: ListTile(
-          title: Text(content['title'] ?? 'No Title'),
+          title: Text(content['title'] ?? 'אין כותרת'),
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -214,19 +214,19 @@ class _ManageCourseState extends State<ManageCourse> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Edit Content'),
+          title: const Text('ערוך תוכן'),
           content: TextField(
             controller: controller,
-            decoration: const InputDecoration(labelText: 'New Title'),
+            decoration: const InputDecoration(labelText: 'כותרת חדשה'),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
+              child: const Text('ביטול'),
             ),
             TextButton(
               onPressed: () => Navigator.pop(context, controller.text),
-              child: const Text('Save'),
+              child: const Text('שמירה'),
             ),
           ],
         );
@@ -238,7 +238,7 @@ class _ManageCourseState extends State<ManageCourse> {
     final title = _titleController.text.trim();
     if (title.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter a title.')),
+        const SnackBar(content: Text('נא להזין כותרת')),
       );
       return;
     }
@@ -255,7 +255,7 @@ class _ManageCourseState extends State<ManageCourse> {
       });
       await _fetchAndSetMaterials(); // Fixed call to _fetchAndSetMaterials
     } catch (error) {
-      showErrorDialog(context, 'Error adding content.');
+      showErrorDialog(context, 'שגיאה בהוספת תוכן');
     }
   }
 }

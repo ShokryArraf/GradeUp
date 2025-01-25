@@ -68,10 +68,10 @@ class _ManageMaterialState extends State<ManageMaterial> {
       );
       await _fetchContent();
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Content updated successfully!')),
+        const SnackBar(content: Text('התוכן עודכן בהצלחה')),
       );
     } catch (error) {
-      showErrorDialog(context, 'Error updating content.');
+      showErrorDialog(context, 'שגיאה בעדכון התוכן');
     }
   }
 
@@ -86,10 +86,10 @@ class _ManageMaterialState extends State<ManageMaterial> {
       );
       await _fetchContent();
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Content deleted successfully!')),
+        const SnackBar(content: Text('תוכן נמחק בהצלחה')),
       );
     } catch (error) {
-      showErrorDialog(context, 'Error deleting content.');
+      showErrorDialog(context, 'שגיאה במחיקת תוכן');
     }
   }
 
@@ -97,7 +97,7 @@ class _ManageMaterialState extends State<ManageMaterial> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Manage \'${widget.materialTitle}\''),
+        title: Text('לְנַהֵל \'${widget.materialTitle}\''),
         centerTitle: true,
         flexibleSpace: Container(
           decoration: const BoxDecoration(
@@ -135,7 +135,7 @@ class _ManageMaterialState extends State<ManageMaterial> {
                   showAddContentBox = false;
                 });
               },
-              child: buildCard('Add Content', Icons.add),
+              child: buildCard('הוסף תוכן', Icons.add),
             )
           : Row(
               children: [
@@ -143,7 +143,7 @@ class _ManageMaterialState extends State<ManageMaterial> {
                   child: TextField(
                     controller: _titleController,
                     decoration: InputDecoration(
-                      hintText: 'Enter Subject',
+                      hintText: 'הזן נושא',
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
@@ -153,7 +153,7 @@ class _ManageMaterialState extends State<ManageMaterial> {
                 const SizedBox(width: 10),
                 ElevatedButton(
                   onPressed: _handleAddContent,
-                  child: const Text('Add'),
+                  child: const Text('הוספה'),
                 ),
                 const SizedBox(width: 10),
                 ElevatedButton(
@@ -163,7 +163,7 @@ class _ManageMaterialState extends State<ManageMaterial> {
                       _titleController.clear();
                     });
                   },
-                  child: const Text('Cancel'),
+                  child: const Text('ביטול'),
                 ),
               ],
             ),
@@ -176,7 +176,7 @@ class _ManageMaterialState extends State<ManageMaterial> {
       child: Card(
         color: Colors.teal.shade200,
         child: ListTile(
-          title: Text(content['title'] ?? 'No Title'),
+          title: Text(content['title'] ?? 'אין כותרת'),
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -220,19 +220,19 @@ class _ManageMaterialState extends State<ManageMaterial> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Edit Content'),
+          title: const Text('ערוך תוכן'),
           content: TextField(
             controller: controller,
-            decoration: const InputDecoration(labelText: 'New Title'),
+            decoration: const InputDecoration(labelText: 'כותרת חדשה'),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
+              child: const Text('ביטול'),
             ),
             TextButton(
               onPressed: () => Navigator.pop(context, controller.text),
-              child: const Text('Save'),
+              child: const Text('שמירה'),
             ),
           ],
         );
@@ -244,7 +244,7 @@ class _ManageMaterialState extends State<ManageMaterial> {
     final title = _titleController.text.trim();
     if (title.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter a title.')),
+        const SnackBar(content: Text('נא להזין כותרת')),
       );
       return;
     }
@@ -259,8 +259,8 @@ class _ManageMaterialState extends State<ManageMaterial> {
       _titleController.clear();
       showAddContentBox = true;
       await _fetchContent();
-    } catch (error) {
-      showErrorDialog(context, 'Error adding content.');
+    } catch (_) {
+      showErrorDialog(context, 'שגיאה בהוספת תוכן');
     }
   }
 }

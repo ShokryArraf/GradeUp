@@ -172,8 +172,8 @@ class GamePageState extends State<GamePage> {
             Text("!השגת פרס חדש"),
           ],
         ),
-        content: const Text(
-            "!כל הכבוד! השגת פרס על הגעה לאבן דרך לדשה בנקודות"),
+        content:
+            const Text("!כל הכבוד! השגת פרס על הגעה לאבן דרך לדשה בנקודות"),
         actions: [
           TextButton(
             onPressed: () {
@@ -224,8 +224,7 @@ class GamePageState extends State<GamePage> {
       context: context,
       builder: (_) => AlertDialog(
         title: const Text("!הפסדת"),
-        content: const Text(
-            "!הרכב השני הגיע לקו הסיום לפניך. נסה שוב"),
+        content: const Text("!הרכב השני הגיע לקו הסיום לפניך. נסה שוב"),
         actions: [
           TextButton(
             onPressed: () {
@@ -285,8 +284,7 @@ class GamePageState extends State<GamePage> {
       context: context,
       builder: (_) => AlertDialog(
         title: const Text("!משחק הסתיים"),
-        content:
-            const Text("!עברת את כל הרמות בהצלחה! כל הכבוד"),
+        content: const Text("!עברתה את כל הרמות בהצלחה \n !כל הכבוד"),
         actions: [
           TextButton(
             onPressed: () async {

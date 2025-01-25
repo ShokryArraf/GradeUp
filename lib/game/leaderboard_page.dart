@@ -124,7 +124,7 @@ class LeaderboardPageState extends State<LeaderboardPage> {
                           ),
                         ),
                         subtitle: Text(
-                          ':סה"כ נקודות $points',
+                          'סה"כ נקודות :$points',
                           style: const TextStyle(
                             fontSize: 16,
                             color: Color(0xFF777777),

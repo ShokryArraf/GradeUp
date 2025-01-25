@@ -36,6 +36,12 @@ class AboutScreen extends StatelessWidget {
               'GradeUp is an innovative platform that fosters learning and teaching in dynamic environments.',
               style: TextStyle(fontSize: 16),
             ),
+            SizedBox(height: 16),
+            Text(
+              'GradeUp היא פלטפורמה חדשנית המטפחת למידה והוראה בסביבות דינמיות.',
+              style: TextStyle(fontSize: 16),
+              textDirection: TextDirection.rtl,
+            ),
           ],
         ),
       ),

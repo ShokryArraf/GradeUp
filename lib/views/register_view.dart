@@ -16,10 +16,14 @@ class _RegisterViewState extends State<RegisterView> {
   late final TextEditingController _email;
   late final TextEditingController _password;
   late final TextEditingController _fullName;
+  late final TextEditingController _newSchoolController;
+
   String _role = 'Student'; // Default role
   int _selectedGrade = 1; // Default grade for students
   String _selectedSchool = 'Braude High School'; // Default school
   final Set<String> _selectedLessons = {}; // Selected lessons for students
+  // List of available schools
+  final List<String> _availableSchools = [];
   final Map<String, Set<int>> _lessonGradeMap =
       {}; // Map lesson to grades for teachers
 
@@ -33,11 +37,20 @@ class _RegisterViewState extends State<RegisterView> {
     'chemistry',
   ];
 
-  // List of available schools
-  final List<String> _availableSchools = [
-    'Braude High School',
-    'Noterdame High School',
-  ];
+  void _fetchSchoolsFromFirestore() async {
+    final schoolsCollection = FirebaseFirestore.instance.collection('schools');
+    final querySnapshot = await schoolsCollection.get();
+
+    setState(() {
+      for (var doc in querySnapshot.docs) {
+        final schoolName = doc['name'] as String?;
+        if (schoolName != null && !_availableSchools.contains(schoolName)) {
+          _availableSchools.add(schoolName);
+        }
+      }
+      _availableSchools.sort(); // Sort alphabetically
+    });
+  }
 
   @override
   void initState() {
@@ -45,6 +58,8 @@ class _RegisterViewState extends State<RegisterView> {
     _email = TextEditingController();
     _password = TextEditingController();
     _fullName = TextEditingController();
+    _newSchoolController = TextEditingController();
+    _fetchSchoolsFromFirestore(); // Fetch schools during initialization
   }
 
   @override
@@ -52,6 +67,7 @@ class _RegisterViewState extends State<RegisterView> {
     _email.dispose();
     _password.dispose();
     _fullName.dispose();
+    _newSchoolController.dispose();
     super.dispose();
   }
 
@@ -162,16 +178,14 @@ class _RegisterViewState extends State<RegisterView> {
                     // Email Input
                     TextField(
                       controller: _email,
-                      decoration:
-                          const InputDecoration(hintText: 'הכנס דוא"ל'),
+                      decoration: const InputDecoration(hintText: 'הכנס דוא"ל'),
                     ),
                     const SizedBox(height: 8),
                     // Password Input
                     TextField(
                       controller: _password,
                       obscureText: true,
-                      decoration: const InputDecoration(
-                          hintText: 'הכנס סיסמא'),
+                      decoration: const InputDecoration(hintText: 'הכנס סיסמא'),
                     ),
                     const SizedBox(height: 16),
                     // Role Selection Dropdown
@@ -207,6 +221,47 @@ class _RegisterViewState extends State<RegisterView> {
                         });
                       },
                     ),
+                    const SizedBox(height: 16),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        TextField(
+                          controller: _newSchoolController,
+                          decoration: const InputDecoration(
+                            hintText: 'הכנס שם בית ספר חדש',
+                            hintTextDirection:
+                                TextDirection.rtl, // Hint text direction
+                          ),
+                          textDirection: TextDirection
+                              .rtl, // Right-to-left text direction for typing
+                        ),
+                        const SizedBox(height: 8),
+                        ElevatedButton(
+                          onPressed: () {
+                            final newSchool = _newSchoolController.text.trim();
+                            if (newSchool.isNotEmpty &&
+                                !_availableSchools.contains(newSchool)) {
+                              setState(() {
+                                _availableSchools.add(newSchool);
+                                _selectedSchool =
+                                    newSchool; // Automatically select the new school
+                              });
+
+                              // Add the new school to Firestore
+                              FirebaseFirestore.instance
+                                  .collection('schools')
+                                  .doc(newSchool)
+                                  .set({
+                                'exists': true, // Placeholder field
+                                'name': newSchool,
+                              });
+                            }
+                          },
+                          child: const Text('הוסף בית ספר חדש'),
+                        ),
+                      ],
+                    ),
+
                     const SizedBox(height: 16),
                     // Student-Specific Input
                     if (_role == 'Student') ...[

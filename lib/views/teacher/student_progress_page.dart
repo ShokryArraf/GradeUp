@@ -158,7 +158,7 @@ class StudentProgressPage extends StatelessWidget {
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
-                                  'Completed ${student['completed']} of ${student['total']} assignments',
+                                  'הושלם ${student['completed']} מ- ${student['total']} מטלות',
                                   style: const TextStyle(fontSize: 14),
                                 ),
                                 const SizedBox(height: 8),
@@ -175,7 +175,7 @@ class StudentProgressPage extends StatelessWidget {
                                       MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(
-                                      'Progress: ${(progress * 100).toStringAsFixed(1)}%',
+                                      'הִתקַדְמוּת: ${(progress * 100).toStringAsFixed(1)}%',
                                       style: const TextStyle(
                                         fontSize: 14,
                                         color: Colors.grey,

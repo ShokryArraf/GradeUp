@@ -123,8 +123,7 @@ class GameEditingViewState extends State<GameEditingView> {
     if (!answerOptions.contains(correctAnswer)) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-            content: Text(
-                'חובה להזין תשובה נכונה לפי אחד האופציות')),
+            content: Text('חובה להזין תשובה נכונה לפי אחד האופציות')),
       );
       return false;
     }
@@ -139,7 +138,8 @@ class GameEditingViewState extends State<GameEditingView> {
     // Check if all options are unique
     if (!areOptionsUnique(answerOptions)) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("כל תשובה חייבת להיות שונה מהתשובות האחרות")),
+        const SnackBar(
+            content: Text("כל תשובה חייבת להיות שונה מהתשובות האחרות")),
       );
       return false;
     }
@@ -152,8 +152,7 @@ class GameEditingViewState extends State<GameEditingView> {
     if (!flag) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-            content: Text(
-                'חובה להזין תשובה נכונה לפי אחד האופציות')),
+            content: Text('חובה להזין תשובה נכונה לפי אחד האופציות')),
       );
       return false;
     }
@@ -192,8 +191,7 @@ class GameEditingViewState extends State<GameEditingView> {
         _fetchQuestions();
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text('מקסימום 6 שאלות לכל רמה')),
+          const SnackBar(content: Text('מקסימום 6 שאלות לכל רמה')),
         );
       }
     }
@@ -245,9 +243,7 @@ class GameEditingViewState extends State<GameEditingView> {
               .toList();
 
           if (!areLessonGradeValid(lesson, grade)) {
-            CustomDialog.show(
-                context,
-                "אתה לא מלמד את השיעור/כיתה שהכנסת",
+            CustomDialog.show(context, "אתה לא מלמד את השיעור/כיתה שהכנסת",
                 "ולידציה נכשלה עד השורה ${i + 1}. רק שורות עד שורה $lastValidRow בוצעו.");
             return;
           }
@@ -403,12 +399,28 @@ class GameEditingViewState extends State<GameEditingView> {
                                 controller:
                                     TextEditingController(text: _selectedLevel),
                                 onChanged: (value) {
-                                  setState(() {
-                                    _selectedLevel = value;
-                                    _questions = [];
-                                  });
-                                  if (levels.contains(value)) {
-                                    _fetchQuestions();
+                                  if (RegExp(r'^\d+$').hasMatch(value)) {
+                                    // Valid input (numeric)
+                                    setState(() {
+                                      _selectedLevel = value;
+                                      _questions = [];
+                                      _fetchQuestions();
+                                    });
+                                  } else {
+                                    // Invalid input (non-numeric)
+                                    setState(() {
+                                      _selectedLevel = '';
+                                    });
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                          'רמות חייבות להיות מספרים בלבד,נסה שוב',
+                                          style: TextStyle(color: Colors.white),
+                                        ),
+                                        backgroundColor: Colors.red,
+                                        duration: Duration(seconds: 2),
+                                      ),
+                                    );
                                   }
                                 },
                                 decoration: InputDecoration(
@@ -424,7 +436,7 @@ class GameEditingViewState extends State<GameEditingView> {
                               Text(
                                 levels.isNotEmpty
                                     ? 'רמות קיימות: ${levels.join(', ')}'
-                                    : 'איו רמות קיימות. צור רמה חדשה',
+                                    : 'אין רמות קיימות. צור רמה חדשה',
                                 style: TextStyle(
                                   color: Colors.grey[600],
                                   fontSize: 14,
@@ -442,6 +454,7 @@ class GameEditingViewState extends State<GameEditingView> {
                           );
                         },
                       ),
+
                     const SizedBox(height: 10),
                     // Display Questions
                     if (_questions.isNotEmpty)
@@ -453,8 +466,7 @@ class GameEditingViewState extends State<GameEditingView> {
                           return ListTile(
                             title: Text(
                                 question['questionText'] ?? 'אין תוכן שאלה'),
-                            subtitle:
-                                Text('רמה: ${question['questionLevel']}'),
+                            subtitle: Text('רמה: ${question['questionLevel']}'),
                             trailing: IconButton(
                               icon: const Icon(Icons.delete, color: Colors.red),
                               onPressed: () => _deleteQuestion(question['id']),

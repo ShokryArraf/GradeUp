@@ -90,14 +90,6 @@ class _AssignmentManageOptionsState extends State<AssignmentManageOptions> {
                   'הצגת מטלות מוגשות',
                   Colors.blue,
                   () {
-                    // Navigator.push(
-                    //   context,
-                    //   MaterialPageRoute(
-                    //     builder: (context) => ViewSubmittedAssignmentsView(
-                    //       teacher: widget.teacher,
-                    //     ),
-                    //   ),
-                    // );
                     Navigator.push(
                       context,
                       MaterialPageRoute(

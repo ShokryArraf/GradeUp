@@ -90,8 +90,7 @@ class CreateAssignmentViewState extends State<CreateAssignmentView> {
         );
 
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text('מטלה נוצרה והועברה לתלמידים')),
+          const SnackBar(content: Text('מטלה נוצרה והועברה לתלמידים')),
         );
         Navigator.pop(context);
       } catch (e) {
@@ -257,8 +256,7 @@ class CreateAssignmentViewState extends State<CreateAssignmentView> {
                       _selectedGrade = value;
                     });
                   },
-                  validator: (value) =>
-                      value == null ? 'בחר כיתה בבקשה' : null,
+                  validator: (value) => value == null ? 'בחר כיתה בבקשה' : null,
                 )
               else
                 const Center(
@@ -278,9 +276,8 @@ class CreateAssignmentViewState extends State<CreateAssignmentView> {
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-                validator: (value) => value == null || value.isEmpty
-                    ? 'להזין כותרת בבקשה'
-                    : null,
+                validator: (value) =>
+                    value == null || value.isEmpty ? 'להזין כותרת בבקשה' : null,
               ),
               const SizedBox(height: 16),
               TextFormField(
@@ -292,23 +289,21 @@ class CreateAssignmentViewState extends State<CreateAssignmentView> {
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-                validator: (value) => value == null || value.isEmpty
-                    ? 'להזין נושא בבקשה'
-                    : null,
+                validator: (value) =>
+                    value == null || value.isEmpty ? 'להזין נושא בבקשה' : null,
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _descriptionController,
                 maxLines: 2,
                 decoration: InputDecoration(
-                  labelText: 'Assignment Description',
+                  labelText: 'תיאור המטלה',
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-                validator: (value) => value == null || value.isEmpty
-                    ? 'Please enter a description'
-                    : null,
+                validator: (value) =>
+                    value == null || value.isEmpty ? 'להזין תיאור בבקשה' : null,
               ),
               const SizedBox(height: 16),
               TextFormField(
@@ -322,9 +317,8 @@ class CreateAssignmentViewState extends State<CreateAssignmentView> {
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-                validator: (value) => value == null || value.isEmpty
-                    ? 'להזין שאלות בבקשה'
-                    : null,
+                validator: (value) =>
+                    value == null || value.isEmpty ? 'להזין שאלות בבקשה' : null,
               ),
               const SizedBox(height: 16),
               TextFormField(

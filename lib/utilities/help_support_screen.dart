@@ -24,16 +24,12 @@ class HelpSupportScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Frequently Asked Questions',
+              'שאלות נפוצות',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 16),
             Text(
-              '1. How can I contact support?\nSend an email to support@gradeup.com.',
-            ),
-            SizedBox(height: 16),
-            Text(
-              '2. Where can I find tutorials?\nVisit the Tutorials section in the app menu.',
+              '1. כיצד אוכל ליצור קשר עם התמיכה?\n שליחת אימייל לכתובת\nsupport@gradeup.com.',
             ),
           ],
         ),

@@ -104,8 +104,7 @@ class _LoginViewState extends State<LoginView> {
                     final schoolName = parts?[2];
 
                     if (schoolName == null) {
-                      await showErrorDialog(
-                          context, "מידע הבית ספר חסרה");
+                      await showErrorDialog(context, "מידע הבית ספר חסרה");
                       return;
                     }
 
@@ -147,7 +146,7 @@ class _LoginViewState extends State<LoginView> {
                   } else {
                     await showErrorDialog(
                       context,
-                      ':שגיאה ${e.code}',
+                      'תכניס אימיל וסיסמא מתאימים',
                     );
                   }
                 } catch (e) {
