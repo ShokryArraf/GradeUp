@@ -44,7 +44,7 @@ flutter run
 Adding AI-based adaptive learning features.
 Introducing multilingual support for global accessibility.
 ## License
-This project is licensed under the MIT License. See the LICENSE file for details.
+This project is licensed under the MIT License.
 
 ## Contributing
 Contributions are welcome! Please fork the repository and create a pull request for any changes or additions.
