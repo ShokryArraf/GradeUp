@@ -3,15 +3,22 @@ GradeUp is an innovative educational platform designed to transform traditional 
 
 ## Features
 For Students:
+
 Gamified Learning: Badges, rewards, and leaderboards to make learning fun and engaging.
 Personalized Progress Tracking: Real-time feedback and progress updates to stay on track.
+
 Interactive Lessons: Modules tailored to different learning styles and preferences.
+
 For Teachers:
+
 Lesson Management: Tools to create, customize, and manage lesson plans effectively.
 Progress Monitoring: Real-time analytics to track student performance and provide targeted feedback.
+
 Collaborative Learning: Features to support group discussions and projects, even in virtual settings.
+
 Emergency Readiness:
 Continuity of Education: Ensures learning remains accessible during crises like strikes or conflicts.
+
 Cloud-Based Stability: Reliable and scalable platform for uninterrupted education.
 ## Technologies Used
  Flutter: For cross-platform mobile app development.
