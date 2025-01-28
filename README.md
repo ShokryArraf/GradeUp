@@ -13,13 +13,12 @@ Collaborative Learning: Features to support group discussions and projects, even
 Emergency Readiness:
 Continuity of Education: Ensures learning remains accessible during crises like strikes or conflicts.
 Cloud-Based Stability: Reliable and scalable platform for uninterrupted education.
-### Technologies Used
-Flutter: For cross-platform mobile app development.
-Firebase: Used for authentication, Firestore database management, and real-time data synchronization.
-Gamification Tools: Features like badges, rewards, and leaderboards to enhance engagement.
-#### Development Process
-Research & Planning:
-
+## Technologies Used
+### Flutter: For cross-platform mobile app development.
+### Firebase: Used for authentication, Firestore database management, and real-time data synchronization.
+### Gamification Tools: Features like badges, rewards, and leaderboards to enhance engagement.
+## Development Process
+### Research & Planning:
 Conducted literature reviews on gamification, ADHD-friendly methods, and emergency education.
 Analyzed competitors to identify gaps in existing platforms.
 Held interviews and surveys with teachers and students to prioritize features.
@@ -32,19 +31,17 @@ Testing:
 
 Iteratively tested features with educators and students for usability and performance.
 Enhanced platform reliability to withstand emergencies.
-##### Installation and Setup
+## Installation and Setup
 git clone https://github.com/ShokryArraf/GradeUp
 cd gradeup
 flutter pub get
 flutter run
 
-###### Firestore Structure
-
-###### Future Enhancements
+## Future Enhancements
 Adding AI-based adaptive learning features.
 Introducing multilingual support for global accessibility.
-###### License
+## License
 This project is licensed under the MIT License. See the LICENSE file for details.
 
-###### Contributing
+## Contributing
 Contributions are welcome! Please fork the repository and create a pull request for any changes or additions.
