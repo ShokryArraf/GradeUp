@@ -14,9 +14,9 @@ Emergency Readiness:
 Continuity of Education: Ensures learning remains accessible during crises like strikes or conflicts.
 Cloud-Based Stability: Reliable and scalable platform for uninterrupted education.
 ## Technologies Used
-### Flutter: For cross-platform mobile app development.
-### Firebase: Used for authentication, Firestore database management, and real-time data synchronization.
-### Gamification Tools: Features like badges, rewards, and leaderboards to enhance engagement.
+ Flutter: For cross-platform mobile app development.
+ Firebase: Used for authentication, Firestore database management, and real-time data synchronization.
+ Gamification Tools: Features like badges, rewards, and leaderboards to enhance engagement.
 ## Development Process
 ### Research & Planning:
 Conducted literature reviews on gamification, ADHD-friendly methods, and emergency education.
@@ -33,8 +33,11 @@ Iteratively tested features with educators and students for usability and perfor
 Enhanced platform reliability to withstand emergencies.
 ## Installation and Setup
 git clone https://github.com/ShokryArraf/GradeUp
+
 cd gradeup
+
 flutter pub get
+
 flutter run
 
 ## Future Enhancements
