@@ -90,8 +90,8 @@ class SubmissionDetailsPageState extends State<SubmissionDetailsPage> {
               ),
               const SizedBox(height: 20),
               // Status & Submission Date
-              buildDetailCard('סטטוס', _status ?? 'לא הוגש',
-                  Icons.assignment, Colors.blue),
+              buildDetailCard(
+                  'סטטוס', _status ?? 'לא הוגש', Icons.assignment, Colors.blue),
               buildDetailCard('מועד אחרון להגשה', _dueDate ?? 'לא ידוע',
                   Icons.calendar_today, Colors.orange),
 
@@ -124,8 +124,8 @@ class SubmissionDetailsPageState extends State<SubmissionDetailsPage> {
 
               // Additional Input
               if (_additionalInput != null && _additionalInput!.isNotEmpty)
-                buildDetailCard('הערות נוספות', _additionalInput!,
-                    Icons.notes, Colors.purple),
+                buildDetailCard('הערות נוספות', _additionalInput!, Icons.notes,
+                    Colors.purple),
 
               const SizedBox(height: 20),
 
@@ -137,7 +137,7 @@ class SubmissionDetailsPageState extends State<SubmissionDetailsPage> {
 
               // Review
               if (_review != null && _teacherReview != null)
-                buildDetailCard('מורה $_teacherReview Review', _review!,
+                buildDetailCard('מורה $_teacherReview ', _review!,
                     Icons.reviews, Colors.grey),
 
               const SizedBox(height: 20),

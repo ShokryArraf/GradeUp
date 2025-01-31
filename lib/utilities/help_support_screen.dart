@@ -5,8 +5,10 @@ class HelpSupportScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
+        appBar: AppBar(
           title: const Text('עזרה ותמיכה'),
           centerTitle: true,
           flexibleSpace: Container(
@@ -17,21 +19,23 @@ class HelpSupportScreen extends StatelessWidget {
                 end: Alignment.bottomRight,
               ),
             ),
-          )),
-      body: const Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'שאלות נפוצות',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 16),
-            Text(
-              '1. כיצד אוכל ליצור קשר עם התמיכה?\n שליחת אימייל לכתובת\nsupport@gradeup.com.',
-            ),
-          ],
+          ),
+        ),
+        body: const Padding(
+          padding: EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'שאלות נפוצות',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 16),
+              Text(
+                '1. כיצד אוכל ליצור קשר עם התמיכה?\nשליחת אימייל לכתובת\nsupport@gradeup.com.',
+              ),
+            ],
+          ),
         ),
       ),
     );

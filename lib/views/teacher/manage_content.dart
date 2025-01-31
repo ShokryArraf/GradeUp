@@ -542,16 +542,202 @@ class _ManageContentState extends State<ManageContent> {
     );
   }
 
+  // Widget buildContentCard(Map<String, dynamic> element) {
+  //   switch (element['type']) {
+  //     case 'title':
+  //       return ListTile(
+  //         title: Text(
+  //           element['data'],
+  //           style: const TextStyle(
+  //               fontSize: 24,
+  //               fontWeight: FontWeight.bold,
+  //               decoration: TextDecoration.underline),
+  //         ),
+  //         trailing: Row(
+  //           mainAxisSize: MainAxisSize.min,
+  //           children: [
+  //             IconButton(
+  //               icon: const Icon(Icons.edit),
+  //               onPressed: () async {
+  //                 final newTitle = await _showEditDialog(element['data']);
+  //                 if (newTitle != null) {
+  //                   await _editBlock(element['id'], newTitle);
+  //                 }
+  //               },
+  //             ),
+  //             IconButton(
+  //               icon: const Icon(
+  //                 Icons.delete,
+  //                 color: Colors.red,
+  //               ),
+  //               onPressed: () async {
+  //                 final shouldDelete = await _showDeleteConfirmationDialog();
+  //                 if (shouldDelete == true) {
+  //                   _deleteBlock(element['id']);
+  //                 }
+  //               },
+  //             ),
+  //           ],
+  //         ),
+  //       );
+  //     case 'image': // Handle image type
+  //       return buildImage(element);
+  //     case 'text':
+  //       return ListTile(
+  //         title: Text(element['data']),
+  //         trailing: Row(
+  //           mainAxisSize: MainAxisSize.min,
+  //           children: [
+  //             IconButton(
+  //               icon: const Icon(Icons.edit),
+  //               onPressed: () async {
+  //                 final newTitle =
+  //                     await _showEditDialog(element['data'], isText: true);
+  //                 if (newTitle != null) {
+  //                   await _editBlock(element['id'], newTitle);
+  //                 }
+  //               },
+  //             ),
+  //             IconButton(
+  //               icon: const Icon(
+  //                 Icons.delete,
+  //                 color: Colors.red,
+  //               ),
+  //               onPressed: () async {
+  //                 final shouldDelete = await _showDeleteConfirmationDialog();
+  //                 if (shouldDelete == true) {
+  //                   _deleteBlock(element['id']);
+  //                 }
+  //               },
+  //             ),
+  //           ],
+  //         ),
+  //       );
+
+  //     case 'pdf': // Handle PDF type
+  //       return ListTile(
+  //         leading: const Icon(Icons.picture_as_pdf, color: Colors.red),
+  //         title: Text(element['filename'] ?? 'No filename available'),
+  //         trailing: Row(
+  //           mainAxisSize: MainAxisSize
+  //               .min, // Ensure the trailing icons don't take up excessive space
+  //           children: [
+  //             IconButton(
+  //               icon: const Icon(Icons.open_in_new),
+  //               onPressed: () => openFile(element['data']),
+  //             ),
+  //             IconButton(
+  //               icon: const Icon(Icons.delete, color: Colors.red),
+  //               onPressed: () async {
+  //                 final shouldDelete = await _showDeleteConfirmationDialog();
+  //                 if (shouldDelete == true) {
+  //                   _deleteBlock(element['id']);
+  //                 }
+  //               },
+  //             ),
+  //           ],
+  //         ),
+  //       );
+
+  //     //Handle Word file type
+  //     case 'doc':
+  //     case 'docx':
+  //       return ListTile(
+  //         leading: const Icon(Icons.description, color: Colors.blue),
+  //         title: Text(element['filename'] ?? 'No filename available'),
+  //         trailing: Row(
+  //           mainAxisSize: MainAxisSize
+  //               .min, // Ensure the trailing icons don't take up excessive space
+  //           children: [
+  //             IconButton(
+  //               icon: const Icon(Icons.open_in_new),
+  //               onPressed: () => openFile(element['data']),
+  //             ),
+  //             IconButton(
+  //               icon: const Icon(Icons.delete, color: Colors.red),
+  //               onPressed: () async {
+  //                 final shouldDelete = await _showDeleteConfirmationDialog();
+  //                 if (shouldDelete == true) {
+  //                   _deleteBlock(element['id']);
+  //                 }
+  //               },
+  //             ),
+  //           ],
+  //         ),
+  //       );
+  //     case 'link': // Handle link type
+  //       final url = element['data'];
+  //       if (url == null || url.isEmpty) {
+  //         return const Text(
+  //           'Invalid URL',
+  //           style: TextStyle(color: Colors.red),
+  //         );
+  //       }
+  //       return Row(
+  //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //         children: [
+  //           Expanded(
+  //             child: GestureDetector(
+  //               onTap: () async {
+  //                 final uri = Uri.parse(url);
+  //                 if (await canLaunchUrl(uri)) {
+  //                   await launchUrl(uri, mode: LaunchMode.externalApplication);
+  //                 }
+  //               },
+  //               child: Text(
+  //                 url,
+  //                 style: const TextStyle(
+  //                     color: Colors.blue, decoration: TextDecoration.underline),
+  //                 overflow: TextOverflow.ellipsis, // Prevent overflow
+  //               ),
+  //             ),
+  //           ),
+  //           IconButton(
+  //             icon: const Icon(
+  //               Icons.delete,
+  //               color: Colors.red,
+  //             ),
+  //             onPressed: () async {
+  //               final shouldDelete = await _showDeleteConfirmationDialog();
+  //               if (shouldDelete == true) {
+  //                 _deleteBlock(element['id']);
+  //               }
+  //             },
+  //           ),
+  //         ],
+  //       );
+  //     default:
+  //       return const SizedBox.shrink();
+  //   }
+  // }
+
+  bool isHebrew(String text) {
+    final hebrewRegex = RegExp(r'[\u0590-\u05FF]'); // Hebrew Unicode range
+    return hebrewRegex.hasMatch(text);
+  }
+
   Widget buildContentCard(Map<String, dynamic> element) {
+    String? textData = element['data'];
+    String? fileName = element['filename'];
+    bool useRTL = textData != null && isHebrew(textData);
+
+    Widget buildTextWidget(String text, {TextStyle? style}) {
+      return Directionality(
+        textDirection: useRTL ? TextDirection.rtl : TextDirection.ltr,
+        child: Text(text, style: style),
+      );
+    }
+
     switch (element['type']) {
       case 'title':
         return ListTile(
-          title: Text(
-            element['data'],
+          title: buildTextWidget(
+            textData!,
             style: const TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                decoration: TextDecoration.underline),
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              decoration: TextDecoration.underline,
+            ),
           ),
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
@@ -559,72 +745,11 @@ class _ManageContentState extends State<ManageContent> {
               IconButton(
                 icon: const Icon(Icons.edit),
                 onPressed: () async {
-                  final newTitle = await _showEditDialog(element['data']);
+                  final newTitle = await _showEditDialog(textData);
                   if (newTitle != null) {
                     await _editBlock(element['id'], newTitle);
                   }
                 },
-              ),
-              IconButton(
-                icon: const Icon(
-                  Icons.delete,
-                  color: Colors.red,
-                ),
-                onPressed: () async {
-                  final shouldDelete = await _showDeleteConfirmationDialog();
-                  if (shouldDelete == true) {
-                    _deleteBlock(element['id']);
-                  }
-                },
-              ),
-            ],
-          ),
-        );
-      case 'image': // Handle image type
-        return buildImage(element);
-      case 'text':
-        return ListTile(
-          title: Text(element['data']),
-          trailing: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              IconButton(
-                icon: const Icon(Icons.edit),
-                onPressed: () async {
-                  final newTitle =
-                      await _showEditDialog(element['data'], isText: true);
-                  if (newTitle != null) {
-                    await _editBlock(element['id'], newTitle);
-                  }
-                },
-              ),
-              IconButton(
-                icon: const Icon(
-                  Icons.delete,
-                  color: Colors.red,
-                ),
-                onPressed: () async {
-                  final shouldDelete = await _showDeleteConfirmationDialog();
-                  if (shouldDelete == true) {
-                    _deleteBlock(element['id']);
-                  }
-                },
-              ),
-            ],
-          ),
-        );
-
-      case 'pdf': // Handle PDF type
-        return ListTile(
-          leading: const Icon(Icons.picture_as_pdf, color: Colors.red),
-          title: Text(element['filename'] ?? 'No filename available'),
-          trailing: Row(
-            mainAxisSize: MainAxisSize
-                .min, // Ensure the trailing icons don't take up excessive space
-            children: [
-              IconButton(
-                icon: const Icon(Icons.open_in_new),
-                onPressed: () => openFile(element['data']),
               ),
               IconButton(
                 icon: const Icon(Icons.delete, color: Colors.red),
@@ -638,20 +763,69 @@ class _ManageContentState extends State<ManageContent> {
             ],
           ),
         );
-
-      //Handle Word file type
+      case 'image':
+        return buildImage(element);
+      case 'text':
+        return ListTile(
+          title: buildTextWidget(textData!),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.edit),
+                onPressed: () async {
+                  final newText = await _showEditDialog(textData, isText: true);
+                  if (newText != null) {
+                    await _editBlock(element['id'], newText);
+                  }
+                },
+              ),
+              IconButton(
+                icon: const Icon(Icons.delete, color: Colors.red),
+                onPressed: () async {
+                  final shouldDelete = await _showDeleteConfirmationDialog();
+                  if (shouldDelete == true) {
+                    _deleteBlock(element['id']);
+                  }
+                },
+              ),
+            ],
+          ),
+        );
+      case 'pdf':
+        return ListTile(
+          leading: const Icon(Icons.picture_as_pdf, color: Colors.red),
+          title: buildTextWidget(fileName ?? 'No filename available'),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.open_in_new),
+                onPressed: () => openFile(textData!),
+              ),
+              IconButton(
+                icon: const Icon(Icons.delete, color: Colors.red),
+                onPressed: () async {
+                  final shouldDelete = await _showDeleteConfirmationDialog();
+                  if (shouldDelete == true) {
+                    _deleteBlock(element['id']);
+                  }
+                },
+              ),
+            ],
+          ),
+        );
       case 'doc':
       case 'docx':
         return ListTile(
           leading: const Icon(Icons.description, color: Colors.blue),
-          title: Text(element['filename'] ?? 'No filename available'),
+          title: buildTextWidget(fileName ?? 'No filename available'),
           trailing: Row(
-            mainAxisSize: MainAxisSize
-                .min, // Ensure the trailing icons don't take up excessive space
+            mainAxisSize: MainAxisSize.min,
             children: [
               IconButton(
                 icon: const Icon(Icons.open_in_new),
-                onPressed: () => openFile(element['data']),
+                onPressed: () => openFile(textData!),
               ),
               IconButton(
                 icon: const Icon(Icons.delete, color: Colors.red),
@@ -665,13 +839,11 @@ class _ManageContentState extends State<ManageContent> {
             ],
           ),
         );
-      case 'link': // Handle link type
-        final url = element['data'];
+      case 'link':
+        final url = textData;
         if (url == null || url.isEmpty) {
-          return const Text(
-            'Invalid URL',
-            style: TextStyle(color: Colors.red),
-          );
+          return buildTextWidget('Invalid URL',
+              style: const TextStyle(color: Colors.red));
         }
         return Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -688,12 +860,12 @@ class _ManageContentState extends State<ManageContent> {
                   url,
                   style: const TextStyle(
                       color: Colors.blue, decoration: TextDecoration.underline),
-                  overflow: TextOverflow.ellipsis, // Prevent overflow
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ),
             IconButton(
-              icon: const Icon(Icons.delete),
+              icon: const Icon(Icons.delete, color: Colors.red),
               onPressed: () async {
                 final shouldDelete = await _showDeleteConfirmationDialog();
                 if (shouldDelete == true) {

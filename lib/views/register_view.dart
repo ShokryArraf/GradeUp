@@ -137,10 +137,10 @@ class _RegisterViewState extends State<RegisterView> {
       } else if (e.code == 'invalid-email') {
         await showErrorDialog(context, '.דוא"ל לא תקין');
       } else {
-        await showErrorDialog(context, 'שגיאה: ${e.message}');
+        await showErrorDialog(context, 'נסה שוב בבקשה');
       }
-    } catch (e) {
-      await showErrorDialog(context, 'שגיאה: $e');
+    } catch (_) {
+      await showErrorDialog(context, 'נסה שוב בבקשה');
     }
   }
 
