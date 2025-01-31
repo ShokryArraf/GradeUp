@@ -53,5 +53,8 @@ Introducing multilingual support for global accessibility.
 ## License
 This project is licensed under the MIT License.
 
+## Try the APP(install via apk)
+Click on this link:https://drive.google.com/file/d/1inPV_RoFrHcHVvOyrdkg1lb1OTxk79lt/view?usp=sharing
+
 ## Contributing
 Contributions are welcome! Please fork the repository and create a pull request for any changes or additions.
